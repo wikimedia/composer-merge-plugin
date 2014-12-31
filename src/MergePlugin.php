@@ -69,27 +69,27 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
     /**
      * @var Composer $composer
      */
-    protected $composer;
+    private $composer;
 
     /**
      * @var IOInterface $inputOutput
      */
-    protected $inputOutput;
+    private $inputOutput;
 
     /**
      * @var ArrayLoader $loader
      */
-    protected $loader;
+    private $loader;
 
     /**
      * @var array $duplicateLinks
      */
-    protected $duplicateLinks;
+    private $duplicateLinks;
 
     /**
      * @var bool $devMode
      */
-    protected $devMode;
+    private $devMode;
 
     /**
      * {@inheritdoc}
@@ -137,7 +137,7 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
      * @param RootPackageInterface $package
      * @return array
      */
-    protected function readConfig(RootPackageInterface $package)
+    private function readConfig(RootPackageInterface $package)
     {
         $config = array(
             'include' => array(),
@@ -158,7 +158,7 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
      *
      * @param array $config
      */
-    protected function mergePackages(array $config)
+    private function mergePackages(array $config)
     {
         $root = $this->composer->getPackage();
         foreach (array_unique(array_reduce(
@@ -197,7 +197,7 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
      * @param string $path
      * @return array
      */
-    protected function readPackageJson($path)
+    private function readPackageJson($path)
     {
         $file = new JsonFile($path);
         $json = $file->read();
@@ -215,7 +215,7 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
      * @param RootPackageInterface $root
      * @param CompletePackage $package
      */
-    protected function mergeRequires(
+    private function mergeRequires(
         RootPackageInterface $root,
         CompletePackage $package
     ) {
@@ -237,7 +237,7 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
      * @param RootPackageInterface $root
      * @param CompletePackage $package
      */
-    protected function mergeDevRequires(
+    private function mergeDevRequires(
         RootPackageInterface $root,
         CompletePackage $package
     ) {
@@ -262,7 +262,7 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
      * @param RootPackageInterface $root
      * @param array $requires
      */
-    protected function mergeStabilityFlags(
+    private function mergeStabilityFlags(
         RootPackageInterface $root,
         array $requires
     ) {
@@ -283,7 +283,7 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
      * @param array $repositories
      * @param RootPackageInterface $root
      */
-    protected function addRepositories(
+    private function addRepositories(
         array $repositories,
         RootPackageInterface $root
     ) {
@@ -315,7 +315,7 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
      * @param array &dups Duplicate storage
      * @return array Merged collection
      */
-    protected function mergeLinks(array $origin, array $merge, array &$dups)
+    private function mergeLinks(array $origin, array $merge, array &$dups)
     {
         foreach ($merge as $name => $link) {
             if (!isset($origin[$name])) {
@@ -365,7 +365,7 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
      *
      * @param string $message
      */
-    protected function debug($message)
+    private function debug($message)
     {
         if ($this->inputOutput->isVerbose()) {
             $this->inputOutput->write("  <info>[merge]</info> {$message}");
