@@ -109,9 +109,9 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
 
     /**
      * Whether to replace duplicate links.
-	  *
-	  * Normally, duplicate links are resolved using Composer's resolver.
-	  * Setting this flag changes the behaviour to 'last definition wins'.
+      *
+      * Normally, duplicate links are resolved using Composer's resolver.
+      * Setting this flag changes the behaviour to 'last definition wins'.
      *
      * @var bool $replace
      */

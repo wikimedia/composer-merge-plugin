@@ -125,8 +125,8 @@ class MergePluginTest extends \Prophecy\PhpUnit\ProphecyTestCase
                 $requires = $args[0];
                 $that->assertEquals(2, count($requires));
                 $that->assertArrayHasKey('monolog/monolog', $requires);
-					 $that->assertEquals('1.10.0',
-						$requires['monolog/monolog']->getPrettyConstraint());
+                     $that->assertEquals('1.10.0',
+                        $requires['monolog/monolog']->getPrettyConstraint());
             }
         );
 
