@@ -462,6 +462,47 @@ class MergePluginTest extends \Prophecy\PhpUnit\ProphecyTestCase
         $this->assertEquals($root, $getRootPackage->invoke($this->fixture));
     }
 
+
+    /**
+     * Given a root package with requires
+     *   and a b.json with requires
+     *   and an a.json with requires
+     *   and a glob of json files with requires
+     * When the plugin is run
+     * Then the root package should inherit the requires
+     *   in the correct order based on inclusion order
+     *   for individual files and alpha-numeric sorting
+     *   for files included via a glob.
+     *
+     * @return void
+     */
+    public function testCorrectMergeOrderOfSpecifiedFilesAndGlobFiles()
+    {
+        $that = $this;
+        $dir = $this->fixtureDir(__FUNCTION__);
+        $root = $this->rootFromJson("{$dir}/composer.json");
+
+        $expects = array(
+            "merge-plugin/b.json",
+            "merge-plugin/a.json",
+            "merge-plugin/glob-a-glob2.json",
+            "merge-plugin/glob-b-glob1.json"
+        );
+
+        $root->setRequires(Argument::type('array'))->will(
+            function ($args) use ($that, &$expects) {
+                $expectedSource = array_shift($expects);
+                $that->assertEquals(
+                    $expectedSource,
+                    $args[0]['wibble/wobble']->getSource()
+                );
+            }
+        );
+        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
+    }
+
+
+
     /**
      * @param RootPackage $package
      * @param string $directory Working directory for composer run
