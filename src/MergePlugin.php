@@ -35,20 +35,26 @@ use UnexpectedValueException;
 /**
  * Composer plugin that allows merging multiple composer.json files.
  *
- * When installed, this plugin will look for a "merge-patterns" key in the
+ * When installed, this plugin will look for a "merge-plugin" key in the
  * composer configuration's "extra" section. The value of this setting can be
  * either a single value or an array of values. Each value is treated as
  * a glob() pattern identifying additional composer.json style configuration
  * files to merge into the configuration for the current compser execution.
  *
- * The "require", "require-dev", "repositories" and "suggest" sections of the
- * found configuration files will be merged into the root package
+ * The "require", "require-dev", "repositories", "extras" and "suggest" sections
+ * of the found configuration files will be merged into the root package
  * configuration as though they were directly included in the top-level
  * composer.json file.
  *
  * If included files specify conflicting package versions for "require" or
  * "require-dev", the normal Composer dependency solver process will be used
- * to attempt to resolve the conflict.
+ * to attempt to resolve the conflict. Specifying the 'replace' key as true will
+ * change this default behaviour so that the last-defined version of a package
+ * will win, allowing for force-overrides of package defines.
+ *
+ * If the extras section contains duplicate top-level keys, the merge process will
+ * fail so, for instance, you can't merge a second config file that itself defines
+ * merge-plugin includes.
  *
  * @code
  * {
@@ -263,6 +269,7 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
 
         $this->mergeRequires($root, $package);
         $this->mergeDevRequires($root, $package);
+        $this->mergeExtras($root, $package);
         $this->mergeAutoload($root, $package, $path);
 
         if (isset($json['repositories'])) {
@@ -456,6 +463,37 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
             }
         }
         return $origin;
+    }
+
+    /**
+     * Merge the extras sections of two config files.
+     *
+     * @param RootPackage $root The root package.
+     * @param CompletePackage $package The imported package to merge.
+     */
+    public function mergeExtras(
+        RootPackage $root,
+        CompletePackage $package
+    ) {
+        $this->debug('Merging extra section');
+        $packageExtra = $package->getExtra();
+        if (empty($packageExtra)) {
+            return;
+        }
+
+        $rootExtra = $root->getExtra();
+        foreach ($packageExtra as $key => $value) {
+            $this->debug("Merging extra key <comment>{$key}</comment>");
+            if (isset($rootExtra[$key])) {
+                $name = substr($package->getPrettyName(), 13);
+                throw new \OverflowException(
+                    'Duplicate key "' . $key
+                    . '" in extra section of imported config '
+                    . $name
+                );
+            }
+        }
+        $root->setExtra(array_merge($rootExtra, $packageExtra));
     }
 
     /**
