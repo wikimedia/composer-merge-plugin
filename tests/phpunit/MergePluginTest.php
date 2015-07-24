@@ -367,6 +367,62 @@ class MergePluginTest extends \Prophecy\PhpUnit\ProphecyTestCase
     }
 
     /**
+     * Given a root package with an extra section
+     *   and a composer.local.json with an extra section with no conflicting keys
+     * When the plugin is run
+     * Then the root package extra section should be extended with content from the local config.
+     */
+    public function testMergeExtra()
+    {
+        $that = $this;
+        $dir = $this->fixtureDir(__FUNCTION__);
+
+        $root = $this->rootFromJson("{$dir}/composer.json");
+
+        $root->setExtra(Argument::type('array'))->will(
+            function ($args) use ($that) {
+                $extra = $args[0];
+                $that->assertEquals(2, count($extra));
+                $that->assertArrayHasKey('merge-plugin', $extra);
+                $that->assertArrayHasKey('wibble', $extra);
+            }
+        );
+
+        $root->getRequires()->shouldNotBeCalled();
+        $root->getDevRequires()->shouldNotBeCalled();
+        $root->getRepositories()->shouldNotBeCalled();
+        $root->getSuggests()->shouldNotBeCalled();
+
+        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
+
+        $this->assertEquals(0, count($extraInstalls));
+    }
+
+    /**
+     * Given a root package with an extra section
+     *   and a composer.local.json with an extra section with a conflicting key
+     * When the plugin is run
+     * Then an Overflow Exception should be thrown.
+     *
+     * @expectedException OverflowException
+     */
+    public function testMergeExtraConflict()
+    {
+        $that = $this;
+        $dir = $this->fixtureDir(__FUNCTION__);
+
+        $root = $this->rootFromJson("{$dir}/composer.json");
+
+        $root->getRequires()->shouldNotBeCalled();
+        $root->getDevRequires()->shouldNotBeCalled();
+        $root->getRepositories()->shouldNotBeCalled();
+        $root->getSuggests()->shouldNotBeCalled();
+        $root->setExtra()->shouldNotBeCalled();
+
+        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
+    }
+
+    /**
      * @dataProvider provideOnPostPackageInstall
      */
     public function testOnPostPackageInstall($package, $first)
