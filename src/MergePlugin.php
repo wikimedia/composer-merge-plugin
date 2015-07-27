@@ -481,6 +481,10 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
             return;
         }
 
+        if (isset($packageExtra['merge-plugin'])) {
+            $this->debug("Skipping merge-plugin key");
+            unset($packageExtra['merge-plugin']);
+        }
         $rootExtra = $root->getExtra();
         foreach ($packageExtra as $key => $value) {
             $this->debug("Merging extra key <comment>{$key}</comment>");
