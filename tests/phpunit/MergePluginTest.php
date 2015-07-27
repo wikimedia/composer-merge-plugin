@@ -127,6 +127,7 @@ class MergePluginTest extends \Prophecy\PhpUnit\ProphecyTestCase
         );
 
 
+        $root->setExtra(Argument::type('array'))->shouldBeCalled();
         $root->getDevRequires()->shouldNotBeCalled();
         $root->getRepositories()->shouldNotBeCalled();
         $root->getSuggests()->shouldNotBeCalled();
@@ -160,7 +161,7 @@ class MergePluginTest extends \Prophecy\PhpUnit\ProphecyTestCase
             }
         );
 
-
+        $root->setExtra(Argument::type('array'))->shouldBeCalled();
         $root->getDevRequires()->shouldNotBeCalled();
         $root->getRepositories()->shouldNotBeCalled();
         $root->getSuggests()->shouldNotBeCalled();
