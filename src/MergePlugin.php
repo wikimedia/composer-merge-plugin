@@ -31,6 +31,7 @@ use Composer\Plugin\PluginInterface;
 use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
 use UnexpectedValueException;
+use OverflowException;
 
 /**
  * Composer plugin that allows merging multiple composer.json files.
@@ -453,10 +454,10 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
             $this->debug("Merging extra key <comment>{$key}</comment>");
             if (isset($rootExtra[$key])) {
                 $name = substr($package->getPrettyName(), 13);
-                throw new \OverflowException(
-                    'Duplicate key "' . $key
-                    . '" in extra section of imported config '
-                    . $name
+                throw new OverflowException(
+                    'Duplicate key "' . $key .
+                    '" in extra section of imported config ' .
+                    $name
                 );
             }
         }
