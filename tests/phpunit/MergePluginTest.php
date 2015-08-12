@@ -152,6 +152,44 @@ class MergePluginTest extends \Prophecy\PhpUnit\ProphecyTestCase
 
 
     /**
+     * Given a root package with requires
+     *   and a composer.local.json with requires
+     *   and the same package is listed in multiple files
+     * When the plugin is run
+     * Then the root package should inherit the non-conflicting requires
+     *   and conflicting requires should be resolved 'last defined wins'.
+     */
+    public function testMergeWithReplace()
+    {
+        $that = $this;
+        $dir = $this->fixtureDir(__FUNCTION__);
+
+        $root = $this->rootFromJson("{$dir}/composer.json");
+
+        $root->setRequires(Argument::type('array'))->will(
+            function ($args) use ($that) {
+                $requires = $args[0];
+                $that->assertEquals(2, count($requires));
+                $that->assertArrayHasKey('monolog/monolog', $requires);
+                $that->assertEquals(
+                    '1.10.0',
+                    $requires['monolog/monolog']->getPrettyConstraint()
+                );
+            }
+        );
+
+        $root->getDevRequires()->shouldNotBeCalled();
+        $root->getRepositories()->shouldNotBeCalled();
+        $root->getSuggests()->shouldNotBeCalled();
+
+        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
+
+        $this->assertEquals(0, count($extraInstalls));
+    }
+
+
+
+    /**
      * Given a root package with no requires
      *   and a composer.local.json with one require, which includes a composer.local.2.json
      *   and a composer.local.2.json with one additional require
