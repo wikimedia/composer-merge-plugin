@@ -19,10 +19,10 @@ use Composer\IO\IOInterface;
 use Composer\Package\BasePackage;
 use Composer\Package\Package;
 use Composer\Package\RootPackage;
-use Composer\Script\CommandEvent;
+use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
 use Prophecy\Argument;
-use \ReflectionMethod;
+use ReflectionMethod;
 
 /**
  * @covers Wikimedia\Composer\MergePlugin
@@ -96,6 +96,50 @@ class MergePluginTest extends \Prophecy\PhpUnit\ProphecyTestCase
             }
         );
 
+        $root->getSuggests()->shouldBeCalled();
+        $root->setSuggests(Argument::type('array'))->will(
+            function ($args) use ($that) {
+                $suggest = $args[0];
+                $that->assertEquals(1, count($suggest));
+                $that->assertArrayHasKey('ext-apc', $suggest);
+            }
+        );
+
+        $root->getDevRequires()->shouldNotBeCalled();
+        $root->getRepositories()->shouldNotBeCalled();
+
+        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
+
+        $this->assertEquals(0, count($extraInstalls));
+    }
+
+    /**
+     * Given a root package with requires
+     *   and a composer.local.json with requires
+     *   and the same package is listed in multiple files
+     * When the plugin is run
+     * Then the root package should inherit the non-conflicting requires
+     *   and conflicting requires should be resolved 'last defined wins'.
+     */
+    public function testMergeWithReplace()
+    {
+        $that = $this;
+        $dir = $this->fixtureDir(__FUNCTION__);
+
+        $root = $this->rootFromJson("{$dir}/composer.json");
+
+        $root->setRequires(Argument::type('array'))->will(
+            function ($args) use ($that) {
+                $requires = $args[0];
+                $that->assertEquals(2, count($requires));
+                $that->assertArrayHasKey('monolog/monolog', $requires);
+                $that->assertEquals(
+                    '1.10.0',
+                    $requires['monolog/monolog']->getPrettyConstraint()
+                );
+            }
+        );
+
         $root->getDevRequires()->shouldNotBeCalled();
         $root->getRepositories()->shouldNotBeCalled();
         $root->getSuggests()->shouldNotBeCalled();
@@ -104,6 +148,8 @@ class MergePluginTest extends \Prophecy\PhpUnit\ProphecyTestCase
 
         $this->assertEquals(0, count($extraInstalls));
     }
+
+
 
     /**
      * Given a root package with no requires
@@ -216,8 +262,9 @@ class MergePluginTest extends \Prophecy\PhpUnit\ProphecyTestCase
 
         $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
 
-        $this->assertEquals(1, count($extraInstalls));
+        $this->assertEquals(2, count($extraInstalls));
         $this->assertEquals('monolog/monolog', $extraInstalls[0][0]);
+        $this->assertEquals('foo', $extraInstalls[1][0]);
     }
 
     /**
@@ -341,6 +388,7 @@ class MergePluginTest extends \Prophecy\PhpUnit\ProphecyTestCase
         $root = $this->rootFromJson("{$dir}/composer.json");
 
         $root->getAutoload()->shouldBeCalled();
+        $root->getDevAutoload()->shouldBeCalled();
         $root->getRequires()->shouldNotBeCalled();
         $root->setAutoload(Argument::type('array'))->will(
             function ($args) use ($that) {
@@ -356,6 +404,28 @@ class MergePluginTest extends \Prophecy\PhpUnit\ProphecyTestCase
                         ),
                         'files' => array( 'extensions/Foo/SemanticMediaWiki.php' ),
                         'classmap' => array( 'extensions/Foo/SemanticMediaWiki.hooks.php', 'extensions/Foo/includes/' ),
+                    ),
+                    $args[0]
+                );
+            }
+        );
+        $root->setDevAutoload(Argument::type('array'))->will(
+            function ($args) use ($that) {
+                $that->assertEquals(
+                    array(
+                        'psr-4' => array(
+                            'Dev\\Kittens\\' => array( 'everywhere/', 'extensions/Foo/a/', 'extensions/Foo/b/' ),
+                            'Dev\\Cats\\' => 'extensions/Foo/src/'
+                        ),
+                        'psr-0' => array(
+                            'DevUniqueGlobalClass' => 'extensions/Foo/',
+                            '' => 'extensions/Foo/dev/fallback/'
+                        ),
+                        'files' => array( 'extensions/Foo/DevSemanticMediaWiki.php' ),
+                        'classmap' => array(
+                            'extensions/Foo/DevSemanticMediaWiki.hooks.php',
+                            'extensions/Foo/dev/includes/',
+                        ),
                     ),
                     $args[0]
                 );
@@ -481,6 +551,47 @@ class MergePluginTest extends \Prophecy\PhpUnit\ProphecyTestCase
         $this->assertEquals($root, $getRootPackage->invoke($this->fixture));
     }
 
+
+    /**
+     * Given a root package with requires
+     *   and a b.json with requires
+     *   and an a.json with requires
+     *   and a glob of json files with requires
+     * When the plugin is run
+     * Then the root package should inherit the requires
+     *   in the correct order based on inclusion order
+     *   for individual files and alpha-numeric sorting
+     *   for files included via a glob.
+     *
+     * @return void
+     */
+    public function testCorrectMergeOrderOfSpecifiedFilesAndGlobFiles()
+    {
+        $that = $this;
+        $dir = $this->fixtureDir(__FUNCTION__);
+        $root = $this->rootFromJson("{$dir}/composer.json");
+
+        $expects = array(
+            "merge-plugin/b.json",
+            "merge-plugin/a.json",
+            "merge-plugin/glob-a-glob2.json",
+            "merge-plugin/glob-b-glob1.json"
+        );
+
+        $root->setRequires(Argument::type('array'))->will(
+            function ($args) use ($that, &$expects) {
+                $expectedSource = array_shift($expects);
+                $that->assertEquals(
+                    $expectedSource,
+                    $args[0]['wibble/wobble']->getSource()
+                );
+            }
+        );
+        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
+    }
+
+
+
     /**
      * @param RootPackage $package
      * @param string $directory Working directory for composer run
@@ -491,7 +602,7 @@ class MergePluginTest extends \Prophecy\PhpUnit\ProphecyTestCase
         chdir($directory);
         $this->composer->getPackage()->willReturn($package);
 
-        $event = new CommandEvent(
+        $event = new Event(
             ScriptEvents::PRE_INSTALL_CMD,
             $this->composer->reveal(),
             $this->io->reveal(),
@@ -499,7 +610,7 @@ class MergePluginTest extends \Prophecy\PhpUnit\ProphecyTestCase
             array(),
             array()
         );
-        $this->fixture->onInstallOrUpdate($event);
+        $this->fixture->onInstallUpdateOrDump($event);
 
         $requestInstalls = array();
         $request = $this->prophesize('Composer\DependencyResolver\Request');
@@ -522,6 +633,27 @@ class MergePluginTest extends \Prophecy\PhpUnit\ProphecyTestCase
         );
 
         $this->fixture->onDependencySolve($event);
+
+        $event = new Event(
+            ScriptEvents::PRE_AUTOLOAD_DUMP,
+            $this->composer->reveal(),
+            $this->io->reveal(),
+            true, //dev mode
+            array(),
+            array( 'optimize' => true )
+        );
+        $this->fixture->onInstallUpdateOrDump($event);
+
+        $event = new Event(
+            ScriptEvents::POST_INSTALL_CMD,
+            $this->composer->reveal(),
+            $this->io->reveal(),
+            true, //dev mode
+            array(),
+            array()
+        );
+        $this->fixture->onPostInstallOrUpdate($event);
+
         return $requestInstalls;
     }
 
@@ -550,6 +682,7 @@ class MergePluginTest extends \Prophecy\PhpUnit\ProphecyTestCase
                 'suggest' => array(),
                 'extra' => array(),
                 'autoload' => array(),
+                'autoload-dev' => array(),
             ),
             $json
         );
@@ -561,6 +694,7 @@ class MergePluginTest extends \Prophecy\PhpUnit\ProphecyTestCase
         $root->getSuggests()->willReturn($data['suggest']);
         $root->getExtra()->willReturn($data['extra'])->shouldBeCalled();
         $root->getAutoload()->willReturn($data['autoload']);
+        $root->getDevAutoload()->willReturn($data['autoload-dev']);
 
         $root->getStabilityFlags()->willReturn(array());
         $root->setStabilityFlags(Argument::type('array'))->will(
