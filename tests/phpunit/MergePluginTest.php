@@ -388,6 +388,7 @@ class MergePluginTest extends \Prophecy\PhpUnit\ProphecyTestCase
         $root = $this->rootFromJson("{$dir}/composer.json");
 
         $root->getAutoload()->shouldBeCalled();
+        $root->getDevAutoload()->shouldBeCalled();
         $root->getRequires()->shouldNotBeCalled();
         $root->setAutoload(Argument::type('array'))->will(
             function ($args) use ($that) {
@@ -403,6 +404,28 @@ class MergePluginTest extends \Prophecy\PhpUnit\ProphecyTestCase
                         ),
                         'files' => array( 'extensions/Foo/SemanticMediaWiki.php' ),
                         'classmap' => array( 'extensions/Foo/SemanticMediaWiki.hooks.php', 'extensions/Foo/includes/' ),
+                    ),
+                    $args[0]
+                );
+            }
+        );
+        $root->setDevAutoload(Argument::type('array'))->will(
+            function ($args) use ($that) {
+                $that->assertEquals(
+                    array(
+                        'psr-4' => array(
+                            'Dev\\Kittens\\' => array( 'everywhere/', 'extensions/Foo/a/', 'extensions/Foo/b/' ),
+                            'Dev\\Cats\\' => 'extensions/Foo/src/'
+                        ),
+                        'psr-0' => array(
+                            'DevUniqueGlobalClass' => 'extensions/Foo/',
+                            '' => 'extensions/Foo/dev/fallback/'
+                        ),
+                        'files' => array( 'extensions/Foo/DevSemanticMediaWiki.php' ),
+                        'classmap' => array(
+                            'extensions/Foo/DevSemanticMediaWiki.hooks.php',
+                            'extensions/Foo/dev/includes/',
+                        ),
                     ),
                     $args[0]
                 );
@@ -659,6 +682,7 @@ class MergePluginTest extends \Prophecy\PhpUnit\ProphecyTestCase
                 'suggest' => array(),
                 'extra' => array(),
                 'autoload' => array(),
+                'autoload-dev' => array(),
             ),
             $json
         );
@@ -670,6 +694,7 @@ class MergePluginTest extends \Prophecy\PhpUnit\ProphecyTestCase
         $root->getSuggests()->willReturn($data['suggest']);
         $root->getExtra()->willReturn($data['extra'])->shouldBeCalled();
         $root->getAutoload()->willReturn($data['autoload']);
+        $root->getDevAutoload()->willReturn($data['autoload-dev']);
 
         $root->getStabilityFlags()->willReturn(array());
         $root->setStabilityFlags(Argument::type('array'))->will(
