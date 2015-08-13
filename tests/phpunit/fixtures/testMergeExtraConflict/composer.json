@@ -1,6 +1,7 @@
 {
     "extra": {
         "merge-plugin": {
+            "merge-extras": true,
             "include": "composer.local.json"
         },
         "wibble": "wobble"

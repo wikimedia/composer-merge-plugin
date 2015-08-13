@@ -42,7 +42,7 @@ use OverflowException;
  * a glob() pattern identifying additional composer.json style configuration
  * files to merge into the configuration for the current compser execution.
  *
- * The "require", "require-dev", "repositories", "extras" and "suggest" sections
+ * The "require", "require-dev", "repositories", "extra" and "suggest" sections
  * of the found configuration files will be merged into the root package
  * configuration as though they were directly included in the top-level
  * composer.json file.
@@ -53,9 +53,13 @@ use OverflowException;
  * change this default behaviour so that the last-defined version of a package
  * will win, allowing for force-overrides of package defines.
  *
- * If the extras section contains duplicate top-level keys, the merge process will
- * fail so, for instance, you can't merge a second config file that itself defines
- * merge-plugin includes.
+ * By default the "extra" section is not merged. This can be enabled with the
+ * 'merge-extra' key by setting it to true. In normal mode, when the same key
+ * is found in both the original and the imported extra section, the version
+ * in the original config is used and the imported version is skipped. If
+ * 'replace' mode is active, this behaviour changes so the imported version of
+ * the key is used, replacing the version in the original config.
+ *
  *
  * @code
  * {
@@ -116,13 +120,27 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
 
     /**
      * Whether to replace duplicate links.
-      *
-      * Normally, duplicate links are resolved using Composer's resolver.
-      * Setting this flag changes the behaviour to 'last definition wins'.
+     *
+     * Normally, duplicate links are resolved using Composer's resolver.
+     * Setting this flag changes the behaviour to 'last definition wins'.
      *
      * @var bool $replace
      */
     protected $replace = false;
+
+    /**
+     * Whether to merge the extra section.
+     *
+     * By default, the extra section is not merged and there will be many
+     * cases where the merge of the extra section is performed too late
+     * to be of use to other plugins. When enabled, merging uses one of
+     * two strategies - either 'first wins' or 'last wins'. When enabled,
+     * 'first wins' is the default behaviour. If Replace mode is activated
+     * then 'last wins' is used.
+     *
+     * @var bool $mergeExtra
+     */
+    protected $mergeExtra = false;
 
     /**
      * Files that have already been processed
@@ -193,6 +211,9 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
         }
         if (isset($config['replace'])) {
             $this->replace = (bool)$config['replace'];
+        }
+        if (isset($config['merge-extra'])) {
+            $this->mergeExtra = (bool)$config['merge-extra'];
         }
         if ($config['include']) {
             $this->loader = new ArrayLoader();
@@ -270,7 +291,9 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
 
         $this->mergeRequires($root, $package);
         $this->mergeDevRequires($root, $package);
-        $this->mergeExtras($root, $package);
+        if ($this->mergeExtra) {
+            $this->mergeExtraSection($root, $package);
+        }
         $this->mergeAutoload($root, $package, $path);
         $this->mergeDevAutoload($root, $package, $path);
 
@@ -502,12 +525,12 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
     }
 
     /**
-     * Merge the extras sections of two config files.
+     * Merge the extra sections of two config files.
      *
-     * @param RootPackage $root The root package.
+     * @param RootPackage $root        The root package.
      * @param CompletePackage $package The imported package to merge.
      */
-    public function mergeExtras(
+    public function mergeExtraSection(
         RootPackage $root,
         CompletePackage $package
     ) {
@@ -523,17 +546,25 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
         }
         $rootExtra = $root->getExtra();
         foreach ($packageExtra as $key => $value) {
-            $this->debug("Merging extra key <comment>{$key}</comment>");
-            if (isset($rootExtra[$key])) {
+            if (isset($rootExtra[$key]) && !$this->replace) {
                 $name = substr($package->getPrettyName(), 13);
-                throw new OverflowException(
-                    'Duplicate key "' . $key .
-                    '" in extra section of imported config ' .
-                    $name
+                $this->debug(
+                    "Duplicate key <comment>{$key}</comment> in extra section " .
+                    "of imported config <comment>{$name}</comment> will be ignored."
                 );
+            } else {
+                $this->debug("Merging extra key <comment>{$key}</comment>");
             }
         }
-        $root->setExtra(array_merge($rootExtra, $packageExtra));
+        if ($this->replace) {
+            // With array_merge, keys in the $packageExtra array will
+            // replace those in $rootExtra
+            $root->setExtra(array_merge($rootExtra, $packageExtra));
+        } else {
+            // With '+', keys in the $packageExtra array will
+            // be skipped if the key exists in $rootExtra
+            $root->setExtra($rootExtra + $packageExtra);
+        }
     }
 
     /**
