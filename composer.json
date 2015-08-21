@@ -28,7 +28,10 @@
         }
     },
     "extra": {
-        "class": "Wikimedia\\Composer\\MergePlugin"
+        "class": "Wikimedia\\Composer\\MergePlugin",
+        "branch-alias": {
+            "dev-master": "1.2.x-dev"
+        }
     },
     "config": {
         "optimize-autoloader": true
