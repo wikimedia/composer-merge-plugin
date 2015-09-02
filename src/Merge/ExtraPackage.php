@@ -124,22 +124,22 @@ class ExtraPackage
         return $package;
     }
 
-	/**
-	 * Merge this package into a RootPackage
-	 *
-	 * @param RootPackageInterface $top
-	 * @param PluginState $state
-	 */
+    /**
+     * Merge this package into a RootPackage
+     *
+     * @param RootPackageInterface $top
+     * @param PluginState $state
+     */
     public function mergeInto(RootPackageInterface $top, PluginState $state)
     {
-	    if ($top instanceof RootAliasPackage)
-		    $root = $top->getAliasOf();
-	    elseif ($top instanceof RootPackage)
-		    $root = $top;
-	    else
-		    throw new \UnexpectedValueException("Top package is not RootPackage and not RootAliasPackage");
+        if ($top instanceof RootAliasPackage)
+            $root = $top->getAliasOf();
+        elseif ($top instanceof RootPackage)
+            $root = $top;
+        else
+            throw new \UnexpectedValueException("Top package is not RootPackage and not RootAliasPackage");
 
-	    $this->mergeRequires($top, $root, $state);
+        $this->mergeRequires($top, $root, $state);
         $this->mergeDevRequires($top, $root, $state);
 
         $this->mergeAutoload($root);
@@ -152,13 +152,13 @@ class ExtraPackage
         // TODO: provide, replace, conflict
     }
 
-	/**
-	 * Merge require into a RootPackage
-	 *
-	 * @param RootPackageInterface $top
-	 * @param RootPackage $root
-	 * @param PluginState $state
-	 */
+    /**
+     * Merge require into a RootPackage
+     *
+     * @param RootPackageInterface $top
+     * @param RootPackage $root
+     * @param PluginState $state
+     */
     protected function mergeRequires(RootPackageInterface $top, RootPackage $root, PluginState $state)
     {
         $requires = $this->package->getRequires();
@@ -170,22 +170,22 @@ class ExtraPackage
 
         $dups = array();
         $require = $this->mergeLinks(
-	        $top->getRequires(),
-	        $requires,
-	        $state->replaceDuplicateLinks(),
-	        $dups
+            $top->getRequires(),
+            $requires,
+            $state->replaceDuplicateLinks(),
+            $dups
         );
         $top->setRequires($require);
         $state->addDuplicateLinks('require', $dups);
     }
 
-	/**
-	 * Merge require-dev into RootPackage
-	 *
-	 * @param RootPackageInterface $top
-	 * @param RootPackage $root
-	 * @param PluginState $state
-	 */
+    /**
+     * Merge require-dev into RootPackage
+     *
+     * @param RootPackageInterface $top
+     * @param RootPackage $root
+     * @param PluginState $state
+     */
     protected function mergeDevRequires(RootPackageInterface $top, RootPackage $root, PluginState $state)
     {
         $requires = $this->package->getDevRequires();

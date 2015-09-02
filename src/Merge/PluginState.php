@@ -118,24 +118,24 @@ class PluginState
         $this->mergeExtra = (bool)$config['merge-extra'];
     }
 
-	/**
-	 * Get the top package, which is either RootPackage or RootAliasPackage
-	 *
-	 * @return RootPackageInterface
-	 */
-	public function getTopPackage()
-	{
-		$top = $this->composer->getPackage();
-		// @codeCoverageIgnoreStart
-		if (!$top instanceof RootPackageInterface) {
-			throw new UnexpectedValueException(
-				'Expected instance of RootPackageInterface, got ' .
-				get_class($top)
-			);
-		}
-		// @codeCoverageIgnoreEnd
-		return $top;
-	}
+    /**
+     * Get the top package, which is either RootPackage or RootAliasPackage
+     *
+     * @return RootPackageInterface
+     */
+    public function getTopPackage()
+    {
+        $top = $this->composer->getPackage();
+        // @codeCoverageIgnoreStart
+        if (!$top instanceof RootPackageInterface) {
+            throw new UnexpectedValueException(
+                'Expected instance of RootPackageInterface, got ' .
+                get_class($top)
+            );
+        }
+        // @codeCoverageIgnoreEnd
+        return $top;
+    }
 
     /**
      * Get the root package
