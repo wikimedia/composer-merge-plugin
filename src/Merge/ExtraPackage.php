@@ -169,13 +169,12 @@ class ExtraPackage
         $this->mergeStabilityFlags($root, $requires);
 
         $dups = array();
-        $require = $this->mergeLinks(
+        $top->setRequires($this->mergeLinks(
             $top->getRequires(),
             $requires,
             $state->replaceDuplicateLinks(),
             $dups
-        );
-        $top->setRequires($require);
+        ));
         $state->addDuplicateLinks('require', $dups);
     }
 
