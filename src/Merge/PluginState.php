@@ -13,6 +13,7 @@ namespace Wikimedia\Composer\Merge;
 use Composer\Composer;
 use Composer\Package\AliasPackage;
 use Composer\Package\RootPackage;
+use Composer\Package\RootPackageInterface;
 use UnexpectedValueException;
 
 /**
@@ -116,6 +117,25 @@ class PluginState
         $this->replace = (bool)$config['replace'];
         $this->mergeExtra = (bool)$config['merge-extra'];
     }
+
+	/**
+	 * Get the top package, which is either RootPackage or RootAliasPackage
+	 *
+	 * @return RootPackageInterface
+	 */
+	public function getTopPackage()
+	{
+		$top = $this->composer->getPackage();
+		// @codeCoverageIgnoreStart
+		if (!$top instanceof RootPackageInterface) {
+			throw new UnexpectedValueException(
+				'Expected instance of RootPackageInterface, got ' .
+				get_class($top)
+			);
+		}
+		// @codeCoverageIgnoreEnd
+		return $top;
+	}
 
     /**
      * Get the root package
