@@ -17,7 +17,9 @@ use Composer\Json\JsonFile;
 use Composer\Package\BasePackage;
 use Composer\Package\CompletePackage;
 use Composer\Package\Loader\ArrayLoader;
+use Composer\Package\RootAliasPackage;
 use Composer\Package\RootPackage;
+use Composer\Package\RootPackageInterface;
 use Composer\Package\Version\VersionParser;
 use UnexpectedValueException;
 
@@ -125,13 +127,20 @@ class ExtraPackage
     /**
      * Merge this package into a RootPackage
      *
-     * @param RootPackage $root
+     * @param RootPackageInterface $top
      * @param PluginState $state
      */
-    public function mergeInto(RootPackage $root, PluginState $state)
+    public function mergeInto(RootPackageInterface $top, PluginState $state)
     {
-        $this->mergeRequires($root, $state);
-        $this->mergeDevRequires($root, $state);
+        if ($top instanceof RootAliasPackage)
+            $root = $top->getAliasOf();
+        elseif ($top instanceof RootPackage)
+            $root = $top;
+        else
+            throw new \UnexpectedValueException("Top package is not RootPackage and not RootAliasPackage");
+
+        $this->mergeRequires($top, $root, $state);
+        $this->mergeDevRequires($top, $root, $state);
 
         $this->mergeAutoload($root);
         $this->mergeDevAutoload($root);
@@ -146,10 +155,11 @@ class ExtraPackage
     /**
      * Merge require into a RootPackage
      *
+     * @param RootPackageInterface $top
      * @param RootPackage $root
      * @param PluginState $state
      */
-    protected function mergeRequires(RootPackage $root, PluginState $state)
+    protected function mergeRequires(RootPackageInterface $top, RootPackage $root, PluginState $state)
     {
         $requires = $this->package->getRequires();
         if (empty($requires)) {
@@ -159,8 +169,8 @@ class ExtraPackage
         $this->mergeStabilityFlags($root, $requires);
 
         $dups = array();
-        $root->setRequires($this->mergeLinks(
-            $root->getRequires(),
+        $top->setRequires($this->mergeLinks(
+            $top->getRequires(),
             $requires,
             $state->replaceDuplicateLinks(),
             $dups
@@ -171,10 +181,11 @@ class ExtraPackage
     /**
      * Merge require-dev into RootPackage
      *
+     * @param RootPackageInterface $top
      * @param RootPackage $root
      * @param PluginState $state
      */
-    protected function mergeDevRequires(RootPackage $root, PluginState $state)
+    protected function mergeDevRequires(RootPackageInterface $top, RootPackage $root, PluginState $state)
     {
         $requires = $this->package->getDevRequires();
         if (empty($requires)) {
@@ -184,8 +195,8 @@ class ExtraPackage
         $this->mergeStabilityFlags($root, $requires);
 
         $dups = array();
-        $root->setDevRequires($this->mergeLinks(
-            $root->getDevRequires(),
+        $top->setDevRequires($this->mergeLinks(
+            $top->getDevRequires(),
             $requires,
             $state->replaceDuplicateLinks(),
             $dups
