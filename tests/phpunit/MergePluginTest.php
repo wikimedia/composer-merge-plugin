@@ -175,7 +175,7 @@ class MergePluginTest extends \Prophecy\PhpUnit\ProphecyTestCase
         $root->getDevRequires()->shouldNotBeCalled();
         $root->getRepositories()->shouldNotBeCalled();
         $root->getConflicts()->shouldNotBeCalled();
-        $root->getReplaces()->shouldNotBeCalled();
+        $root->getReplaces()->shouldBeCalled();
         $root->getProvides()->shouldNotBeCalled();
         $root->getSuggests()->shouldNotBeCalled();
 
@@ -210,7 +210,7 @@ class MergePluginTest extends \Prophecy\PhpUnit\ProphecyTestCase
         $root->getDevRequires()->shouldNotBeCalled();
         $root->getRepositories()->shouldNotBeCalled();
         $root->getConflicts()->shouldNotBeCalled();
-        $root->getReplaces()->shouldNotBeCalled();
+        $root->getReplaces()->shouldBeCalled();
         $root->getProvides()->shouldNotBeCalled();
         $root->getSuggests()->shouldNotBeCalled();
 
@@ -246,7 +246,7 @@ class MergePluginTest extends \Prophecy\PhpUnit\ProphecyTestCase
         $root->getDevRequires()->shouldNotBeCalled();
         $root->getRepositories()->shouldNotBeCalled();
         $root->getConflicts()->shouldNotBeCalled();
-        $root->getReplaces()->shouldNotBeCalled();
+        $root->getReplaces()->shouldBeCalled();
         $root->getProvides()->shouldNotBeCalled();
         $root->getSuggests()->shouldNotBeCalled();
 
@@ -297,7 +297,7 @@ class MergePluginTest extends \Prophecy\PhpUnit\ProphecyTestCase
 
         $root->getRepositories()->shouldNotBeCalled();
         $root->getConflicts()->shouldNotBeCalled();
-        $root->getReplaces()->shouldNotBeCalled();
+        $root->getReplaces()->shouldBeCalled();
         $root->getProvides()->shouldNotBeCalled();
         $root->getSuggests()->shouldNotBeCalled();
 
@@ -379,7 +379,7 @@ class MergePluginTest extends \Prophecy\PhpUnit\ProphecyTestCase
         );
 
         $root->getConflicts()->shouldNotBeCalled();
-        $root->getReplaces()->shouldNotBeCalled();
+        $root->getReplaces()->shouldBeCalled();
         $root->getProvides()->shouldNotBeCalled();
         $root->getSuggests()->shouldNotBeCalled();
 
@@ -418,7 +418,7 @@ class MergePluginTest extends \Prophecy\PhpUnit\ProphecyTestCase
         $root->setRepositories(Argument::any())->shouldNotBeCalled();
 
         $root->getConflicts()->shouldNotBeCalled();
-        $root->getReplaces()->shouldNotBeCalled();
+        $root->getReplaces()->shouldBeCalled();
         $root->getProvides()->shouldNotBeCalled();
         $root->getSuggests()->shouldNotBeCalled();
         $root->setSuggests(Argument::any())->shouldNotBeCalled();
@@ -534,7 +534,7 @@ class MergePluginTest extends \Prophecy\PhpUnit\ProphecyTestCase
         $root->getDevRequires()->shouldNotBeCalled();
         $root->getRepositories()->shouldNotBeCalled();
         $root->getConflicts()->shouldNotBeCalled();
-        $root->getReplaces()->shouldNotBeCalled();
+        $root->getReplaces()->shouldBeCalled();
         $root->getProvides()->shouldNotBeCalled();
         $root->getSuggests()->shouldNotBeCalled();
 
@@ -570,7 +570,7 @@ class MergePluginTest extends \Prophecy\PhpUnit\ProphecyTestCase
         $root->getDevRequires()->shouldNotBeCalled();
         $root->getRepositories()->shouldNotBeCalled();
         $root->getConflicts()->shouldNotBeCalled();
-        $root->getReplaces()->shouldNotBeCalled();
+        $root->getReplaces()->shouldBeCalled();
         $root->getProvides()->shouldNotBeCalled();
         $root->getSuggests()->shouldNotBeCalled();
 
@@ -607,7 +607,7 @@ class MergePluginTest extends \Prophecy\PhpUnit\ProphecyTestCase
         $root->getDevRequires()->shouldNotBeCalled();
         $root->getRepositories()->shouldNotBeCalled();
         $root->getConflicts()->shouldNotBeCalled();
-        $root->getReplaces()->shouldNotBeCalled();
+        $root->getReplaces()->shouldBeCalled();
         $root->getProvides()->shouldNotBeCalled();
         $root->getSuggests()->shouldNotBeCalled();
 
