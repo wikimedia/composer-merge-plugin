@@ -1,0 +1,7 @@
+{
+  "name": "foo/b",
+  "replace": {
+    "foo/b-sub1": "self.version",
+    "foo/b-sub2": "self.version"
+  }
+}

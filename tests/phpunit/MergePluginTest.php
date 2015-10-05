@@ -10,9 +10,12 @@
 
 namespace Wikimedia\Composer;
 
+use Composer\Config;
+use Composer\Package\Link;
+use Composer\Package\Loader\ArrayLoader;
+use Composer\Package\Loader\RootPackageLoader;
+use Composer\Package\Version\VersionParser;
 use Wikimedia\Composer\Merge\PluginState;
-use Wikimedia\Composer\Merge\ExtraPackage;
-
 use Composer\Composer;
 use Composer\DependencyResolver\Operation\InstallOperation;
 use Composer\Installer\InstallerEvent;
@@ -723,6 +726,34 @@ class MergePluginTest extends \Prophecy\PhpUnit\ProphecyTestCase
         $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
     }
 
+    /**
+     * Test replace link with self.version as version constraint.
+     */
+    public function testSelfVersion()
+    {
+        $that = $this;
+        $dir = $this->fixtureDir(__FUNCTION__);
+        $root = $this->rootFromJson("{$dir}/composer.json");
+
+        $root->setReplaces(Argument::type('array'))->will(
+            function ($args) use ($that) {
+                $replace = $args[0];
+                $that->assertEquals(3, count($replace));
+                $that->assertArrayHasKey('foo/b-sub1', $replace);
+                $that->assertArrayHasKey('foo/b-sub2', $replace);
+
+                $that->assertTrue($replace['foo/b'] instanceof Link);
+                $that->assertEquals($replace['foo/b']->getConstraint(), $replace['foo/b-sub1']->getConstraint());
+                $that->assertEquals($replace['foo/b']->getConstraint(), $replace['foo/b-sub2']->getConstraint());
+            }
+        );
+
+        $root->getRequires()->shouldNotBeCalled();
+
+        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
+        $this->assertEquals(0, count($extraInstalls));
+    }
+
 
     /**
      * @param RootPackage $package
@@ -806,6 +837,7 @@ class MergePluginTest extends \Prophecy\PhpUnit\ProphecyTestCase
     {
         $that = $this;
         $json = json_decode(file_get_contents($file), true);
+
         $data = array_merge(
             array(
                 'repositories' => array(),
@@ -822,17 +854,23 @@ class MergePluginTest extends \Prophecy\PhpUnit\ProphecyTestCase
             $json
         );
 
+        $config = new Config;
+        $config->merge(array('repositories' => array('packagist' => false)));
+        $manager = $this->prophesize('Composer\Repository\RepositoryManager');
+        $loader = new RootPackageLoader($manager->reveal(), $config);
+        $package = $loader->load($data, 'Composer\Package\RootPackage');
+
         $root = $this->prophesize('Composer\Package\RootPackage');
-        $root->getRequires()->willReturn($data['require'])->shouldBeCalled();
-        $root->getDevRequires()->willReturn($data['require-dev']);
-        $root->getRepositories()->willReturn($data['repositories']);
-        $root->getConflicts()->willReturn($data['conflict']);
-        $root->getReplaces()->willReturn($data['replace']);
-        $root->getProvides()->willReturn($data['provide']);
-        $root->getSuggests()->willReturn($data['suggest']);
-        $root->getExtra()->willReturn($data['extra'])->shouldBeCalled();
-        $root->getAutoload()->willReturn($data['autoload']);
-        $root->getDevAutoload()->willReturn($data['autoload-dev']);
+        $root->getRequires()->willReturn($package->getRequires())->shouldBeCalled();
+        $root->getDevRequires()->willReturn($package->getDevRequires());
+        $root->getRepositories()->willReturn($package->getRepositories());
+        $root->getConflicts()->willReturn($package->getConflicts());
+        $root->getReplaces()->willReturn($package->getReplaces());
+        $root->getProvides()->willReturn($package->getProvides());
+        $root->getSuggests()->willReturn($package->getSuggests());
+        $root->getExtra()->willReturn($package->getExtra())->shouldBeCalled();
+        $root->getAutoload()->willReturn($package->getAutoload());
+        $root->getDevAutoload()->willReturn($package->getDevAutoload());
 
         $root->getStabilityFlags()->willReturn(array());
         $root->setStabilityFlags(Argument::type('array'))->will(
