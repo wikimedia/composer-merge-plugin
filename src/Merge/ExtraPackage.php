@@ -10,6 +10,7 @@
 
 namespace Wikimedia\Composer\Merge;
 
+use Composer\Package\Link;
 use Wikimedia\Composer\Logger;
 
 use Composer\Composer;
@@ -361,10 +362,30 @@ class ExtraPackage
      */
     protected function mergeReplaces(RootPackage $root)
     {
-        $replaces = $this->package->getReplaces();
+        $rootReplaces = $root->getReplaces();
+
+        $replaces = array();
+        foreach ($this->package->getReplaces() as $name => $link) {
+            $constraint = $link->getConstraint();
+            $prettyConstraint = $link->getPrettyConstraint();
+
+            if ($prettyConstraint === 'self.version') {
+                $source = $rootReplaces[$link->getSource()];
+                $constraint = clone $source->getConstraint();
+                $prettyConstraint = $source->getPrettyConstraint();
+            }
+
+            $replaces[$name] = new Link(
+                $link->getSource(),
+                $link->getTarget(),
+                $constraint,
+                'replaces',
+                $prettyConstraint
+            );
+        }
         if (!empty($replaces)) {
             $root->setReplaces(array_merge(
-                $root->getReplaces(),
+                $rootReplaces,
                 $replaces
             ));
         }
