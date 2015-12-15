@@ -196,7 +196,7 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
     }
 
     protected function url_or_glob($path){
-        if(strpos ( string $path , 'http') == 0){
+        if(strpos ( $path , 'http') == 0){
             return new array('$path');
         }return{
             glob($path);
