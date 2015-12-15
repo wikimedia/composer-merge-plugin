@@ -120,8 +120,8 @@ class ExtraPackage
         }else{
             $file = new JsonFile($path);
         }
+        
         $json = $file->read();
-
         if (!isset($json['name'])) {
             $json['name'] = 'merge-plugin/' .
                 strtr($path, DIRECTORY_SEPARATOR, '-');

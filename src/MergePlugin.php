@@ -174,7 +174,6 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
      */
     protected function mergeFiles(array $patterns, $required = false)
     {
-        //here
         $root = $this->composer->getPackage();
 
         $files = array_map(
