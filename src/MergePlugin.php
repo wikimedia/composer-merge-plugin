@@ -197,7 +197,7 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
 
     protected function url_or_glob($path){
         if(strpos ( $path , 'http') == 0){
-            return array('$path');
+            return array($path);
         }else{
             glob($path);
         }
@@ -211,6 +211,7 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
      */
     protected function mergeFile(RootPackageInterface $root, $path)
     {
+        //here
         if (isset($this->loadedFiles[$path])) {
             $this->logger->debug("Already merged <comment>$path</comment>");
             return;
@@ -219,7 +220,8 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
         }
         $this->logger->info("Loading <comment>{$path}</comment>...");
 
-        $package = new ExtraPackage($path, $this->composer, $this->logger);
+        //here!
+        $package = new ExtraPackage($path, $this->composer, $this->logger, $this->io);
         $package->mergeInto($root, $this->state);
 
         if ($this->state->recurseIncludes()) {
