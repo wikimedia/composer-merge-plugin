@@ -117,7 +117,7 @@ class ExtraPackage
     {
         // need to pass rfs
         if(strpos ( $path , 'http') == 0){
-            $file = new JsonFile($path, new RemoteFilesystem($io));
+            $file = new JsonFile($path, new RemoteFilesystem($this->io));
         }else{
             $file = new JsonFile($path);
         }
