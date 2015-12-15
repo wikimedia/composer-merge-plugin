@@ -102,6 +102,11 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
     protected $logger;
 
     /**
+     * @var IOInterface $io
+     */
+    protected $io;
+
+    /**
      * Files that have already been processed
      *
      * @var string[] $loadedFiles
@@ -115,6 +120,7 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
     {
         $this->composer = $composer;
         $this->state = new PluginState($this->composer);
+        $this->io = $io;
         $this->logger = new Logger('merge-plugin', $io);
     }
 
@@ -168,6 +174,7 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
      */
     protected function mergeFiles(array $patterns, $required = false)
     {
+        //here
         $root = $this->composer->getPackage();
 
         $files = array_map(
@@ -179,12 +186,20 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
                 }
                 return $files;
             },
-            array_map('glob', $patterns),
+            array_map('url_or_glob', $patterns),
             $patterns
         );
 
         foreach (array_reduce($files, 'array_merge', array()) as $path) {
             $this->mergeFile($root, $path);
+        }
+    }
+
+    protected function url_or_glob($path){
+        if(strpos ( string $path , 'http') == 0){
+            return new array('$path');
+        }return{
+            glob($path);
         }
     }
 
