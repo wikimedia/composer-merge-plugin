@@ -186,7 +186,7 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
                 }
                 return $files;
             },
-            array_map('url_or_glob', $patterns),
+            array_map(array($this, 'url_or_glob'), $patterns),
             $patterns
         );
 
@@ -197,8 +197,8 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
 
     protected function url_or_glob($path){
         if(strpos ( $path , 'http') == 0){
-            return new array('$path');
-        }return{
+            return array('$path');
+        }else{
             glob($path);
         }
     }
