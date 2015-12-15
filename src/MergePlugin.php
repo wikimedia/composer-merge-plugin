@@ -186,7 +186,7 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
                 }
                 return $files;
             },
-            array_map(array($this, 'url_or_glob'), $patterns),
+            array_map(array($this, 'validatePath'), $patterns),
             $patterns
         );
 
@@ -195,11 +195,16 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
         }
     }
 
-    protected function url_or_glob($path){
+    protected function validatePath($path){
         if(strpos ( $path , 'http') == 0){
-            return array($path);
+            $headers = get_headers ( $path );
+            if ( strpos($headers[0], '404') == 0){
+                return array($path);    
+            }else{
+                return [];
+            }
         }else{
-            glob($path);
+            return glob($path);
         }
     }
 
