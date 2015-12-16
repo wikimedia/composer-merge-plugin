@@ -102,6 +102,11 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
     protected $logger;
 
     /**
+     * @var IOInterface $io
+     */
+    protected $io;
+
+    /**
      * Files that have already been processed
      *
      * @var string[] $loadedFiles
@@ -115,6 +120,7 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
     {
         $this->composer = $composer;
         $this->state = new PluginState($this->composer);
+        $this->io = $io;
         $this->logger = new Logger('merge-plugin', $io);
     }
 
@@ -179,12 +185,25 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
                 }
                 return $files;
             },
-            array_map('glob', $patterns),
+            array_map(array($this, 'validatePath'), $patterns),
             $patterns
         );
 
         foreach (array_reduce($files, 'array_merge', array()) as $path) {
             $this->mergeFile($root, $path);
+        }
+    }
+
+    protected function validatePath($path){
+        if(substr($path, 0, 4) === 'http'){
+            $headers = get_headers ( $path );
+            $valid = array();
+            if ( preg_match('#^HTTP/.*\s+[(200|301|302|307|308)]+\s#i', $headers[0]) ){
+                $valid[] = $path;
+            }
+            return $valid;
+        }else{
+            return glob($path);
         }
     }
 
@@ -204,7 +223,7 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
         }
         $this->logger->info("Loading <comment>{$path}</comment>...");
 
-        $package = new ExtraPackage($path, $this->composer, $this->logger);
+        $package = new ExtraPackage($path, $this->composer, $this->logger, $this->io);
         $package->mergeInto($root, $this->state);
 
         if ($this->state->recurseIncludes()) {

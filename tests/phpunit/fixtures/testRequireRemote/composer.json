@@ -1,0 +1,7 @@
+{
+    "extra": {
+        "merge-plugin": {
+            "require": "https://raw.githubusercontent.com/wikimedia/composer-merge-plugin/master/example/composer.local.json"
+        }
+    }
+}

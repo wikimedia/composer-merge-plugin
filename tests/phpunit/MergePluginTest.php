@@ -928,6 +928,26 @@ class MergePluginTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(0, count($extraInstalls));
     }
 
+    public function testRequireRemote()
+    {
+        $that = $this;
+        $dir = $this->fixtureDir(__FUNCTION__);
+
+        $root = $this->rootFromJson("{$dir}/composer.json");
+
+        $root->setRequires(Argument::type('array'))->will(
+            function ($args) use ($that) {
+                $requires = $args[0];
+                $that->assertEquals(1, count($requires));
+                $that->assertArrayHasKey('monolog/monolog', $requires);
+            }
+        );
+
+        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
+
+        $this->assertEquals(0, count($extraInstalls));
+    }
+
 
     /**
      * @param RootPackage $package
