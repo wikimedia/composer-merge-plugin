@@ -22,6 +22,8 @@ use Composer\Package\RootAliasPackage;
 use Composer\Package\RootPackage;
 use Composer\Package\RootPackageInterface;
 use Composer\Package\Version\VersionParser;
+use Composer\IO\IOInterface;
+use Composer\Util\RemoteFilesystem;
 use UnexpectedValueException;
 
 /**
@@ -44,6 +46,11 @@ class ExtraPackage
     protected $logger;
 
     /**
+     * @var IOInterface $io
+     */
+    protected $io;
+
+    /**
      * @var string $path
      */
     protected $path;
@@ -63,11 +70,12 @@ class ExtraPackage
      * @param Composer $composer
      * @param Logger $logger
      */
-    public function __construct($path, Composer $composer, Logger $logger)
+    public function __construct($path, Composer $composer, Logger $logger, IOInterface $io)
     {
         $this->path = $path;
         $this->composer = $composer;
         $this->logger = $logger;
+        $this->io = $io;
         $this->json = $this->readPackageJson($path);
         $this->package = $this->loadPackage($this->json);
     }
@@ -107,7 +115,12 @@ class ExtraPackage
      */
     protected function readPackageJson($path)
     {
-        $file = new JsonFile($path);
+        if(strpos ( $path , 'http') == 0){
+            $file = new JsonFile($path, new RemoteFilesystem($this->io));
+        }else{
+            $file = new JsonFile($path);
+        }
+        
         $json = $file->read();
         if (!isset($json['name'])) {
             $json['name'] = 'merge-plugin/' .
