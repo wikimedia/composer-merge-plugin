@@ -12,6 +12,7 @@ php:
 sudo: false
 
 before_script:
+  - echo "test"
   - travis_retry composer self-update
   - travis_retry composer install --prefer-source --no-interaction
 
