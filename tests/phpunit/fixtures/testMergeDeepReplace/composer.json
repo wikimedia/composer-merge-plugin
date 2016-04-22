@@ -1,0 +1,22 @@
+{
+    "extra": {
+        "merge-plugin": {
+            "merge-extra": true,
+            "merge-deep": true,
+            "replace": true,
+            "include": "composer.local.json"
+        },
+        "patches": {
+            "wikimedia/composer-merge-plugin": {
+                "Add tests for merge-deep option": "patches/add-tests-for-merge-deep-option.diff"
+            },
+            "somevendor/some-project": {
+                "some-patch": "patches/some-patch.diff"
+            },
+            "anothervendor/some-project": {
+                "another-patch": "patches/another-patch.diff"
+            }
+        },
+        "list": [ "first", "second" ]
+    }
+}
