@@ -75,6 +75,24 @@ class PluginState
     protected $mergeExtra = false;
 
     /**
+     * Whether to merge in a deep / recursive way.
+     *
+     * By default the sections are merged with array_merge() and duplicate
+     * keys are ignored. When enabled this allows to merge the arrays recursively
+     * using the following rule: Integer keys are merged, while array values are
+     * replaced where the later values overwrite the former.
+     *
+     * This is useful especially for the extra section when plugins use larger
+     * structures like a 'patches' key with the packages as sub-keys and the
+     * patches as values.
+     *
+     * When 'replace' mode is activated the order of array merges is exchanged.
+     *
+     * @var bool $mergeDeep
+     */
+    protected $mergeDeep = false;
+
+    /**
      * @var bool $firstInstall
      */
     protected $firstInstall = false;
@@ -116,6 +134,7 @@ class PluginState
                 'replace' => false,
                 'merge-dev' => true,
                 'merge-extra' => false,
+                'merge-deep' => false,
             ),
             isset($extra['merge-plugin']) ? $extra['merge-plugin'] : array()
         );
@@ -128,6 +147,7 @@ class PluginState
         $this->replace = (bool)$config['replace'];
         $this->mergeDev = (bool)$config['merge-dev'];
         $this->mergeExtra = (bool)$config['merge-extra'];
+        $this->mergeDeep = (bool)$config['merge-deep'];
     }
 
     /**
@@ -322,6 +342,27 @@ class PluginState
     public function shouldMergeExtra()
     {
         return $this->mergeExtra;
+    }
+
+    /**
+     * Should the sections be merged deep / recursively?
+     *
+     * By default the sections are merged with array_merge() and duplicate
+     * keys are ignored. When enabled this allows to merge the arrays recursively
+     * using the following rule: Integer keys are merged, while array values are
+     * replaced where the later values overwrite the former.
+     *
+     * This is useful especially for the extra section when plugins use larger
+     * structures like a 'patches' key with the packages as sub-keys and the
+     * patches as values.
+     *
+     * When 'replace' mode is activated the order of array merges is exchanged.
+     *
+     * @return bool
+     */
+    public function shouldMergeDeep()
+    {
+        return $this->mergeDeep;
     }
 }
 // vim:sw=4:ts=4:sts=4:et:
