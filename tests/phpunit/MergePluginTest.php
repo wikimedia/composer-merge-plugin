@@ -25,6 +25,7 @@ use Composer\Package\Locker;
 use Composer\Package\Package;
 use Composer\Package\RootPackage;
 use Composer\Package\Version\VersionParser;
+use Composer\Plugin\PluginEvents;
 use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
 use Prophecy\Argument;
@@ -71,11 +72,12 @@ class MergePluginTest extends \PHPUnit_Framework_TestCase
     public function testSubscribedEvents()
     {
         $subscriptions = MergePlugin::getSubscribedEvents();
-        $this->assertEquals(7, count($subscriptions));
+        $this->assertEquals(8, count($subscriptions));
         $this->assertArrayHasKey(
             InstallerEvents::PRE_DEPENDENCIES_SOLVING,
             $subscriptions
         );
+        $this->assertArrayHasKey(PluginEvents::INIT, $subscriptions);
         $this->assertArrayHasKey(ScriptEvents::PRE_INSTALL_CMD, $subscriptions);
         $this->assertArrayHasKey(ScriptEvents::PRE_UPDATE_CMD, $subscriptions);
         $this->assertArrayHasKey(ScriptEvents::PRE_AUTOLOAD_DUMP, $subscriptions);
@@ -1089,6 +1091,11 @@ class MergePluginTest extends \PHPUnit_Framework_TestCase
     {
         chdir($directory);
         $this->composer->getPackage()->willReturn($package);
+
+        $event = new \Composer\EventDispatcher\Event(
+            PluginEvents::INIT
+        );
+        $this->fixture->onInit($event);
 
         $event = new Event(
             ScriptEvents::PRE_INSTALL_CMD,
