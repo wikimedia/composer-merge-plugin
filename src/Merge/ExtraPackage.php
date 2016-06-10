@@ -409,23 +409,99 @@ class ExtraPackage
 
         if ($state->replaceDuplicateLinks()) {
             $unwrapped->setExtra(
-                array_merge($rootExtra, $extra)
+                $this->arrayMerge($state->shouldMergeDeep(), $rootExtra, $extra)
             );
-
         } else {
-            foreach (array_intersect(
-                array_keys($extra),
-                array_keys($rootExtra)
-            ) as $key) {
-                $this->logger->info(
-                    "Ignoring duplicate <comment>{$key}</comment> in ".
-                    "<comment>{$this->path}</comment> extra config."
-                );
+            if (!$state->shouldMergeDeep()) {
+                foreach (array_intersect(
+                    array_keys($extra),
+                    array_keys($rootExtra)
+                ) as $key) {
+                    $this->logger->info(
+                        "Ignoring duplicate <comment>{$key}</comment> in ".
+                        "<comment>{$this->path}</comment> extra config."
+                    );
+                }
             }
             $unwrapped->setExtra(
-                array_merge($extra, $rootExtra)
+                $this->arrayMerge($state->shouldMergeDeep(), $extra, $rootExtra)
             );
         }
+    }
+
+    /**
+     * Merges two arrays either via arrayMergeDeep or via array_merge.
+     *
+     * @param bool $mergeDeep
+     * @param array $array1
+     * @param array $array2
+     * @return array
+     */
+    protected function arrayMerge($mergeDeep, $array1, $array2)
+    {
+        if ($mergeDeep) {
+            return $this->arrayMergeDeep($array1, $array2);
+        }
+
+        return array_merge($array1, $array2);
+    }
+
+    /**
+     * Merges multiple arrays, recursively, and returns the merged array.
+     *
+     * This function is similar to PHP's array_merge_recursive() function, but it
+     * handles non-array values differently. When merging values that are not both
+     * arrays, the latter value replaces the former rather than merging with it.
+     *
+     * Example:
+     * @code
+     * $link_options_1 = array('fragment' => 'x', 'attributes' => array('title' => t('X'), 'class' => array('a', 'b')));
+     * $link_options_2 = array('fragment' => 'y', 'attributes' => array('title' => t('Y'), 'class' => array('c', 'd')));
+     *
+     * // This results in array(
+     * //     'fragment' => array('x', 'y'),
+     * //     'attributes' => array('title' => array(t('X'), t('Y')), 'class' => array('a', 'b', 'c', 'd'))
+     * // ).
+     * $incorrect = array_merge_recursive($link_options_1, $link_options_2);
+     *
+     * // This results in array(
+     * //     'fragment' => 'y',
+     * //     'attributes' => array('title' => t('Y'), 'class' => array('a', 'b', 'c', 'd'))
+     * // ).
+     * $correct = $this->arrayMergeDeep($link_options_1, $link_options_2);
+     * @endcode
+     *
+     * Note: This function was derived from Drupal's drupal_array_merge_deep().
+     *
+     * @param array ...
+     *   Arrays to merge.
+     *
+     * @return array
+     *   The merged array.
+     */
+    protected function arrayMergeDeep()
+    {
+        $arrays = func_get_args();
+        $result = array();
+
+        foreach ($arrays as $array) {
+            foreach ($array as $key => $value) {
+                // Renumber integer keys as array_merge_recursive() does. Note that PHP
+                // automatically converts array keys that are integer strings (e.g., '1')
+                // to integers.
+                if (is_integer($key)) {
+                    $result[] = $value;
+                } elseif (isset($result[$key]) && is_array($result[$key]) && is_array($value)) {
+                    // Recurse when both values are arrays.
+                    $result[$key] = $this->arrayMergeDeep($result[$key], $value);
+                } else {
+                    // Otherwise, use the latter value, overriding any previous value.
+                    $result[$key] = $value;
+                }
+            }
+        }
+
+        return $result;
     }
 
     /**

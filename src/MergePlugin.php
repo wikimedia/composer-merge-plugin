@@ -26,6 +26,7 @@ use Composer\Installer\PackageEvents;
 use Composer\IO\IOInterface;
 use Composer\Package\RootPackageInterface;
 use Composer\Plugin\PluginInterface;
+use Composer\Plugin\PluginEvents;
 use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
 
@@ -124,6 +125,7 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
+            PluginEvents::INIT => 'onInit',
             InstallerEvents::PRE_DEPENDENCIES_SOLVING => 'onDependencySolve',
             PackageEvents::POST_PACKAGE_INSTALL => 'onPostPackageInstall',
             ScriptEvents::POST_INSTALL_CMD => 'onPostInstallOrUpdate',
@@ -132,6 +134,21 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
             ScriptEvents::PRE_INSTALL_CMD => 'onInstallUpdateOrDump',
             ScriptEvents::PRE_UPDATE_CMD => 'onInstallUpdateOrDump',
         );
+    }
+
+    /**
+     * Handle an event callback for initialization.
+     *
+     * @param \Composer\EventDispatcher\Event $event
+     */
+    public function onInit(\Composer\EventDispatcher\Event $event)
+    {
+        $this->state->loadSettings();
+        // @todo devMode cannot be properly detected at this stage, but
+        //       merging it should not hurt.
+        $this->state->setDevMode(true);
+        $this->mergeFiles($this->state->getIncludes(), false);
+        $this->mergeFiles($this->state->getRequires(), true);
     }
 
     /**
