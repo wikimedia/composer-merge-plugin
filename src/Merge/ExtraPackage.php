@@ -11,6 +11,7 @@
 namespace Wikimedia\Composer\Merge;
 
 use Wikimedia\Composer\Logger;
+use Wikimedia\Composer\NestedArray;
 
 use Composer\Composer;
 use Composer\Json\JsonFile;
