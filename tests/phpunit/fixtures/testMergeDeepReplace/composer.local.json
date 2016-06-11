@@ -2,7 +2,7 @@
     "extra": {
         "patches": {
             "wikimedia/composer-merge-plugin": {
-                "Allow merging of sections in a deep way": "patches/add-merge-deep-option.diff"
+                "Allow merging of sections in a deep way": "patches/add-merge-extra-deep-option.diff"
             },
             "somevendor/some-project": {
                 "some-patch": "patches/overridden-patch.diff"

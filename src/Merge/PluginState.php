@@ -75,9 +75,9 @@ class PluginState
     protected $mergeExtra = false;
 
     /**
-     * Whether to merge in a deep / recursive way.
+     * Whether to merge the extra section in a deep / recursive way.
      *
-     * By default the sections are merged with array_merge() and duplicate
+     * By default the extra section is merged with array_merge() and duplicate
      * keys are ignored. When enabled this allows to merge the arrays recursively
      * using the following rule: Integer keys are merged, while array values are
      * replaced where the later values overwrite the former.
@@ -88,9 +88,9 @@ class PluginState
      *
      * When 'replace' mode is activated the order of array merges is exchanged.
      *
-     * @var bool $mergeDeep
+     * @var bool $mergeExtraDeep
      */
-    protected $mergeDeep = false;
+    protected $mergeExtraDeep = false;
 
     /**
      * @var bool $firstInstall
@@ -134,7 +134,7 @@ class PluginState
                 'replace' => false,
                 'merge-dev' => true,
                 'merge-extra' => false,
-                'merge-deep' => false,
+                'merge-extra-deep' => false,
             ),
             isset($extra['merge-plugin']) ? $extra['merge-plugin'] : array()
         );
@@ -147,7 +147,7 @@ class PluginState
         $this->replace = (bool)$config['replace'];
         $this->mergeDev = (bool)$config['merge-dev'];
         $this->mergeExtra = (bool)$config['merge-extra'];
-        $this->mergeDeep = (bool)$config['merge-deep'];
+        $this->mergeExtraDeep = (bool)$config['merge-extra-deep'];
     }
 
     /**
@@ -345,9 +345,9 @@ class PluginState
     }
 
     /**
-     * Should the sections be merged deep / recursively?
+     * Should the extra section be merged deep / recursively?
      *
-     * By default the sections are merged with array_merge() and duplicate
+     * By default the extra section is merged with array_merge() and duplicate
      * keys are ignored. When enabled this allows to merge the arrays recursively
      * using the following rule: Integer keys are merged, while array values are
      * replaced where the later values overwrite the former.
@@ -360,9 +360,9 @@ class PluginState
      *
      * @return bool
      */
-    public function shouldMergeDeep()
+    public function shouldMergeExtraDeep()
     {
-        return $this->mergeDeep;
+        return $this->mergeExtraDeep;
     }
 }
 // vim:sw=4:ts=4:sts=4:et:

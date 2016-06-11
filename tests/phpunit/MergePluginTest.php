@@ -634,14 +634,14 @@ class MergePluginTest extends \PHPUnit_Framework_TestCase
     /**
      * Given a root package with an extra section
      *   and a composer.local.json with an extra section with conflicting keys that are arrays
-     *   and the 'merge-deep' option being activated
+     *   and the 'merge-extra-deep' option being activated
      * When the plugin is run
      * Then the root package extra section should be extended with content from the base config
      *   and deep keys should be merged together, but root config wins on key conflicts.
      *
      * @dataProvider provideDeepMerge
      */
-    public function testMergeDeep($suffix, $replace)
+    public function testMergeExtraDeep($suffix, $replace)
     {
         $that = $this;
         $dir = $this->fixtureDir(__FUNCTION__ . $suffix);
@@ -658,9 +658,9 @@ class MergePluginTest extends \PHPUnit_Framework_TestCase
                 $that->assertArrayHasKey('wikimedia/composer-merge-plugin', $extra['patches']);
                 $patches = $extra['patches']['wikimedia/composer-merge-plugin'];
                 $key = 'Allow merging of sections in a deep way';
-                $that->assertEquals('patches/add-merge-deep-option.diff', $patches[$key]);
-                $key = 'Add tests for merge-deep option';
-                $that->assertEquals('patches/add-tests-for-merge-deep-option.diff', $patches[$key]);
+                $that->assertEquals('patches/add-merge-extra-deep-option.diff', $patches[$key]);
+                $key = 'Add tests for merge-extra-deep option';
+                $that->assertEquals('patches/add-tests-for-merge-extra-deep-option.diff', $patches[$key]);
                 $that->assertArrayHasKey('somevendor/some-project', $extra['patches']);
                 $that->assertArrayHasKey('some-patch', $extra['patches']['somevendor/some-project']);
                 $value = $extra['patches']['somevendor/some-project']['some-patch'];

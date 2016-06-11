@@ -50,7 +50,7 @@ Usage
             "replace": false,
             "merge-dev": true,
             "merge-extra": false,
-            "merge-deep": false
+            "merge-extra-deep": false
         }
     }
 }
@@ -128,7 +128,7 @@ section is to accept the first version of any key found (e.g. a key in the
 master config wins over the version found in any imported config). If
 `replace` mode is active ([see above](#replace)) then this behavior changes
 and the last key found will win (e.g. the key in the master config is replaced
-by the key in the imported config). If `"merge-deep": true` is specified then,
+by the key in the imported config). If `"merge-extra-deep": true` is specified then,
 the sections are merged similar to array_merge_recursive() - however duplicate
 string array keys are replaced instead of merged, while numeric array keys are
 merged as usual. The usefulness of merging the extra section will vary depending on the
