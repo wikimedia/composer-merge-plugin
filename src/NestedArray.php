@@ -39,7 +39,7 @@ class NestedArray
      * //     'fragment' => 'y',
      * //     'attributes' => array('title' => t('Y'), 'class' => array('a', 'b', 'c', 'd'))
      * // ).
-     * $correct = $this->arrayMergeDeep($link_options_1, $link_options_2);
+     * $correct = NestedArray::mergeDeep($link_options_1, $link_options_2);
      * @endcode
      *
      * Note: This function was derived from Drupal's drupal_array_merge_deep().
