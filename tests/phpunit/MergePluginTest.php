@@ -77,7 +77,7 @@ class MergePluginTest extends \PHPUnit_Framework_TestCase
             InstallerEvents::PRE_DEPENDENCIES_SOLVING,
             $subscriptions
         );
-        $this->assertArrayHasKey(PluginEvents::INIT, $subscriptions);
+        $this->assertArrayHasKey(MergePlugin::INIT, $subscriptions);
         $this->assertArrayHasKey(ScriptEvents::PRE_INSTALL_CMD, $subscriptions);
         $this->assertArrayHasKey(ScriptEvents::PRE_UPDATE_CMD, $subscriptions);
         $this->assertArrayHasKey(ScriptEvents::PRE_AUTOLOAD_DUMP, $subscriptions);
@@ -1029,7 +1029,7 @@ class MergePluginTest extends \PHPUnit_Framework_TestCase
         $this->composer->getPackage()->willReturn($package);
 
         $event = new \Composer\EventDispatcher\Event(
-            PluginEvents::INIT
+            MergePlugin::INIT
         );
         $this->fixture->onInit($event);
 
