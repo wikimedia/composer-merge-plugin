@@ -235,14 +235,14 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
             return;
         }
 
-        $this->logger->info("Loading <comment>{$path}</comment>...");
-
         $package = new ExtraPackage($path, $this->composer, $this->logger);
 
         // If something was already loaded, merge just the dev section.
         if (isset($this->partiallyLoadedFiles[$path])) {
+            $this->logger->info("Loading -dev sections of <comment>{$path}</comment>...");
             $package->mergeDev($root, $this->state);
         } else {
+            $this->logger->info("Loading <comment>{$path}</comment>...");
             $package->mergeInto($root, $this->state);
         }
 
