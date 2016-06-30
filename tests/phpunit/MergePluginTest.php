@@ -77,7 +77,7 @@ class MergePluginTest extends \PHPUnit_Framework_TestCase
             InstallerEvents::PRE_DEPENDENCIES_SOLVING,
             $subscriptions
         );
-        $this->assertArrayHasKey(MergePlugin::INIT, $subscriptions);
+        $this->assertArrayHasKey(MergePlugin::COMPAT_PLUGINEVENTS_INIT, $subscriptions);
         $this->assertArrayHasKey(ScriptEvents::PRE_INSTALL_CMD, $subscriptions);
         $this->assertArrayHasKey(ScriptEvents::PRE_UPDATE_CMD, $subscriptions);
         $this->assertArrayHasKey(ScriptEvents::PRE_AUTOLOAD_DUMP, $subscriptions);
@@ -308,6 +308,13 @@ class MergePluginTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(2, count($extraInstalls));
         $this->assertEquals('monolog/monolog', $extraInstalls[0][0]);
         $this->assertEquals('foo', $extraInstalls[1][0]);
+
+        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir, true);
+
+        $this->assertEquals(2, count($extraInstalls));
+        $this->assertEquals('monolog/monolog', $extraInstalls[0][0]);
+        $this->assertEquals('foo', $extraInstalls[1][0]);
+
     }
 
 
@@ -388,6 +395,10 @@ class MergePluginTest extends \PHPUnit_Framework_TestCase
         $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
 
         $this->assertEquals(0, count($extraInstalls));
+
+        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir, true);
+
+        $this->assertEquals(0, count($extraInstalls));
     }
 
 
@@ -444,6 +455,10 @@ class MergePluginTest extends \PHPUnit_Framework_TestCase
         $root->setSuggests(Argument::any())->shouldNotBeCalled();
 
         $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
+
+        $this->assertEquals(0, count($extraInstalls));
+
+        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir, true);
 
         $this->assertEquals(0, count($extraInstalls));
     }
@@ -749,6 +764,7 @@ class MergePluginTest extends \PHPUnit_Framework_TestCase
         $alias = $alias->reveal();
 
         $this->triggerPlugin($alias, $dir);
+        $this->triggerPlugin($alias, $dir, true);
     }
 
 
@@ -944,6 +960,10 @@ class MergePluginTest extends \PHPUnit_Framework_TestCase
 
         $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
         $this->assertEquals(0, count($extraInstalls));
+
+        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir, true);
+        $this->assertEquals(0, count($extraInstalls));
+
     }
 
 
@@ -1000,38 +1020,62 @@ class MergePluginTest extends \PHPUnit_Framework_TestCase
             }
         )->shouldBeCalled();
 
+        $second_call = function ($args) use ($that) {
+            $references = $args[0];
+            $that->assertEquals(3, count($references));
+
+            $that->assertArrayHasKey('foo/bar', $references);
+            $that->assertArrayHasKey('monolog/monolog', $references);
+            $that->assertArrayHasKey('foo/baz', $references);
+
+            $that->assertSame($references['foo/bar'], '1234567');
+            $that->assertSame($references['monolog/monolog'], 'cb641a8');
+            $that->assertSame($references['foo/baz'], 'abc1234');
+        };
+
+        $root->setReferences(Argument::type('array'))->will($second_call);
+        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
+
+        // Test with onInit event.
         $root->setReferences(Argument::type('array'))->will(
-            function ($args) use ($that) {
+            function ($args) use ($that, $root, $second_call) {
                 $references = $args[0];
-                $that->assertEquals(3, count($references));
+                $that->assertEquals(2, count($references));
 
                 $that->assertArrayHasKey('foo/bar', $references);
                 $that->assertArrayHasKey('monolog/monolog', $references);
-                $that->assertArrayHasKey('foo/baz', $references);
 
                 $that->assertSame($references['foo/bar'], '1234567');
                 $that->assertSame($references['monolog/monolog'], 'cb641a8');
-                $that->assertSame($references['foo/baz'], 'abc1234');
+
+                // onInit does parse without require-dev, so this is called a
+                // second time when onInstallUpdateOrDump() fires with the dev
+                // section parsed as well.
+                $root->setReferences(Argument::type('array'))->will($second_call);
             }
         );
-        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
+
+        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir, true);
     }
 
 
     /**
      * @param RootPackage $package
      * @param string $directory Working directory for composer run
+     * @param bool $use_init_event If the init event should be triggered.
      * @return array Constrains added by MergePlugin::onDependencySolve
      */
-    protected function triggerPlugin($package, $directory)
+    protected function triggerPlugin($package, $directory, $use_init_event = false)
     {
         chdir($directory);
         $this->composer->getPackage()->willReturn($package);
 
         $event = new \Composer\EventDispatcher\Event(
-            MergePlugin::INIT
+            MergePlugin::COMPAT_PLUGINEVENTS_INIT
         );
-        $this->fixture->onInit($event);
+        if ($use_init_event) {
+            $this->fixture->onInit($event);
+        }
 
         $event = new Event(
             ScriptEvents::PRE_INSTALL_CMD,
