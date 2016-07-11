@@ -34,6 +34,7 @@ use ReflectionProperty;
 /**
  * @covers Wikimedia\Composer\Logger
  * @covers Wikimedia\Composer\Merge\ExtraPackage
+ * @covers Wikimedia\Composer\Merge\NestedArray
  * @covers Wikimedia\Composer\Merge\PluginState
  * @covers Wikimedia\Composer\Merge\StabilityFlags
  * @covers Wikimedia\Composer\MergePlugin
