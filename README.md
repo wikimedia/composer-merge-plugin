@@ -50,6 +50,7 @@ Usage
             ],
             "recurse": true,
             "replace": false,
+            "skip": false,
             "merge-dev": true,
             "merge-extra": false,
             "merge-extra-deep": false,
@@ -118,6 +119,13 @@ package declarations found in merged files will overwrite the declarations
 made by earlier files. Files are loaded in the order specified by the
 `include` setting with globbed files being processed in alphabetical order.
 
+### skip
+
+By default, Composer's conflict resolution engine is used to determine which
+version of a package should be installed when multiple files specify the same
+package. A `"skip": true` setting can be provided to change to a "skip" 
+resolution strategy. In this mode, duplicate package declarations found in 
+merged files will be ignored, and the root file will take precedence.
 
 ### merge-dev
 
