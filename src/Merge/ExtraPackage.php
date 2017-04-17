@@ -276,7 +276,8 @@ class ExtraPackage
         $state
     ) {
         if ($state->ignoreDuplicateLinks() && $state->replaceDuplicateLinks()) {
-            $this->logger->warning("Both replace and ignore-duplicates are set to true. These settings are mutually exclusive. Duplicate packages will be ignored.");
+            $this->logger->warning("Both replace and ignore-duplicates are true. These are mutually exclusive.");
+            $this->logger->warning("Duplicate packages will be ignored.");
         }
 
         $dups = array();
