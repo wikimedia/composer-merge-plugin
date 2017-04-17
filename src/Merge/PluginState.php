@@ -55,9 +55,9 @@ class PluginState
     protected $replace = false;
 
     /**
-     * @var bool $skip
+     * @var bool $ignore
      */
-    protected $skip = false;
+    protected $ignore = false;
 
     /**
      * Whether to merge the -dev sections.
@@ -144,7 +144,7 @@ class PluginState
                 'require' => array(),
                 'recurse' => true,
                 'replace' => false,
-                'skip' => false,
+                'ignore-duplicates' => false,
                 'merge-dev' => true,
                 'merge-extra' => false,
                 'merge-extra-deep' => false,
@@ -159,7 +159,7 @@ class PluginState
             $config['require'] : array($config['require']);
         $this->recurse = (bool)$config['recurse'];
         $this->replace = (bool)$config['replace'];
-        $this->skip = (bool)$config['skip'];
+        $this->ignore = (bool)$config['ignore-duplicates'];
         $this->mergeDev = (bool)$config['merge-dev'];
         $this->mergeExtra = (bool)$config['merge-extra'];
         $this->mergeExtraDeep = (bool)$config['merge-extra-deep'];
@@ -354,13 +354,13 @@ class PluginState
     }
 
     /**
-     * Should duplicate links be skipped?
+     * Should duplicate links be ignored?
      *
      * @return bool
      */
-    public function skipDuplicateLinks()
+    public function ignoreDuplicateLinks()
     {
-        return $this->skip;
+        return $this->ignore;
     }
 
     /**

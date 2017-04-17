@@ -275,9 +275,13 @@ class ExtraPackage
         array $merge,
         $state
     ) {
+        if ($state->ignoreDuplicateLinks() && $state->replaceDuplicateLinks()) {
+            $this->logger->warning("Both replace and ignore-duplicates are set to true. These settings are mutually exclusive. Duplicate packages will be ignored.");
+        }
+
         $dups = array();
         foreach ($merge as $name => $link) {
-            if (isset($origin[$name]) && $state->skipDuplicateLinks()) {
+            if (isset($origin[$name]) && $state->ignoreDuplicateLinks()) {
                 $this->logger->info("Skipping <comment>{$name}</comment>");
                 continue;
             } elseif (!isset($origin[$name]) || $state->replaceDuplicateLinks()) {

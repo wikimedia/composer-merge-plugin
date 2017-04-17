@@ -11,7 +11,8 @@
   },
   "extra": {
     "merge-plugin": {
-      "skip" : true,
+      "ignore-duplicates" : true,
+      "replace": true,
       "include": [
         "composer.local.json"
       ]
