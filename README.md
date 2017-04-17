@@ -50,7 +50,7 @@ Usage
             ],
             "recurse": true,
             "replace": false,
-            "skip": false,
+            "ignore-duplicates": false,
             "merge-dev": true,
             "merge-extra": false,
             "merge-extra-deep": false,
