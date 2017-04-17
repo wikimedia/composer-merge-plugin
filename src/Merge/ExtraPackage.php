@@ -282,7 +282,7 @@ class ExtraPackage
         $dups = array();
         foreach ($merge as $name => $link) {
             if (isset($origin[$name]) && $state->ignoreDuplicateLinks()) {
-                $this->logger->info("Skipping <comment>{$name}</comment>");
+                $this->logger->info("Ignoring duplicate <comment>{$name}</comment>");
                 continue;
             } elseif (!isset($origin[$name]) || $state->replaceDuplicateLinks()) {
                 $this->logger->info("Merging <comment>{$name}</comment>");
