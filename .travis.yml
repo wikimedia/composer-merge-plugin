@@ -11,8 +11,12 @@ php:
 
 sudo: false
 
+env:
+  global:
+    - COMPOSER_DISABLE_XDEBUG_WARN=1
+
 before_script:
-  - travis_retry composer self-update
+  - if [ "$TRAVIS_PHP_VERSION" = "5.3.3" ]; then composer config disable-tls true; composer config secure-http false; fi
   - travis_retry composer install --prefer-source --no-interaction
 
 script: composer test

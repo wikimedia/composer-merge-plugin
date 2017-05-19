@@ -55,6 +55,11 @@ class PluginState
     protected $replace = false;
 
     /**
+     * @var bool $ignore
+     */
+    protected $ignore = false;
+
+    /**
      * Whether to merge the -dev sections.
      * @var bool $mergeDev
      */
@@ -73,6 +78,31 @@ class PluginState
      * @var bool $mergeExtra
      */
     protected $mergeExtra = false;
+
+    /**
+     * Whether to merge the extra section in a deep / recursive way.
+     *
+     * By default the extra section is merged with array_merge() and duplicate
+     * keys are ignored. When enabled this allows to merge the arrays recursively
+     * using the following rule: Integer keys are merged, while array values are
+     * replaced where the later values overwrite the former.
+     *
+     * This is useful especially for the extra section when plugins use larger
+     * structures like a 'patches' key with the packages as sub-keys and the
+     * patches as values.
+     *
+     * When 'replace' mode is activated the order of array merges is exchanged.
+     *
+     * @var bool $mergeExtraDeep
+     */
+    protected $mergeExtraDeep = false;
+
+    /**
+     * Whether to merge the scripts section.
+     *
+     * @var bool $mergeScripts
+     */
+    protected $mergeScripts = false;
 
     /**
      * @var bool $firstInstall
@@ -114,8 +144,11 @@ class PluginState
                 'require' => array(),
                 'recurse' => true,
                 'replace' => false,
+                'ignore-duplicates' => false,
                 'merge-dev' => true,
                 'merge-extra' => false,
+                'merge-extra-deep' => false,
+                'merge-scripts' => false,
             ),
             isset($extra['merge-plugin']) ? $extra['merge-plugin'] : array()
         );
@@ -126,8 +159,11 @@ class PluginState
             $config['require'] : array($config['require']);
         $this->recurse = (bool)$config['recurse'];
         $this->replace = (bool)$config['replace'];
+        $this->ignore = (bool)$config['ignore-duplicates'];
         $this->mergeDev = (bool)$config['merge-dev'];
         $this->mergeExtra = (bool)$config['merge-extra'];
+        $this->mergeExtraDeep = (bool)$config['merge-extra-deep'];
+        $this->mergeScripts = (bool)$config['merge-scripts'];
     }
 
     /**
@@ -217,7 +253,17 @@ class PluginState
      */
     public function isDevMode()
     {
-        return $this->mergeDev && $this->devMode;
+        return $this->shouldMergeDev() && $this->devMode;
+    }
+
+    /**
+     * Should devMode settings be merged?
+     *
+     * @return bool
+     */
+    public function shouldMergeDev()
+    {
+        return $this->mergeDev;
     }
 
     /**
@@ -308,6 +354,16 @@ class PluginState
     }
 
     /**
+     * Should duplicate links be ignored?
+     *
+     * @return bool
+     */
+    public function ignoreDuplicateLinks()
+    {
+        return $this->ignore;
+    }
+
+    /**
      * Should the extra section be merged?
      *
      * By default, the extra section is not merged and there will be many
@@ -322,6 +378,40 @@ class PluginState
     public function shouldMergeExtra()
     {
         return $this->mergeExtra;
+    }
+
+    /**
+     * Should the extra section be merged deep / recursively?
+     *
+     * By default the extra section is merged with array_merge() and duplicate
+     * keys are ignored. When enabled this allows to merge the arrays recursively
+     * using the following rule: Integer keys are merged, while array values are
+     * replaced where the later values overwrite the former.
+     *
+     * This is useful especially for the extra section when plugins use larger
+     * structures like a 'patches' key with the packages as sub-keys and the
+     * patches as values.
+     *
+     * When 'replace' mode is activated the order of array merges is exchanged.
+     *
+     * @return bool
+     */
+    public function shouldMergeExtraDeep()
+    {
+        return $this->mergeExtraDeep;
+    }
+
+
+    /**
+     * Should the scripts section be merged?
+     *
+     * By default, the scripts section is not merged.
+     *
+     * @return bool
+     */
+    public function shouldMergeScripts()
+    {
+        return $this->mergeScripts;
     }
 }
 // vim:sw=4:ts=4:sts=4:et:
