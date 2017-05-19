@@ -121,7 +121,7 @@ class ExtraPackage
      */
     protected function readPackageJson($path)
     {
-        if (substr($path, 0, 7) === 'http://' || substr($path, 0, 8) === 'https://'){
+        if (substr($path, 0, 7) === 'http://' || substr($path, 0, 8) === 'https://') {
             $file = new JsonFile($path, new RemoteFilesystem($this->io));
         } else {
             $file = new JsonFile($path);

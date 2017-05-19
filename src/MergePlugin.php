@@ -240,8 +240,9 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
         }
     }
 
-    protected function validatePath($path){
-        if (substr($path, 0, 7) === 'http://' || substr($path, 0, 8) === 'https://'){
+    protected function validatePath($path)
+    {
+        if (substr($path, 0, 7) === 'http://' || substr($path, 0, 8) === 'https://') {
             $context = stream_context_create(array('http' => array('method' => 'HEAD')));
             $fd = fopen($path, 'rb', false, $context);
             if (!empty($fd)) {
