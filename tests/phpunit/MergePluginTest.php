@@ -1338,6 +1338,13 @@ class MergePluginTest extends \PHPUnit_Framework_TestCase
             }
         );
 
+        // Mark this test as skipped if we are running PPH 5.3.3
+        // See https://github.com/travis-ci/travis-ci/issues/1268
+        if (getenv('TRAVIS_PHP_VERSION') == '5.3.3') {
+            $this->markTestSkipped('Skipping for PHP 5.3.3 on Travis due to SSL error');
+            return;
+        }
+
         $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
 
         $this->assertEquals(0, count($extraInstalls));
