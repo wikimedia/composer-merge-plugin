@@ -93,14 +93,24 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
     const COMPAT_PLUGINEVENTS_INIT = 'init';
 
     /**
-     * Name of the pre-merge command
+     * Name of the pre-merge command to be run before a required merge
      */
-    const PRE_MERGE_CMD = 'pre-merge-cmd';
+    const PRE_MERGE_REQUIRED_CMD = 'pre-merge-require-cmd';
 
     /**
-     * Name of the post-merge command
+     * Name of the pre-merge command to be run before an optional merge
      */
-    const POST_MERGE_CMD = 'post-merge-cmd';
+    const PRE_MERGE_OPTIONAL_CMD = 'pre-merge-optional-cmd';
+
+    /**
+     * Name of the post-merge command to be run after a required merge
+     */
+    const POST_MERGE_REQUIRED_CMD = 'post-merge-require-cmd';
+
+    /**
+     * Name of the post-merge command to be run after an optional merge
+     */
+    const POST_MERGE_OPTIONAL_CMD = 'post-merge-optional-cmd';
 
     /**
      * Priority that plugin uses to register callbacks.
@@ -224,8 +234,9 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
      */
     protected function mergeFiles(array $patterns, $required = false)
     {
-        // Dispatch any optional pre-merge commands
-        $this->composer->getEventDispatcher()->dispatchScript(self::PRE_MERGE_CMD, true);
+        // Dispatch any pre-merge commands
+        $pre_merge_command = $required ? self::PRE_MERGE_REQUIRED_CMD : self::PRE_MERGE_OPTIONAL_CMD;
+        $this->composer->getEventDispatcher()->dispatchScript($pre_merge_command, true);
 
         $root = $this->composer->getPackage();
 
@@ -246,8 +257,9 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
             $this->mergeFile($root, $path);
         }
 
-        // Dispatch any optional post-merge commands
-        $this->composer->getEventDispatcher()->dispatchScript(self::POST_MERGE_CMD, true);
+        // Dispatch any post-merge commands
+        $post_merge_command = $required ? self::POST_MERGE_REQUIRED_CMD : self::POST_MERGE_OPTIONAL_CMD;
+        $this->composer->getEventDispatcher()->dispatchScript($post_merge_command, true);
     }
 
     /**
@@ -258,8 +270,6 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
      */
     protected function mergeFile(RootPackageInterface $root, $path)
     {
-        $this->composer->getEventDispatcher()->dispatchScript(ScriptEvents::PRE_MERGE_CMD, true);
-
         if (isset($this->loaded[$path]) ||
             (isset($this->loadedNoDev[$path]) && !$this->state->isDevMode())
         ) {
