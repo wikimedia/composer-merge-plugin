@@ -11,9 +11,22 @@ php:
 
 sudo: false
 
+dist:
+  - precise
+  - trusty
+
 env:
   global:
     - COMPOSER_DISABLE_XDEBUG_WARN=1
+
+matrix:
+  exclude:
+    - php: 5.3.3
+      dist: trusty
+    - php: 5.3
+      dist: trusty
+    - php: hhvm
+      dist: precise
 
 before_script:
   - if [ "$TRAVIS_PHP_VERSION" = "5.3.3" ]; then composer config disable-tls true; composer config secure-http false; fi
