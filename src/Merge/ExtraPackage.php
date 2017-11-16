@@ -86,7 +86,7 @@ class ExtraPackage
     public function getIncludes()
     {
         return isset($this->json['extra']['merge-plugin']['include']) ?
-            $this->json['extra']['merge-plugin']['include'] : array();
+            $this->fixRelativePaths($this->json['extra']['merge-plugin']['include']) : array();
     }
 
     /**
@@ -97,7 +97,7 @@ class ExtraPackage
     public function getRequires()
     {
         return isset($this->json['extra']['merge-plugin']['require']) ?
-            $this->json['extra']['merge-plugin']['require'] : array();
+            $this->fixRelativePaths($this->json['extra']['merge-plugin']['require']) : array();
     }
 
     /**
@@ -205,6 +205,9 @@ class ExtraPackage
         foreach ($this->json['repositories'] as $repoJson) {
             if (!isset($repoJson['type'])) {
                 continue;
+            }
+            if ($repoJson['type'] == 'path' && isset($repoJson['url'])) {
+                $repoJson['url'] = $this->fixRelativePaths(array($repoJson['url']))[0];
             }
             $this->logger->info("Prepending {$repoJson['type']} repository");
             $repo = $repoManager->createRepository(

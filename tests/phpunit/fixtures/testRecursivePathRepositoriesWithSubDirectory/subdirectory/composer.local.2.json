@@ -1,0 +1,11 @@
+{
+	"require": {
+		"wikimedia/composer-merge-plugin": "dev-master#deadbeef"
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "local/directory"
+		}
+	]
+}

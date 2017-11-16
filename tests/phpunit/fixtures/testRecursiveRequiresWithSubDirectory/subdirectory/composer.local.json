@@ -1,0 +1,12 @@
+{
+    "require": {
+        "foo": "1.0.0"
+    },
+    "extra": {
+        "merge-plugin": {
+            "require": [
+                "composer.local.2.json"
+            ]
+        }
+    }
+}

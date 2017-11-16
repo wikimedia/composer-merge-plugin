@@ -1,0 +1,9 @@
+{
+    "extra": {
+        "merge-plugin": {
+            "include": [
+                "subdirectory/composer.local.json"
+            ]
+        }
+    }
+}
