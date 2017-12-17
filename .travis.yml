@@ -7,6 +7,9 @@ php:
   - 5.5
   - 5.6
   - 7.0
+  - 7.1
+  - 7.2
+  - nightly
   - hhvm
 
 sudo: false
@@ -27,6 +30,8 @@ matrix:
       dist: trusty
     - php: hhvm
       dist: precise
+  allow_failures:
+    - php: nightly
 
 before_script:
   - if [ "$TRAVIS_PHP_VERSION" = "5.3.3" ]; then composer config disable-tls true; composer config secure-http false; fi
