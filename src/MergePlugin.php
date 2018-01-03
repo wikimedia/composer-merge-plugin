@@ -263,6 +263,20 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
             $package->mergeInto($root, $this->state);
         }
 
+        //should replaced
+        if ($this->state->shouldCreateReplace()) {
+            $replaces = $root->getReplaces();
+            $replaces[$package->getName()] = new \Composer\Package\Link(
+                $root->getName(),
+                $package->getName(),
+                new \Composer\Semver\Constraint\Constraint('=', $root->getVersion()),
+                'replaces',
+                'self.version'
+            );
+            $root->setReplaces($replaces);
+            $this->logger->info("Added <comment>{$package->getName()}</comment> to replace section of {$root->getName()}");
+        }
+
         if ($this->state->isDevMode()) {
             $this->loaded[$path] = true;
         } else {

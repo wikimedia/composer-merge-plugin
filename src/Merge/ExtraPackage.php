@@ -78,6 +78,11 @@ class ExtraPackage
         $this->versionParser = new VersionParser();
     }
 
+    public function getName()
+    {
+        return $this->json['name'];
+    }
+
     /**
      * Get list of additional packages to include if precessing recursively.
      *
@@ -233,7 +238,8 @@ class ExtraPackage
         $type,
         RootPackageInterface $root,
         PluginState $state
-    ) {
+    )
+    {
         $linkType = BasePackage::$supportedLinkTypes[$type];
         $getter = 'get' . ucfirst($linkType['method']);
         $setter = 'set' . ucfirst($linkType['method']);
@@ -274,7 +280,8 @@ class ExtraPackage
         array $origin,
         array $merge,
         $state
-    ) {
+    )
+    {
         if ($state->ignoreDuplicateLinks() && $state->replaceDuplicateLinks()) {
             $this->logger->warning("Both replace and ignore-duplicates are true. These are mutually exclusive.");
             $this->logger->warning("Duplicate packages will be ignored.");
@@ -354,7 +361,8 @@ class ExtraPackage
     protected function mergeStabilityFlags(
         RootPackageInterface $root,
         array $requires
-    ) {
+    )
+    {
         $flags = $root->getStabilityFlags();
         $sf = new StabilityFlags($flags, $root->getMinimumStability());
 
@@ -436,11 +444,11 @@ class ExtraPackage
         } else {
             if (!$state->shouldMergeExtraDeep()) {
                 foreach (array_intersect(
-                    array_keys($extra),
-                    array_keys($rootExtra)
-                ) as $key) {
+                             array_keys($extra),
+                             array_keys($rootExtra)
+                         ) as $key) {
                     $this->logger->info(
-                        "Ignoring duplicate <comment>{$key}</comment> in ".
+                        "Ignoring duplicate <comment>{$key}</comment> in " .
                         "<comment>{$this->path}</comment> extra config."
                     );
                 }
@@ -508,7 +516,8 @@ class ExtraPackage
         $type,
         array $links,
         RootPackageInterface $root
-    ) {
+    )
+    {
         $linkType = BasePackage::$supportedLinkTypes[$type];
         $version = $root->getVersion();
         $prettyVersion = $root->getPrettyVersion();
@@ -566,7 +575,8 @@ class ExtraPackage
     public static function unwrapIfNeeded(
         RootPackageInterface $root,
         $method = 'setExtra'
-    ) {
+    )
+    {
         // @codeCoverageIgnoreStart
         if ($root instanceof RootAliasPackage &&
             !method_exists($root, $method)
@@ -591,7 +601,7 @@ class ExtraPackage
         $unwrapped = $this->unwrapIfNeeded($root, 'setReferences');
         foreach (array('require', 'require-dev') as $linkType) {
             $linkInfo = BasePackage::$supportedLinkTypes[$linkType];
-            $method = 'get'.ucfirst($linkInfo['method']);
+            $method = 'get' . ucfirst($linkInfo['method']);
             $links = array();
             foreach ($unwrapped->$method() as $link) {
                 $links[$link->getTarget()] = $link->getConstraint()->getPrettyString();

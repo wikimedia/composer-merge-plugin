@@ -55,7 +55,8 @@ Usage
             "merge-dev": true,
             "merge-extra": false,
             "merge-extra-deep": false,
-            "merge-scripts": false
+            "merge-scripts": false,
+            "create-replace": false
         }
     }
 }
@@ -172,6 +173,11 @@ Note: [custom commands][] added by merged configuration will work when invoked
 as `composer run-script my-cool-command` but will not be available using the
 normal `composer my-cool-command` shortcut.
 
+### create-replace
+
+A `"create-replace": true` setting enables that all found sub packages are added
+inside the `"replace"` section of the root package. This option helps you if you
+have sub packages which requires each other.
 
 Running tests
 -------------

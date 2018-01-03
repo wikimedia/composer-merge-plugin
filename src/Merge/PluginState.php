@@ -125,6 +125,11 @@ class PluginState
     protected $optimizeAutoloader = false;
 
     /**
+     * @var bool $createReplace
+     */
+    protected $createReplace = false;
+
+    /**
      * @param Composer $composer
      */
     public function __construct(Composer $composer)
@@ -149,6 +154,7 @@ class PluginState
                 'merge-extra' => false,
                 'merge-extra-deep' => false,
                 'merge-scripts' => false,
+                'create-replace' => false
             ),
             isset($extra['merge-plugin']) ? $extra['merge-plugin'] : array()
         );
@@ -164,6 +170,7 @@ class PluginState
         $this->mergeExtra = (bool)$config['merge-extra'];
         $this->mergeExtraDeep = (bool)$config['merge-extra-deep'];
         $this->mergeScripts = (bool)$config['merge-scripts'];
+        $this->createReplace = (bool)$config['create-replace'];
     }
 
     /**
@@ -413,5 +420,16 @@ class PluginState
     {
         return $this->mergeScripts;
     }
+
+    /**
+     * Should the root package add all sub-packages to the root "replace"
+     *
+     * @return bool
+     */
+    public function shouldCreateReplace()
+    {
+        return $this->createReplace;
+    }
+
 }
 // vim:sw=4:ts=4:sts=4:et:
