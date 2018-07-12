@@ -403,17 +403,21 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
               ->setDumpAutoloader($this->state->shouldDumpAutoloader())
               ->setClassMapAuthoritative($authoritative)
               ->setApcuAutoloader($apcu)
-              ->setWhitelistTransitiveDependencies($input->getOption('update-with-dependencies'))
-              ->setWhitelistAllDependencies($input->getOption('update-with-all-dependencies'))
               ->setIgnorePlatformRequirements($input->getOption('ignore-platform-reqs'))
               ->setPreferStable($input->getOption('prefer-stable'))
               ->setPreferLowest($input->getOption('prefer-lowest'))
               ->setDryRun($input->getOption('dry-run'));
 
-            if (in_array($argv[1], array('install', 'require'))) {
+            if (in_array($argv[1], array('install', 'update'))) {
                 $installer->setDevMode(!$input->getOption('no-dev') || $event->isDevMode());
+                if ($argv[1] === 'update') {
+                    $installer->setWhitelistAllDependencies($input->getOption('with-all-dependencies'));
+                    $installer->setWhitelistTransitiveDependencies($input->getOption('with-dependencies'));
+                }
             } elseif ($argv[1] === 'require') {
                 $installer->setDevMode(!$input->getOption('update-no-dev') || $event->isDevMode());
+                $installer->setWhitelistAllDependencies($input->getOption('update-with-all-dependencies'));
+                $installer->setWhitelistTransitiveDependencies($input->getOption('update-with-dependencies'));
             }
 
             if ($this->state->forceUpdate()) {
