@@ -344,10 +344,28 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
 
             $config = $this->composer->getConfig();
 
-            // \Composer\XdebugHandler::getScriptArgs() adds an "--ansi"
-            // argument which is not recognized by Composer commands.
-            $argv = array_filter($_SERVER['argv'], function($arg) {
-                return $arg !== '--ansi';
+            // See: https://getcomposer.org/doc/03-cli.md#global-options
+            // This could have be collected from
+            // Composer\Console\Application::getDefinition() but it would have
+            // been more resource intensive.
+            // Hint: --verbose (-v) is intentionally not blacklisted.
+            $global_options_blacklist = array(
+                '--help',
+                '--quiet',
+                '--no-interaction',
+                '-n',
+                '--no-plugins',
+                '--working-dir',
+                '-d',
+                '--profile',
+                '--ansi',
+                '--no-ansi',
+                '--version',
+                '-V',
+            );
+            // Filter out all global options that are not supported by commands.
+            $argv = array_filter($_SERVER['argv'], function($arg) use ($global_options_blacklist) {
+                return !in_array($arg, $global_options_blacklist);
             });
             if ($argv[1] === 'update') {
                 $command = new UpdateCommand();
