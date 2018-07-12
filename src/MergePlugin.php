@@ -10,8 +10,10 @@
 
 namespace Wikimedia\Composer;
 
-use Composer\Plugin\CommandEvent;
-use Composer\Plugin\PluginEvents;
+use Composer\Command\InstallCommand;
+use Composer\Command\RequireCommand;
+use Composer\Command\UpdateCommand;
+use Symfony\Component\Console\Input\ArgvInput;
 use Wikimedia\Composer\Merge\ExtraPackage;
 use Wikimedia\Composer\Merge\MissingFileException;
 use Wikimedia\Composer\Merge\PluginState;
@@ -128,19 +130,6 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
      */
     protected $loadedNoDev = array();
 
-    /** @var string */
-    protected $commandName;
-
-    /**
-     * @var \Symfony\Component\Console\Input\InputInterface
-     */
-    protected $input;
-
-    /**
-     * @var \Symfony\Component\Console\Output\OutputInterface
-     */
-    protected $output;
-
     /**
      * {@inheritdoc}
      */
@@ -161,7 +150,6 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
             // composer-1.1 is required, this can use PluginEvents::INIT
             // instead.
             self::COMPAT_PLUGINEVENTS_INIT => array('onInit', self::CALLBACK_PRIORITY),
-            PluginEvents::COMMAND => array('onCommand', self::CALLBACK_PRIORITY),
             InstallerEvents::PRE_DEPENDENCIES_SOLVING => array('onDependencySolve', self::CALLBACK_PRIORITY),
             PackageEvents::POST_PACKAGE_INSTALL => array('onPostPackageInstall', self::CALLBACK_PRIORITY),
             ScriptEvents::POST_INSTALL_CMD => array('onPostInstallOrUpdate', self::CALLBACK_PRIORITY),
@@ -186,19 +174,6 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
         $this->state->setDevMode(false);
         $this->mergeFiles($this->state->getIncludes(), false);
         $this->mergeFiles($this->state->getRequires(), true);
-    }
-
-  /**
-   * Handle an event callback after a command begins. Captures every information
-   * from CommandEvent.
-   *
-   * @param \Composer\Plugin\CommandEvent $event
-   */
-    public function onCommand(CommandEvent $event)
-    {
-        $this->commandName = $event->getCommandName();
-        $this->input = $event->getInput();
-        $this->output = $event->getOutput();
     }
 
     /**
@@ -369,43 +344,58 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
 
             $config = $this->composer->getConfig();
 
+            // \Composer\XdebugHandler::getScriptArgs() adds an "--ansi"
+            // argument which is not recognized by Composer commands.
+            $argv = array_filter($_SERVER['argv'], function($arg) {
+                return $arg !== '--ansi';
+            });
+            if ($argv[1] === 'update') {
+                $command = new UpdateCommand();
+            } elseif ($argv[1] === 'require') {
+                $command = new RequireCommand();
+            } else {
+                $command = new InstallCommand();
+            }
+            // Parse input arguments and options.
+            $input = new ArgvInput($argv, $command->getDefinition());
+
             // Create a new Composer instance to ensure full processing of
             // the merged files.
             $composer = Factory::create($event->getIO(), null, false);
-            $composer->getDownloadManager()->setOutputProgress(!$this->input->getOption('no-progress'));
+            $composer->getDownloadManager()->setOutputProgress(!$input->getOption('no-progress'));
             $installer = Installer::create(
                 $event->getIO(),
                 $composer
             );
 
-            $preferSource = $this->input->getOption('prefer-source') || $config->get('preferred-install') == 'source';
-            $preferDist = $this->input->getOption('prefer-dist') || $config->get('preferred-install') == 'dist';
-            $optimize = $this->input->getOption('optimize-autoloader') || $this->state->shouldOptimizeAutoloader();
-            $authoritative = $this->input->getOption('classmap-authoritative')
+            $preferSource = $input->getOption('prefer-source') || $config->get('preferred-install') == 'source';
+            $preferDist = $input->getOption('prefer-dist') || $config->get('preferred-install') == 'dist';
+            $optimize = $input->getOption('optimize-autoloader') || $this->state->shouldOptimizeAutoloader();
+            $authoritative = $input->getOption('classmap-authoritative')
                || $this->composer->getConfig()->get('classmap-authoritative');
-            $apcu = $this->input->getOption('apcu-autoloader') || $this->composer->getConfig()->get('apcu-autoloader');
+            $apcu = $input->getOption('apcu-autoloader') || $this->composer->getConfig()->get('apcu-autoloader');
 
             $installer
-              ->setVerbose($this->input->getOption('verbose'))
+              ->setVerbose($input->getOption('verbose'))
               ->setPreferSource($preferSource)
               ->setPreferDist($preferDist)
-              ->setRunScripts(!$this->input->getOption('no-scripts'))
-              ->setSkipSuggest($this->input->getOption('no-suggest'))
+              ->setRunScripts(!$input->getOption('no-scripts'))
+              ->setSkipSuggest($input->getOption('no-suggest'))
               ->setOptimizeAutoloader($optimize)
               ->setDumpAutoloader($this->state->shouldDumpAutoloader())
               ->setClassMapAuthoritative($authoritative)
               ->setApcuAutoloader($apcu)
-              ->setWhitelistTransitiveDependencies($this->input->getOption('update-with-dependencies'))
-              ->setWhitelistAllDependencies($this->input->getOption('update-with-all-dependencies'))
-              ->setIgnorePlatformRequirements($this->input->getOption('ignore-platform-reqs'))
-              ->setPreferStable($this->input->getOption('prefer-stable'))
-              ->setPreferLowest($this->input->getOption('prefer-lowest'))
-              ->setDryRun($this->input->getOption('dry-run'));
+              ->setWhitelistTransitiveDependencies($input->getOption('update-with-dependencies'))
+              ->setWhitelistAllDependencies($input->getOption('update-with-all-dependencies'))
+              ->setIgnorePlatformRequirements($input->getOption('ignore-platform-reqs'))
+              ->setPreferStable($input->getOption('prefer-stable'))
+              ->setPreferLowest($input->getOption('prefer-lowest'))
+              ->setDryRun($input->getOption('dry-run'));
 
-            if (in_array($this->commandName, array('install', 'require'))) {
-                $installer->setDevMode(!$this->input->getOption('no-dev') || $event->isDevMode());
-            } elseif ($this->commandName === 'require') {
-                $installer->setDevMode(!$this->input->getOption('update-no-dev') || $event->isDevMode());
+            if (in_array($argv[1], array('install', 'require'))) {
+                $installer->setDevMode(!$input->getOption('no-dev') || $event->isDevMode());
+            } elseif ($argv[1] === 'require') {
+                $installer->setDevMode(!$input->getOption('update-no-dev') || $event->isDevMode());
             }
 
             if ($this->state->forceUpdate()) {
