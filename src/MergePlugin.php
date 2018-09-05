@@ -388,6 +388,8 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
 
             $preferSource = $input->getOption('prefer-source') || $config->get('preferred-install') == 'source';
             $preferDist = $input->getOption('prefer-dist') || $config->get('preferred-install') == 'dist';
+            $preferStable = $input->hasOption('prefer-stable') ? $input->getOption('prefer-stable') : $config->get('prefer-stable');
+            $preferLowest = $input->hasOption('prefer-lowest') ? $input->getOption('prefer-lowest') : false;
             $optimize = $input->getOption('optimize-autoloader') || $this->state->shouldOptimizeAutoloader();
             $authoritative = $input->getOption('classmap-authoritative')
                || $this->composer->getConfig()->get('classmap-authoritative');
@@ -404,8 +406,8 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
               ->setClassMapAuthoritative($authoritative)
               ->setApcuAutoloader($apcu)
               ->setIgnorePlatformRequirements($input->getOption('ignore-platform-reqs'))
-              ->setPreferStable($input->getOption('prefer-stable'))
-              ->setPreferLowest($input->getOption('prefer-lowest'))
+              ->setPreferStable($preferStable)
+              ->setPreferLowest($preferLowest)
               ->setDryRun($input->getOption('dry-run'));
 
             if (in_array($argv[1], array('install', 'update'))) {
