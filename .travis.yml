@@ -1,34 +1,28 @@
 language: php
 
 php:
-  - 5.3.3
-  - 5.3
   - 5.4
   - 5.5
   - 5.6
   - 7.0
   - 7.1
   - 7.2
+  - 7.3
   - nightly
   - hhvm
 
 sudo: false
-
-dist:
-  - precise
-  - trusty
 
 env:
   global:
     - COMPOSER_DISABLE_XDEBUG_WARN=1
 
 matrix:
-  exclude:
+  fast_finish: true
+  include:
     - php: 5.3.3
-      dist: trusty
+      dist: precise
     - php: 5.3
-      dist: trusty
-    - php: hhvm
       dist: precise
   allow_failures:
     - php: nightly
