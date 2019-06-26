@@ -105,6 +105,20 @@ class PluginState
     protected $mergeScripts = false;
 
     /**
+     * Whether to merge the scripts section in a deep / recursive way.
+     *
+     * By default the scripts section is merged with array_merge() and duplicate
+     * keys are ignored. When enabled this allows to merge the arrays recursively
+     * using the following rule: Integer keys are merged, while array values are
+     * replaced where the later values overwrite the former.
+     *
+     * When 'replace' mode is activated the order of array merges is exchanged.
+     *
+     * @var bool $mergeScriptsDeep
+     */
+    protected $mergeScriptsDeep;
+
+    /**
      * @var bool $firstInstall
      */
     protected $firstInstall = false;
@@ -149,6 +163,7 @@ class PluginState
                 'merge-extra' => false,
                 'merge-extra-deep' => false,
                 'merge-scripts' => false,
+                'merge-scripts-deep' => false,
             ),
             isset($extra['merge-plugin']) ? $extra['merge-plugin'] : array()
         );
@@ -164,6 +179,7 @@ class PluginState
         $this->mergeExtra = (bool)$config['merge-extra'];
         $this->mergeExtraDeep = (bool)$config['merge-extra-deep'];
         $this->mergeScripts = (bool)$config['merge-scripts'];
+        $this->mergeScriptsDeep = (bool)$config['merge-scripts-deep'];
     }
 
     /**
@@ -412,6 +428,23 @@ class PluginState
     public function shouldMergeScripts()
     {
         return $this->mergeScripts;
+    }
+
+    /**
+     * Should the scripts section be merged deep / recursively?
+     *
+     * By default the scripts section is merged with array_merge() and duplicate
+     * keys are ignored. When enabled this allows to merge the arrays recursively
+     * using the following rule: Integer keys are merged, while array values are
+     * replaced where the later values overwrite the former.
+     *
+     * When 'replace' mode is activated the order of array merges is exchanged.
+     *
+     * @return bool
+     */
+    public function shouldMergeScriptsDeep()
+    {
+        return $this->mergeScriptsDeep;
     }
 }
 // vim:sw=4:ts=4:sts=4:et:

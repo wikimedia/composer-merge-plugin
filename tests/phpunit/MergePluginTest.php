@@ -10,6 +10,7 @@
 
 namespace Wikimedia\Composer;
 
+use Prophecy\Prophecy\ObjectProphecy;
 use Wikimedia\Composer\Merge\ExtraPackage;
 use Wikimedia\Composer\Merge\PluginState;
 
@@ -859,7 +860,7 @@ class MergePluginTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Given a root package with an scripts section
+     * Given a root package with a scripts section
      *   and a composer.local.json with an extra section with no conflicting keys
      * When the plugin is run
      * Then the root package scripts section should be extended with content from the local config.
@@ -897,7 +898,7 @@ class MergePluginTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Given a root package with an scripts section
+     * Given a root package with a scripts section
      *   and a composer.local.json with an extra section with a conflicting key
      * When the plugin is run
      * Then the version in the root package should win.
@@ -956,6 +957,56 @@ class MergePluginTest extends \PHPUnit_Framework_TestCase
                 $that->assertEquals("echo 'hello world'", $scripts['example-script2'][0]);
                 $that->assertEquals(1, count($scripts['example-script3']));
                 $that->assertEquals("echo 'hola world'", $scripts['example-script3'][0]);
+            }
+        )->shouldBeCalled();
+
+        $root->getRepositories()->shouldNotBeCalled();
+        $root->getConflicts()->shouldNotBeCalled();
+        $root->getReplaces()->shouldNotBeCalled();
+        $root->getProvides()->shouldNotBeCalled();
+        $root->getSuggests()->shouldNotBeCalled();
+
+        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
+
+        $this->assertEquals(0, count($extraInstalls));
+    }
+
+    /**
+     * Given a root package with a scripts section
+     *   and a composer.local.json with a scripts section with conflicting keys that are arrays
+     *   and the 'merge-scripts-deep' option being activated
+     * When the plugin is run
+     * Then the root package scripts section should be extended with content from the base config
+     *   and deep keys should be merged together, but root config wins on key conflicts.
+     *
+     * @dataProvider provideDeepMerge
+     */
+    public function testMergeScriptsDeep($suffix, $replace)
+    {
+        $that = $this;
+        $dir = $this->fixtureDir(__FUNCTION__ . $suffix);
+
+        /* @var ObjectProphecy|RootPackage $root */
+        $root = $this->rootFromJson("{$dir}/composer.json");
+
+        $root->setScripts(Argument::type('array'))->will(
+            function ($args) use ($that, $replace) {
+                $scripts = $args[0];
+                $that->assertEquals(2, count($scripts));
+                $that->assertArrayHasKey('example-script', $scripts);
+                if ($replace) {
+                    $that->assertEquals(array(
+                        "echo 'hello world'",
+                        "echo 'hello again world'",
+                    ), $scripts['example-script']);
+                } else {
+                    $that->assertEquals(array(
+                        "echo 'hello again world'",
+                        "echo 'hello world'",
+                    ), $scripts['example-script']);
+                }
+                $that->assertArrayHasKey('example-script2', $scripts);
+                $that->assertEquals(array("echo 'hello world'"), $scripts['example-script2']);
             }
         )->shouldBeCalled();
 
