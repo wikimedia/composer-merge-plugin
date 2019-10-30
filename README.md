@@ -52,6 +52,10 @@ Usage
             "recurse": true,
             "replace": false,
             "ignore-duplicates": false,
+            "ignore-require": [
+                "vendor/package",
+                "other-vendor/*"
+            ],
             "merge-dev": true,
             "merge-extra": false,
             "merge-extra-deep": false,
@@ -144,6 +148,14 @@ alphabetical order.
 
 Note: `"replace": true` and `"ignore-duplicates": true` modes are mutually
 exclusive. If both are set, `"ignore-duplicates": true` will be used.
+
+### ignore-require
+
+In some cases you might want to ignore requirements imposed by included
+configuration files (e.g. those requirements are fulfilled by other included
+configuration files). This option allows you to set a list of composer-style 
+package name specifications that will get ignored when assembling the
+combined final require statements. 
 
 ### merge-dev
 
