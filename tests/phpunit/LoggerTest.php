@@ -35,7 +35,7 @@ class LoggerTest extends TestCase
         $fixture = new Logger('test', $io->reveal());
         $fixture->debug('foo');
         $this->assertEquals(1, count($output));
-        $this->assertContains('<info>[test]</info>', $output[0]);
+        $this->assertStringContainsString('<info>[test]</info>', $output[0]);
     }
 
     public function testNotVeryVerboseDebug()
@@ -65,7 +65,7 @@ class LoggerTest extends TestCase
         $fixture = new Logger('test', $io->reveal());
         $fixture->info('foo');
         $this->assertEquals(1, count($output));
-        $this->assertContains('<info>[test]</info>', $output[0]);
+        $this->assertStringContainsString('<info>[test]</info>', $output[0]);
     }
 
     public function testNotVerboseInfo()
@@ -94,7 +94,7 @@ class LoggerTest extends TestCase
         $fixture = new Logger('test', $io->reveal());
         $fixture->warning('foo');
         $this->assertEquals(1, count($output));
-        $this->assertContains('<error>[test]</error>', $output[0]);
+        $this->assertStringContainsString('<error>[test]</error>', $output[0]);
     }
 }
 // vim:sw=4:ts=4:sts=4:et:
