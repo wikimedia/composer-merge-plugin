@@ -1290,12 +1290,10 @@ class MergePluginTest extends TestCase
     }
 
 
-    /**
-     * @expectedException \Wikimedia\Composer\Merge\MissingFileException
-     */
     public function testMissingRequireThrowsException()
     {
         $dir = $this->fixtureDir(__FUNCTION__);
+        $this->expectException(\Wikimedia\Composer\Merge\MissingFileException::class);
         $root = $this->rootFromJson("{$dir}/composer.json");
         $root->getRequires()->shouldNotBeCalled();
         $root->getDevRequires()->shouldNotBeCalled();
