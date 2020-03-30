@@ -9,7 +9,6 @@ php:
   - 7.2
   - 7.3
   - nightly
-  - hhvm
 
 sudo: false
 
@@ -19,16 +18,10 @@ env:
 
 matrix:
   fast_finish: true
-  include:
-    - php: 5.3.3
-      dist: precise
-    - php: 5.3
-      dist: precise
   allow_failures:
     - php: nightly
 
 before_script:
-  - if [ "$TRAVIS_PHP_VERSION" = "5.3.3" ]; then composer config disable-tls true; composer config secure-http false; fi
   - travis_retry composer install --prefer-source --no-interaction
 
 script: composer test
