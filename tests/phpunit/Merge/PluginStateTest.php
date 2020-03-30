@@ -11,11 +11,12 @@
 namespace Wikimedia\Composer\Merge;
 
 use Composer\Composer;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @covers Wikimedia\Composer\Merge\PluginState
  */
-class PluginStateTest extends \PHPUnit_Framework_TestCase
+class PluginStateTest extends TestCase
 {
 
     public function testLocked()

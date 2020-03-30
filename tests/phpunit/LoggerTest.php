@@ -12,11 +12,12 @@ namespace Wikimedia\Composer;
 
 use Composer\IO\IOInterface;
 use Prophecy\Argument;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @covers Wikimedia\Composer\Logger
  */
-class LoggerTest extends \PHPUnit_Framework_TestCase
+class LoggerTest extends TestCase
 {
 
     public function testVeryVerboseDebug()

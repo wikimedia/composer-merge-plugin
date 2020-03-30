@@ -29,6 +29,7 @@ use Composer\Plugin\PluginEvents;
 use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
 use Prophecy\Argument;
+use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 
 /**
@@ -39,7 +40,7 @@ use ReflectionProperty;
  * @covers Wikimedia\Composer\Merge\StabilityFlags
  * @covers Wikimedia\Composer\MergePlugin
  */
-class MergePluginTest extends \PHPUnit_Framework_TestCase
+class MergePluginTest extends TestCase
 {
 
     /**
@@ -57,7 +58,7 @@ class MergePluginTest extends \PHPUnit_Framework_TestCase
      */
     protected $fixture;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->composer = $this->prophesize('Composer\Composer');

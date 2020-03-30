@@ -1,8 +1,6 @@
 <phpunit colors="true"
     beStrictAboutTestsThatDoNotTestAnything="true"
-    checkForUnintentionallyCoveredCode="true"
     beStrictAboutOutputDuringTests="true"
-    beStrictAboutTestSize="true"
     beStrictAboutChangesToGlobalState="true">
     <testsuites>
         <testsuite name="Tests">

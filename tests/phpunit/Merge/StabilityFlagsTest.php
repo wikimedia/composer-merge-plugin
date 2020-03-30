@@ -11,11 +11,12 @@
 namespace Wikimedia\Composer\Merge;
 
 use Composer\Package\BasePackage;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @covers Wikimedia\Composer\Merge\StabilityFlags
  */
-class StabilityFlagsTest extends \PHPUnit_Framework_TestCase
+class StabilityFlagsTest extends TestCase
 {
 
     /**

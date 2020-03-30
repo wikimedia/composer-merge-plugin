@@ -11,11 +11,12 @@
 namespace Wikimedia\Composer\Merge;
 
 use Composer\Composer;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @coversDefaultClass Wikimedia\Composer\Merge\NestedArray
  */
-class NestedArrayTest extends \PHPUnit_Framework_TestCase
+class NestedArrayTest extends TestCase
 {
     /**
      * @covers ::mergeDeep
