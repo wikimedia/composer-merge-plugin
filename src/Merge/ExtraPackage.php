@@ -614,8 +614,7 @@ class ExtraPackage
         foreach ($requires as $reqName => $reqVersion) {
             $reqVersion = preg_replace('{^([^,\s@]+) as .+$}', '$1', $reqVersion);
             $stabilityName = VersionParser::parseStability($reqVersion);
-            if (
-                preg_match('{^[^,\s@]+?#([a-f0-9]+)$}', $reqVersion, $match) &&
+            if (preg_match('{^[^,\s@]+?#([a-f0-9]+)$}', $reqVersion, $match) &&
                 $stabilityName === 'dev'
             ) {
                 $name = strtolower($reqName);
