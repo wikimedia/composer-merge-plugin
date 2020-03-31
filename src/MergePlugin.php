@@ -26,6 +26,7 @@ use Composer\Installer\PackageEvent;
 use Composer\Installer\PackageEvents;
 use Composer\IO\IOInterface;
 use Composer\Package\RootPackageInterface;
+use Composer\Plugin\PluginEvents;
 use Composer\Plugin\PluginInterface;
 use Composer\Script\Event as ScriptEvent;
 use Composer\Script\ScriptEvents;
@@ -88,11 +89,6 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
     const PACKAGE_NAME = 'wikimedia/composer-merge-plugin';
 
     /**
-     * Name of the composer 1.1 init event.
-     */
-    const COMPAT_PLUGINEVENTS_INIT = 'init';
-
-    /**
      * Priority that plugin uses to register callbacks.
      */
     const CALLBACK_PRIORITY = 50000;
@@ -142,10 +138,7 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            // Use our own constant to make this event optional. Once
-            // composer-1.1 is required, this can use PluginEvents::INIT
-            // instead.
-            self::COMPAT_PLUGINEVENTS_INIT =>
+            PluginEvents::INIT =>
                 array('onInit', self::CALLBACK_PRIORITY),
             InstallerEvents::PRE_DEPENDENCIES_SOLVING =>
                 array('onDependencySolve', self::CALLBACK_PRIORITY),

@@ -79,7 +79,7 @@ class MergePluginTest extends TestCase
             InstallerEvents::PRE_DEPENDENCIES_SOLVING,
             $subscriptions
         );
-        $this->assertArrayHasKey(MergePlugin::COMPAT_PLUGINEVENTS_INIT, $subscriptions);
+        $this->assertArrayHasKey(PluginEvents::INIT, $subscriptions);
         $this->assertArrayHasKey(ScriptEvents::PRE_INSTALL_CMD, $subscriptions);
         $this->assertArrayHasKey(ScriptEvents::PRE_UPDATE_CMD, $subscriptions);
         $this->assertArrayHasKey(ScriptEvents::PRE_AUTOLOAD_DUMP, $subscriptions);
@@ -1407,7 +1407,7 @@ class MergePluginTest extends TestCase
 
         if ($fireInit) {
             $init = new \Composer\EventDispatcher\Event(
-                MergePlugin::COMPAT_PLUGINEVENTS_INIT
+                PluginEvents::INIT
             );
             $this->fixture->onInit($init);
         }
