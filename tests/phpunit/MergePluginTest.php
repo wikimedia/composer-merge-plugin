@@ -529,10 +529,15 @@ class MergePluginTest extends TestCase
                 $that->assertEquals(2, count($repos));
                 $prependedRepo = $repos[0];
                 $that->assertInstanceOf('Composer\Repository\VcsRepository', $prependedRepo);
-                $that->assertAttributeEquals(
+                // Ugly, be we need to check a protected member variable and
+                // PHPUnit decided that having the assertAttributeEquals
+                // assertion to make that easy was a code smell.
+                $clazz = new \ReflectionClass($prependedRepo);
+                $url = $clazz->getProperty('url');
+                $url->setAccessible(true);
+                $that->assertEquals(
                     'https://github.com/furgas/composer-merge-plugin.git',
-                    'url',
-                    $prependedRepo
+                    $url->getValue($prependedRepo)
                 );
             }
         );
