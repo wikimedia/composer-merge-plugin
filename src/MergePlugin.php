@@ -135,12 +135,33 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
     /**
      * {@inheritdoc}
      */
+    public function deactivate(Composer $composer, IOInterface $io)
+    {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function uninstall(Composer $composer, IOInterface $io)
+    {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public static function getSubscribedEvents()
     {
+        if (defined('InstallerEvents::PRE_OPERATIONS_EXEC')) {
+            // composer-plugin-api ^2.0
+            $installerStartEvent = InstallerEvents::PRE_OPERATIONS_EXEC;
+        } else {
+            // composer-plugin-api ^1.0
+            $installerStartEvent = InstallerEvents::PRE_DEPENDENCIES_SOLVING;
+        }
         return array(
             PluginEvents::INIT =>
                 array('onInit', self::CALLBACK_PRIORITY),
-            InstallerEvents::PRE_DEPENDENCIES_SOLVING =>
+            $installerStartEvent =>
                 array('onDependencySolve', self::CALLBACK_PRIORITY),
             PackageEvents::POST_PACKAGE_INSTALL =>
                 array('onPostPackageInstall', self::CALLBACK_PRIORITY),
