@@ -86,12 +86,12 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
     /**
      * Offical package name
      */
-    const PACKAGE_NAME = 'wikimedia/composer-merge-plugin';
+    public const PACKAGE_NAME = 'wikimedia/composer-merge-plugin';
 
     /**
      * Priority that plugin uses to register callbacks.
      */
-    const CALLBACK_PRIORITY = 50000;
+    private const CALLBACK_PRIORITY = 50000;
 
     /**
      * @var Composer $composer
