@@ -151,7 +151,7 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        if (defined('InstallerEvents::PRE_OPERATIONS_EXEC')) {
+        if (defined('\Composer\Installer\InstallerEvents::PRE_OPERATIONS_EXEC')) {
             // composer-plugin-api ^2.0
             $installerStartEvent = InstallerEvents::PRE_OPERATIONS_EXEC;
         } else {
