@@ -335,8 +335,15 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
             $this->state->setFirstInstall(false);
             $this->logger->log("\n".'<info>Running composer update to apply merge settings</info>');
 
-            $config = $this->composer->getConfig();
+            $isComposer2 = version_compare('2.0.0', PluginInterface::PLUGIN_API_VERSION, '<=');
 
+            if ($isComposer2) {
+                $file = Factory::getComposerFile();
+                $lock = Factory::getLockFile($file);
+                $lockBackup = file_exists($lock) ? file_get_contents($lock) : null;
+            }
+
+            $config = $this->composer->getConfig();
             $preferSource = $config->get('preferred-install') == 'source';
             $preferDist = $config->get('preferred-install') == 'dist';
 
@@ -362,7 +369,17 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
                 $installer->setUpdate(true);
             }
 
-            $installer->run();
+            $status = $installer->run();
+            if ($status !== 0) {
+                if ($isComposer2 && $lockBackup) {
+                    $this->logger->log(
+                        "\n".'<error>'.
+                        'Update to apply merge settings failed, reverting '.$lock.' to its original content.'.
+                        '</error>'
+                    );
+                    file_put_contents($lock, $lockBackup);
+                }
+            }
         }
         // @codeCoverageIgnoreEnd
     }
