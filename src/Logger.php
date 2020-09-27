@@ -87,7 +87,7 @@ class Logger
      *
      * @param string $message
      */
-    protected function log($message)
+    public function log($message)
     {
         if (method_exists($this->inputOutput, 'writeError')) {
             $this->inputOutput->writeError($message);

@@ -333,11 +333,7 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
         // @codeCoverageIgnoreStart
         if ($this->state->isFirstInstall()) {
             $this->state->setFirstInstall(false);
-            $this->logger->info(
-                '<comment>' .
-                'Running additional update to apply merge settings' .
-                '</comment>'
-            );
+            $this->logger->log("\n".'<info>Running composer update to apply merge settings</info>');
 
             $config = $this->composer->getConfig();
 
