@@ -22,6 +22,8 @@ use Composer\Package\RootAliasPackage;
 use Composer\Package\RootPackage;
 use Composer\Package\RootPackageInterface;
 use Composer\Package\Version\VersionParser;
+use Composer\Plugin\PluginInterface;
+use Composer\Semver\Constraint\MultiConstraint as SemverMultiConstraint;
 use UnexpectedValueException;
 
 /**
@@ -280,24 +282,59 @@ class ExtraPackage
             $this->logger->warning("Duplicate packages will be ignored.");
         }
 
-        $dups = array();
         foreach ($merge as $name => $link) {
-            if (isset($origin[$name]) && $state->ignoreDuplicateLinks()) {
-                $this->logger->info("Ignoring duplicate <comment>{$name}</comment>");
-                continue;
-            } elseif (!isset($origin[$name]) || $state->replaceDuplicateLinks()) {
-                $this->logger->info("Merging <comment>{$name}</comment>");
-                $origin[$name] = $link;
+            if (isset($origin[$name])) {
+                if ($state->ignoreDuplicateLinks()) {
+                    $this->logger->info("Ignoring duplicate <comment>{$name}</comment>");
+                    continue;
+                }
+
+                if ($state->replaceDuplicateLinks()) {
+                    $this->logger->info("Replacing <comment>{$name}</comment>");
+                    $origin[$name] = $link;
+                } else {
+                    $this->logger->info("Merging <comment>{$name}</comment>");
+                    $origin[$name] = $this->mergeConstraints($origin[$name], $link);
+                }
             } else {
-                // Defer to solver.
-                $this->logger->info(
-                    "Deferring duplicate <comment>{$name}</comment>"
-                );
-                $dups[] = $link;
+                $this->logger->info("Adding <comment>{$name}</comment>");
+                $origin[$name] = $link;
             }
         }
-        $state->addDuplicateLinks($type, $dups);
         return $origin;
+    }
+
+    /**
+     * Merge package constraints.
+     *
+     * Adapted from Composer's UpdateCommand::appendConstraintToLink
+     *
+     * @param Link $origin The base package link.
+     * @param Link $merge  The related package link to merge.
+     * @return Link Merged link.
+     */
+    protected function mergeConstraints(Link $origin, Link $merge)
+    {
+        $parser = $this->versionParser;
+        $oldPrettyString = $origin->getConstraint()->getPrettyString();
+        $newPrettyString = $merge->getConstraint()->getPrettyString();
+        if (version_compare('2.0.0', PluginInterface::PLUGIN_API_VERSION, '>')) {
+            $constraintClass = 'Wikimedia\\Composer\\Merge\\MultiConstraint';
+        } else {
+            $constraintClass = 'Composer\\Semver\\Constraint\\MultiConstraint';
+        }
+        $newConstraint = $constraintClass::create(array(
+            $origin->getConstraint(),
+            $merge->getConstraint()
+        ), true);
+        $newConstraint->setPrettyString($oldPrettyString.', '.$newPrettyString);
+        return new Link(
+            $origin->getSource(),
+            $origin->getTarget(),
+            $newConstraint,
+            $origin->getDescription(),
+            $origin->getPrettyConstraint() . ', ' . $newPrettyString
+        );
     }
 
     /**

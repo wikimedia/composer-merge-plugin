@@ -135,13 +135,25 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
     /**
      * {@inheritdoc}
      */
+    public function deactivate(Composer $composer, IOInterface $io)
+    {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function uninstall(Composer $composer, IOInterface $io)
+    {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public static function getSubscribedEvents()
     {
         return array(
             PluginEvents::INIT =>
                 array('onInit', self::CALLBACK_PRIORITY),
-            InstallerEvents::PRE_DEPENDENCIES_SOLVING =>
-                array('onDependencySolve', self::CALLBACK_PRIORITY),
             PackageEvents::POST_PACKAGE_INSTALL =>
                 array('onPostPackageInstall', self::CALLBACK_PRIORITY),
             ScriptEvents::POST_INSTALL_CMD =>
@@ -269,38 +281,6 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
     }
 
     /**
-     * Handle an event callback for pre-dependency solving phase of an install
-     * or update by adding any duplicate package dependencies found during
-     * initial merge processing to the request that will be processed by the
-     * dependency solver.
-     *
-     * @param InstallerEvent $event
-     */
-    public function onDependencySolve(InstallerEvent $event)
-    {
-        $request = $event->getRequest();
-        foreach ($this->state->getDuplicateLinks('require') as $link) {
-            $this->logger->info(
-                "Adding dependency <comment>{$link}</comment>"
-            );
-            $request->install($link->getTarget(), $link->getConstraint());
-        }
-
-        // Issue #113: Check devMode of event rather than our global state.
-        // Composer fires the PRE_DEPENDENCIES_SOLVING event twice for
-        // `--no-dev` operations to decide which packages are dev only
-        // requirements.
-        if ($this->state->shouldMergeDev() && $event->isDevMode()) {
-            foreach ($this->state->getDuplicateLinks('require-dev') as $link) {
-                $this->logger->info(
-                    "Adding dev dependency <comment>{$link}</comment>"
-                );
-                $request->install($link->getTarget(), $link->getConstraint());
-            }
-        }
-    }
-
-    /**
      * Handle an event callback following installation of a new package by
      * checking to see if the package that was installed was our plugin.
      *
@@ -314,9 +294,13 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
             if ($package === self::PACKAGE_NAME) {
                 $this->logger->info('composer-merge-plugin installed');
                 $this->state->setFirstInstall(true);
-                $this->state->setLocked(
-                    $event->getComposer()->getLocker()->isLocked()
-                );
+                if (version_compare('2.0.0', PluginInterface::PLUGIN_API_VERSION, '>')) {
+                    $this->state->setLocked(
+                        $event->getComposer()->getLocker()->isLocked()
+                    );
+                } else {
+                    $this->state->setLocked(false);
+                }
             }
         }
     }

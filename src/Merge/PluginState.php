@@ -35,11 +35,6 @@ class PluginState
     protected $requires = array();
 
     /**
-     * @var array $duplicateLinks
-     */
-    protected $duplicateLinks = array();
-
-    /**
      * @var bool $devMode
      */
     protected $devMode = false;
@@ -304,33 +299,6 @@ class PluginState
     public function shouldOptimizeAutoloader()
     {
         return $this->optimizeAutoloader;
-    }
-
-    /**
-     * Add duplicate packages
-     *
-     * @param string $type Package type
-     * @param array $packages
-     */
-    public function addDuplicateLinks($type, array $packages)
-    {
-        if (!isset($this->duplicateLinks[$type])) {
-            $this->duplicateLinks[$type] = array();
-        }
-        $this->duplicateLinks[$type] =
-            array_merge($this->duplicateLinks[$type], $packages);
-    }
-
-    /**
-     * Get duplicate packages
-     *
-     * @param string $type Package type
-     * @return array
-     */
-    public function getDuplicateLinks($type)
-    {
-        return isset($this->duplicateLinks[$type]) ?
-            $this->duplicateLinks[$type] : array();
     }
 
     /**
