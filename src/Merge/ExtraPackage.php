@@ -24,6 +24,7 @@ use Composer\Package\RootPackageInterface;
 use Composer\Package\Version\VersionParser;
 use Composer\Plugin\PluginInterface;
 use Composer\Semver\Constraint\MultiConstraint as SemverMultiConstraint;
+use Composer\Semver\Intervals;
 use UnexpectedValueException;
 
 /**
@@ -301,6 +302,11 @@ class ExtraPackage
                 $origin[$name] = $link;
             }
         }
+
+        if (version_compare('2.0.0', PluginInterface::PLUGIN_API_VERSION, '<=')) {
+            Intervals::clear();
+        }
+
         return $origin;
     }
 
@@ -316,18 +322,30 @@ class ExtraPackage
     protected function mergeConstraints(Link $origin, Link $merge)
     {
         $parser = $this->versionParser;
+
         $oldPrettyString = $origin->getConstraint()->getPrettyString();
         $newPrettyString = $merge->getConstraint()->getPrettyString();
+
         if (version_compare('2.0.0', PluginInterface::PLUGIN_API_VERSION, '>')) {
             $constraintClass = 'Wikimedia\\Composer\\Merge\\MultiConstraint';
         } else {
             $constraintClass = 'Composer\\Semver\\Constraint\\MultiConstraint';
+
+            if (Intervals::isSubsetOf($origin->getConstraint(), $merge->getConstraint())) {
+                return $origin;
+            }
+
+            if (Intervals::isSubsetOf($merge->getConstraint(), $origin->getConstraint())) {
+                return $merge;
+            }
         }
+
         $newConstraint = $constraintClass::create(array(
             $origin->getConstraint(),
             $merge->getConstraint()
         ), true);
         $newConstraint->setPrettyString($oldPrettyString.', '.$newPrettyString);
+
         return new Link(
             $origin->getSource(),
             $origin->getTarget(),
