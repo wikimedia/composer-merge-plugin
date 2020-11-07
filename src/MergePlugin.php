@@ -294,7 +294,7 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
             if ($package === self::PACKAGE_NAME) {
                 $this->logger->info('composer-merge-plugin installed');
                 $this->state->setFirstInstall(true);
-                if (version_compare('2.0.0', PluginInterface::PLUGIN_API_VERSION, '>')) {
+                if ($this->state->isComposer1()) {
                     $this->state->setLocked(
                         $event->getComposer()->getLocker()->isLocked()
                     );
@@ -319,9 +319,7 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
             $this->state->setFirstInstall(false);
             $this->logger->log("\n".'<info>Running composer update to apply merge settings</info>');
 
-            $isComposer2 = version_compare('2.0.0', PluginInterface::PLUGIN_API_VERSION, '<=');
-
-            if ($isComposer2) {
+            if (!$this->state->isComposer1()) {
                 $file = Factory::getComposerFile();
                 $lock = Factory::getLockFile($file);
                 $lockBackup = file_exists($lock) ? file_get_contents($lock) : null;
@@ -355,7 +353,7 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
 
             $status = $installer->run();
             if ($status !== 0) {
-                if ($isComposer2 && $lockBackup) {
+                if (!$this->state->isComposer1() && $lockBackup) {
                     $this->logger->log(
                         "\n".'<error>'.
                         'Update to apply merge settings failed, reverting '.$lock.' to its original content.'.

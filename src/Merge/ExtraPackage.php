@@ -276,7 +276,7 @@ class ExtraPackage
         $type,
         array $origin,
         array $merge,
-        $state
+        PluginState $state
     ) {
         if ($state->ignoreDuplicateLinks() && $state->replaceDuplicateLinks()) {
             $this->logger->warning("Both replace and ignore-duplicates are true. These are mutually exclusive.");
@@ -295,7 +295,7 @@ class ExtraPackage
                     $origin[$name] = $link;
                 } else {
                     $this->logger->info("Merging <comment>{$name}</comment>");
-                    $origin[$name] = $this->mergeConstraints($origin[$name], $link);
+                    $origin[$name] = $this->mergeConstraints($origin[$name], $link, $state);
                 }
             } else {
                 $this->logger->info("Adding <comment>{$name}</comment>");
@@ -303,7 +303,7 @@ class ExtraPackage
             }
         }
 
-        if (version_compare('2.0.0', PluginInterface::PLUGIN_API_VERSION, '<=')) {
+        if (!$state->isComposer1()) {
             Intervals::clear();
         }
 
@@ -317,16 +317,17 @@ class ExtraPackage
      *
      * @param Link $origin The base package link.
      * @param Link $merge  The related package link to merge.
+     * @param PluginState $state
      * @return Link Merged link.
      */
-    protected function mergeConstraints(Link $origin, Link $merge)
+    protected function mergeConstraints(Link $origin, Link $merge, PluginState $state)
     {
         $parser = $this->versionParser;
 
         $oldPrettyString = $origin->getConstraint()->getPrettyString();
         $newPrettyString = $merge->getConstraint()->getPrettyString();
 
-        if (version_compare('2.0.0', PluginInterface::PLUGIN_API_VERSION, '>')) {
+        if ($state->isComposer1()) {
             $constraintClass = 'Wikimedia\\Composer\\Merge\\MultiConstraint';
         } else {
             $constraintClass = 'Composer\\Semver\\Constraint\\MultiConstraint';
