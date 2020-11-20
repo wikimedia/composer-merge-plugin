@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 /**
  * This file is part of the Composer Merge plugin.
  *
@@ -15,7 +16,9 @@ use Composer\Semver\Constraint\MultiConstraint as SemverMultiConstraint;
 
 /**
  * Adapted from Composer's v2 MultiConstraint::create for Composer v1
+ * @link https://github.com/composer/semver/blob/3.2.4/src/Constraint/MultiConstraint.php
  * @author Chauncey McAskill <chauncey@mcaskill.ca>
+ * @codeCoverageIgnore
  */
 class MultiConstraint extends SemverMultiConstraint
 {
@@ -65,10 +68,13 @@ class MultiConstraint extends SemverMultiConstraint
             $optimized = false;
             for ($i = 1, $l = \count($constraints); $i < $l; $i++) {
                 $right = $constraints[$i];
-                if ($left instanceof MultiConstraint
+                if (
+                    $left instanceof SemverMultiConstraint
                     && $left->conjunctive
-                    && $right instanceof MultiConstraint
+                    && $right instanceof SemverMultiConstraint
                     && $right->conjunctive
+                    && \count($left->constraints) === 2
+                    && \count($right->constraints) === 2
                     && ($left0 = (string) $left->constraints[0])
                     && $left0[0] === '>' && $left0[1] === '='
                     && ($left1 = (string) $left->constraints[1])
@@ -80,14 +86,12 @@ class MultiConstraint extends SemverMultiConstraint
                     && substr($left1, 2) === substr($right0, 3)
                 ) {
                     $optimized = true;
-                    $left = new MultiConstraint(array_merge(
+                    $left = new MultiConstraint(
                         array(
                             $left->constraints[0],
                             $right->constraints[1],
                         ),
-                        \array_slice($left->constraints, 2),
-                        \array_slice($right->constraints, 2)
-                    ), true);
+                        true);
                 } else {
                     $mergedConstraints[] = $left;
                     $left = $right;
