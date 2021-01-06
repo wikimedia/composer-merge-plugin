@@ -16,7 +16,6 @@ use Composer\Installer\PackageEvents;
 use Composer\IO\IOInterface;
 use Composer\Package\BasePackage;
 use Composer\Package\Link;
-use Composer\Package\Locker;
 use Composer\Package\Package;
 use Composer\Package\RootPackage;
 use Composer\Package\Version\VersionParser;
@@ -612,6 +611,40 @@ class MergePluginTest extends TestCase
 
         $this->triggerPlugin($root->reveal(), $dir, $fireInit);
     }
+
+    public function testAliases()
+    {
+        $that = $this;
+        $dir = $this->fixtureDir(__FUNCTION__);
+        $root = $this->rootFromJson("{$dir}/composer.json");
+
+        $root->setRequires(Argument::type('array'))->will(
+            function ($args, $root) {
+                $root->getRequires()->willReturn($args[0]);
+            }
+        )->shouldBeCalled();
+
+        $root->setAliases(Argument::type('array'))->will(
+            function ($args) use ($that) {
+                $that->assertSame(
+                    array(
+                        array(
+                            'package' => 'test/foo',
+                            'version' => '1.1.0.0',
+                            'alias' => '1.0.0',
+                            'alias_normalized' => '1.0.0.0',
+                        ),
+                    ),
+                    $args[0]
+                );
+            }
+        );
+
+        $root->setDevRequires(Argument::any())->shouldNotBeCalled();
+
+        $this->triggerPlugin($root->reveal(), $dir);
+    }
+
 
     public function testMergedAutoload()
     {
@@ -1301,6 +1334,7 @@ class MergePluginTest extends TestCase
         $root->getRequires()->shouldNotBeCalled();
         $root->getDevRequires()->shouldNotBeCalled();
         $root->setReferences(Argument::type('array'))->shouldNotBeCalled();
+        $root->setAliases(Argument::type('array'))->shouldNotBeCalled();
         $this->triggerPlugin($root->reveal(), $dir);
     }
 
@@ -1526,6 +1560,7 @@ class MergePluginTest extends TestCase
             }
         );
         $root->setReferences(Argument::type('array'))->shouldBeCalled();
+        $root->setAliases(Argument::type('array'))->shouldBeCalled();
 
         return $root;
     }
