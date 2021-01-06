@@ -186,6 +186,7 @@ class ExtraPackage
             $this->mergeDevInto($root, $state);
         } else {
             $this->mergeReferences($root);
+            $this->mergeAliases($root);
         }
     }
 
@@ -200,6 +201,7 @@ class ExtraPackage
         $this->mergeRequires('require-dev', $root, $state);
         $this->mergeAutoload('devAutoload', $root);
         $this->mergeReferences($root);
+        $this->mergeAliases($root);
     }
 
     /**
@@ -647,6 +649,51 @@ class ExtraPackage
         }
         // @codeCoverageIgnoreEnd
         return $root;
+    }
+
+    protected function mergeAliases(RootPackageInterface $root)
+    {
+        $aliases = array();
+        $unwrapped = $this->unwrapIfNeeded($root, 'setAliases');
+        foreach (array('require', 'require-dev') as $linkType) {
+            $linkInfo = BasePackage::$supportedLinkTypes[$linkType];
+            $method = 'get'.ucfirst($linkInfo['method']);
+            $links = array();
+            foreach ($unwrapped->$method() as $link) {
+                $links[$link->getTarget()] = $link->getConstraint()->getPrettyString();
+            }
+            $aliases = $this->extractAliases($links, $aliases);
+        }
+        $unwrapped->setAliases($aliases);
+    }
+
+    /**
+     * Extract aliases from version constraints (dev-branch as 1.0.0).
+     *
+     * @param array $requires
+     * @param array $aliases
+     * @return array
+     * @see RootPackageLoader::extractAliases()
+     */
+    protected function extractAliases(array $requires, array $aliases)
+    {
+        foreach ($requires as $reqName => $reqVersion) {
+            if (preg_match('{^([^,\s#]+)(?:#[^ ]+)? +as +([^,\s]+)$}', $reqVersion, $match)) {
+                $aliases[] = array(
+                    'package' => strtolower($reqName),
+                    'version' => $this->versionParser->normalize($match[1], $reqVersion),
+                    'alias' => $match[2],
+                    'alias_normalized' => $this->versionParser->normalize($match[2], $reqVersion),
+                );
+            } elseif (strpos($reqVersion, ' as ') !== false) {
+                throw new \UnexpectedValueException(
+                    'Invalid alias definition in "'.$reqName.'": "'.$reqVersion.'". '
+                    . 'Aliases should be in the form "exact-version as other-exact-version".'
+                );
+            }
+        }
+
+        return $aliases;
     }
 
     /**
