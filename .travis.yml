@@ -18,6 +18,7 @@ matrix:
     - php: nightly
 
 before_script:
+  - composer self-update --1
   - travis_retry composer install --prefer-source --no-interaction
 
 script: composer test
