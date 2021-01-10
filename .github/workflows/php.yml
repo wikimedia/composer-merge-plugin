@@ -1,0 +1,49 @@
+name: PHP Composer
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-versions:
+          - "7.2"
+          - "7.3"
+          - "7.4"
+          - "8.0"
+    env:
+      COMPOSER_DISABLE_XDEBUG_WARN: 1
+
+    name: PHP ${{ matrix.php-versions }} test
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: composer install 1.x
+      run: sudo composer self-update --1
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Run tests
+      run: composer test
+
+    # Currently disabled due to Guzzle\Common\Exception\InvalidArgumentException Invalid handle provided
+    #- name: Get ocular
+    #  run: wget https://scrutinizer-ci.com/ocular.phar
+
+    #- name: Upload code coverage
+    #  run: php ocular.phar code-coverage:upload --format=php-clover reports/coverage.xml
+
+    # Currently disabled due to count(php-versions) cycles of joins, message send and quit
+    #- name: irc push
+    #  uses: rectalogic/notify-irc@v1
+    #  if: github.event_name == 'push'
+    #  with:
+    #    channel: "#wikimedia-dev"
+    #    nickname: wikimedia-github
+    #    message: |
+    #      ${{ github.repository }}#${{ github.run_id }} (${{ github.base_ref }} - ${{ github.sha }} ${{ github.actor }}): ${{ join(github.event.commits.*.message) }} - https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
