@@ -46,4 +46,4 @@ jobs:
     #    channel: "#wikimedia-dev"
     #    nickname: wikimedia-github
     #    message: |
-    #      ${{ github.repository }}#${{ github.run_id }} (${{ github.base_ref }} - ${{ github.sha }} ${{ github.actor }}): ${{ join(github.event.commits.*.message) }} - https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
+    #      ${{ github.repository }}#${{ github.run_id }} (${{ github.ref }} - ${{ github.sha }} ${{ github.actor }}): ${{ join(github.event.commits.*.message) }} - https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
