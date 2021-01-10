@@ -44,7 +44,7 @@ jobs:
 
   irc-push:
     runs-on: ubuntu-latest
-    if: ${{ always() }}
+    if: ${{ always() }} && github.repository == 'wikimedia/composer-merge-plugin'
     needs: [run]
     steps:
     - name: irc push notification
