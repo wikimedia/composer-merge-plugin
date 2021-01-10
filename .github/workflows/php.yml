@@ -35,12 +35,33 @@ jobs:
     - name: Run tests
       run: composer test
 
-    # Currently disabled due to Guzzle\Common\Exception\InvalidArgumentException Invalid handle provided
-    #- name: Get ocular
-    #  run: wget https://scrutinizer-ci.com/ocular.phar
+  ocular-push:
+    runs-on: ubuntu-latest
+    if: ${{ success() }} && github.repository == 'wikimedia/composer-merge-plugin'
+    needs: [run]
 
-    #- name: Upload code coverage
-    #  run: php ocular.phar code-coverage:upload --format=php-clover reports/coverage.xml
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup PHP version for coverage
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: "7.2"
+        coverage: xdebug
+        tools: composer:v1
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Run coverage
+      run: composer coverage
+
+    - name: Get ocular
+      run: wget https://scrutinizer-ci.com/ocular.phar
+
+    - name: Upload code coverage
+      run: php ocular.phar code-coverage:upload --format=php-clover reports/coverage.xml
 
   irc-push:
     runs-on: ubuntu-latest
