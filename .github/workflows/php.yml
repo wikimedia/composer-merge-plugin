@@ -38,12 +38,15 @@ jobs:
     #- name: Upload code coverage
     #  run: php ocular.phar code-coverage:upload --format=php-clover reports/coverage.xml
 
-    # Currently disabled due to count(php-versions) cycles of joins, message send and quit
-    #- name: irc push
-    #  uses: rectalogic/notify-irc@v1
-    #  if: github.event_name == 'push'
-    #  with:
-    #    channel: "#wikimedia-dev"
-    #    nickname: wikimedia-github
-    #    message: |
-    #      ${{ github.repository }}#${{ github.run_id }} (${{ github.ref }} - ${{ github.sha }} ${{ github.actor }}): ${{ job.status }} - https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+  irc-push:
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs: [run]
+    steps:
+    - name: irc push notification
+      uses: rectalogic/notify-irc@v1
+      if: github.event_name == 'push'
+      with:
+        channel: "#wikimedia-dev"
+        nickname: wikimedia-github
+        message: "${{ github.repository }}#${{ github.run_id }} (${{ github.ref }} - ${{ github.sha }} ${{ github.actor }}): ${{ job.status }} - https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
