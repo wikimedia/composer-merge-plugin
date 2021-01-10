@@ -21,11 +21,15 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+    
+    - name: Setup PHP version
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-versions }}
+        coverage: xdebug
+        tools: composer:v1
 
-    - name: composer install 1.x
-      run: sudo composer self-update --1
-
-    - name: Install dependencies
+    - name: Install composer dependencies
       run: composer install --prefer-dist --no-progress
 
     - name: Run tests
