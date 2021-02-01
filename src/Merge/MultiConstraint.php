@@ -34,11 +34,11 @@ class MultiConstraint extends SemverMultiConstraint
      */
     public static function create(array $constraints, $conjunctive = true)
     {
-        if (0 === \count($constraints)) {
+        if (\count($constraints) === 0) {
             return new EmptyConstraint();
         }
 
-        if (1 === \count($constraints)) {
+        if (\count($constraints) === 1) {
             return $constraints[0];
         }
 
