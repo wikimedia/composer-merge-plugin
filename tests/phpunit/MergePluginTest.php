@@ -15,8 +15,6 @@ use Wikimedia\Composer\Merge\PluginState;
 
 use Composer\Composer;
 use Composer\DependencyResolver\Operation\InstallOperation;
-use Composer\Installer\InstallerEvent;
-use Composer\Installer\InstallerEvents;
 use Composer\Installer\PackageEvents;
 use Composer\IO\IOInterface;
 use Composer\Package\BasePackage;
