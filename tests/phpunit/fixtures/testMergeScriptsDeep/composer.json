@@ -1,0 +1,14 @@
+{
+    "scripts": {
+        "example-script": [
+            "echo 'hello world'"
+        ]
+    },
+    "extra": {
+        "merge-plugin": {
+            "merge-scripts": true,
+            "merge-scripts-deep": true,
+            "include": "composer.local.json"
+        }
+    }
+}

@@ -469,11 +469,11 @@ class ExtraPackage
 
         if ($state->replaceDuplicateLinks()) {
             $unwrapped->setScripts(
-                array_merge($rootScripts, $scripts)
+                self::mergeExtraArray($state->shouldMergeScriptsDeep(), $rootScripts, $scripts)
             );
         } else {
             $unwrapped->setScripts(
-                array_merge($scripts, $rootScripts)
+                self::mergeExtraArray($state->shouldMergeScriptsDeep(), $scripts, $rootScripts)
             );
         }
     }
