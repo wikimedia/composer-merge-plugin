@@ -75,13 +75,13 @@ Usage
 ### Updating sub-levels `composer.json` files
 
 
-In order for composer-merge-plugin to install dependencies from updated or newly created sub-level `composer.json` files in your project you need to run the command:
+In order for Composer Merge Plugin to install dependencies from updated or newly created sub-level `composer.json` files in your project you need to run the command:
 
 ```
 $ composer update
 ```
 
-This will [instruct Composer to recalculate the file hash](https://getcomposer.org/doc/03-cli.md#update) for the top-level `composer.json` thus triggering composer-merge-plugin to look for the sub-level configuration files and update your dependencies.
+This will [instruct Composer to recalculate the file hash](https://getcomposer.org/doc/03-cli.md#update) for the top-level `composer.json` thus triggering Composer Merge Plugin to look for the sub-level configuration files and update your dependencies.
 
 
 Plugin configuration
