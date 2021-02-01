@@ -982,18 +982,13 @@ class MergePluginTest extends TestCase
         $event->getOperation()->willReturn($operation)->shouldBeCalled();
 
         if ($first) {
-            if (version_compare('2.0.0', PluginInterface::PLUGIN_API_VERSION, '>')) {
-                $locker = $this->prophesize('Composer\Package\Locker');
-                $locker->isLocked()->willReturn($locked)
-                    ->shouldBeCalled();
-                $this->composer->getLocker()->willReturn($locker->reveal())
-                    ->shouldBeCalled();
-                $event->getComposer()->willReturn($this->composer->reveal())
-                    ->shouldBeCalled();
-            } else {
-                // Always do update in Composer v2
-                $locked = false;
-            }
+            $locker = $this->prophesize('Composer\Package\Locker');
+            $locker->isLocked()->willReturn($locked)
+                ->shouldBeCalled();
+            $this->composer->getLocker()->willReturn($locker->reveal())
+                ->shouldBeCalled();
+            $event->getComposer()->willReturn($this->composer->reveal())
+                ->shouldBeCalled();
         }
 
         $this->fixture->onPostPackageInstall($event->reveal());

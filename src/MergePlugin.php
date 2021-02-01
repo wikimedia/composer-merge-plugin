@@ -292,13 +292,9 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
             if ($package === self::PACKAGE_NAME) {
                 $this->logger->info('composer-merge-plugin installed');
                 $this->state->setFirstInstall(true);
-                if ($this->state->isComposer1()) {
-                    $this->state->setLocked(
-                        $event->getComposer()->getLocker()->isLocked()
-                    );
-                } else {
-                    $this->state->setLocked(false);
-                }
+                $this->state->setLocked(
+                    $event->getComposer()->getLocker()->isLocked()
+                );
             }
         }
     }
@@ -347,6 +343,8 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
                 // than just telling the user that composer.json and
                 // composer.lock don't match.
                 $installer->setUpdate(true);
+            } else {
+                $this->logger->log('You may need to manually run composer update to apply merge settings');
             }
 
             $status = $installer->run();
