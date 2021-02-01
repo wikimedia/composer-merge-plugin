@@ -60,6 +60,11 @@ class PluginState
     protected $ignore = false;
 
     /**
+     * @var array $ignoreRequire
+     */
+    protected $ignoreRequire = array();
+
+    /**
      * Whether to merge the -dev sections.
      * @var bool $mergeDev
      */
@@ -145,6 +150,7 @@ class PluginState
                 'recurse' => true,
                 'replace' => false,
                 'ignore-duplicates' => false,
+                'ignore-require' => array(),
                 'merge-dev' => true,
                 'merge-extra' => false,
                 'merge-extra-deep' => false,
@@ -160,6 +166,8 @@ class PluginState
         $this->recurse = (bool)$config['recurse'];
         $this->replace = (bool)$config['replace'];
         $this->ignore = (bool)$config['ignore-duplicates'];
+        $this->ignoreRequire = (is_array($config['ignore-require'])) ?
+            $config['ignore-require'] : array($config['ignore-require']);
         $this->mergeDev = (bool)$config['merge-dev'];
         $this->mergeExtra = (bool)$config['merge-extra'];
         $this->mergeExtraDeep = (bool)$config['merge-extra-deep'];
@@ -361,6 +369,16 @@ class PluginState
     public function ignoreDuplicateLinks()
     {
         return $this->ignore;
+    }
+
+    /**
+     * Return an array of require package name specifications that should be ignored
+     *
+     * @return array
+     */
+    public function getIgnoreRequire()
+    {
+        return $this->ignoreRequire;
     }
 
     /**

@@ -243,6 +243,18 @@ class ExtraPackage
             return;
         }
 
+        $ignoreRequire = $state->getIgnoreRequire();
+        if (!empty($ignoreRequire)) {
+            $requires = array_filter($requires, function ($name) use ($ignoreRequire) {
+                foreach ($ignoreRequire as $ignorePattern) {
+                    if (fnmatch($ignorePattern, $name)) {
+                        return false;
+                    }
+                }
+                return true;
+            }, ARRAY_FILTER_USE_KEY);
+        }
+
         $this->mergeStabilityFlags($root, $requires);
 
         $requires = $this->replaceSelfVersionDependencies(
