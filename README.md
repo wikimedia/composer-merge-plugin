@@ -24,19 +24,19 @@ extensions which may be managed via Composer.
 Installation
 ------------
 
-Composer Merge Plugin 1.4.x (and older) requires Composer 1.x.
+Composer Merge Plugin 1.4.x (and older) requires Composer 1.x.
 
-Composer Merge Plugin 1.5.x (and newer) is compatible with both Composer 2.x and 1.x.
+Composer Merge Plugin 1.5.x (and newer) is compatible with both Composer 2.x and 1.x.
 
 ```
 $ composer require wikimedia/composer-merge-plugin
 ```
 
-### Upgrading from Composer 1 to 2
+### Upgrading from Composer 1 to 2
 
-If you are already using Composer Merge Plugin 1.4 (or older) and you are updating the plugin to 1.5 (or newer), it is recommended that you update the plugin first using Composer 1.
+If you are already using Composer Merge Plugin 1.4 (or older) and you are updating the plugin to 1.5 (or newer), it is recommended that you update the plugin first using Composer 1.
 
-If you update the incompatible plugin using Composer 2, the plugin will be ignored:
+If you update the incompatible plugin using Composer 2, the plugin will be ignored:
 
 > The "wikimedia/composer-merge-plugin" plugin was skipped because it requires a Plugin API version ("^1.0") that does not match your Composer installation ("2.0.0"). You may need to run composer update with the "--no-plugins" option.
 
