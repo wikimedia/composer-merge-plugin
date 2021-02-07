@@ -62,6 +62,11 @@ class ExtraPackage
     protected $package;
 
     /**
+     * @var array<string, bool> $mergedRequirements
+     */
+    protected $mergedRequirements = array();
+
+    /**
      * @var VersionParser $versionParser
      */
     protected $versionParser;
@@ -101,6 +106,16 @@ class ExtraPackage
     {
         return isset($this->json['extra']['merge-plugin']['require']) ?
             $this->json['extra']['merge-plugin']['require'] : array();
+    }
+
+    /**
+     * Get list of merged requirements from this package.
+     *
+     * @return string[]
+     */
+    public function getMergedRequirements()
+    {
+        return array_keys($this->mergedRequirements);
     }
 
     /**
@@ -292,13 +307,16 @@ class ExtraPackage
 
                 if ($state->replaceDuplicateLinks()) {
                     $this->logger->info("Replacing <comment>{$name}</comment>");
+                    $this->mergedRequirements[$name] = true;
                     $origin[$name] = $link;
                 } else {
                     $this->logger->info("Merging <comment>{$name}</comment>");
+                    $this->mergedRequirements[$name] = true;
                     $origin[$name] = $this->mergeConstraints($origin[$name], $link, $state);
                 }
             } else {
                 $this->logger->info("Adding <comment>{$name}</comment>");
+                $this->mergedRequirements[$name] = true;
                 $origin[$name] = $link;
             }
         }
