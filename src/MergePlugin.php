@@ -371,7 +371,12 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
             );
 
             $installer->setUpdate(true);
-            $installer->setUpdateAllowList($requirements);
+
+            if ($this->state->isComposer1()) {
+                $installer->setUpdateWhitelist($requirements);
+            } else {
+                $installer->setUpdateAllowList($requirements);
+            }
 
             $status = $installer->run();
             if ($status !== 0) {
