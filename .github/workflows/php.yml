@@ -9,31 +9,45 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php-versions:
+        php-version:
           - "7.2"
           - "7.3"
           - "7.4"
           - "8.0"
+        composer-dependencies:
+          - 'highest'
     env:
       COMPOSER_DISABLE_XDEBUG_WARN: 1
 
-    name: PHP ${{ matrix.php-versions }} test
+    name: Test PHP ${{ matrix.php-version }}
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    
+
     - name: Setup PHP version
       uses: shivammathur/setup-php@v2
       with:
-        php-version: ${{ matrix.php-versions }}
+        php-version: ${{ matrix.php-version }}
         coverage: xdebug
-        tools: composer:v1
+        tools: composer:v2
 
-    - name: Install composer dependencies
-      run: composer install --prefer-dist --no-progress
+    - name: Test Composer v1
+      run: composer require --dev --no-update composer/composer:^1.1
 
-    - name: Run tests
-      run: composer test
+    - uses: "ramsey/composer-install@v1"
+      with:
+        dependency-versions: "${{ matrix.composer-dependencies }}"
+
+    - run: composer test
+
+    - name: Test Composer v2
+      run: composer require --dev --no-update composer/composer:^2.0
+
+    - uses: "ramsey/composer-install@v1"
+      with:
+        dependency-versions: "${{ matrix.composer-dependencies }}"
+
+    - run: composer test
 
   ocular-push:
     runs-on: ubuntu-latest
@@ -57,7 +71,7 @@ jobs:
     - name: Run coverage
       run: composer coverage
 
-    - name: Get ocular
+    - name: Get Ocular
       run: wget https://scrutinizer-ci.com/ocular.phar
 
     - name: Upload code coverage
@@ -68,7 +82,7 @@ jobs:
     if: ${{ always() }} && github.repository == 'wikimedia/composer-merge-plugin'
     needs: [run]
     steps:
-    - name: irc push notification
+    - name: IRC push notification
       uses: rectalogic/notify-irc@v1
       if: github.event_name == 'push'
       with:

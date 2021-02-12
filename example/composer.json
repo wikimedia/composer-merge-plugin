@@ -1,8 +1,11 @@
 {
     "repositories": [
         {
-            "type": "vcs",
-            "url": "./.."
+            "type": "path",
+            "url": "./..",
+            "only": [
+                "wikimedia/composer-merge-plugin"
+            ]
         }
     ],
     "require": {

@@ -11,6 +11,7 @@
 namespace Wikimedia\Composer\Merge;
 
 use Composer\Composer;
+use Composer\Plugin\PluginInterface;
 
 /**
  * Mutable plugin state
@@ -25,6 +26,11 @@ class PluginState
     protected $composer;
 
     /**
+     * @var bool $isComposer1
+     */
+    protected $isComposer1;
+
+    /**
      * @var array $includes
      */
     protected $includes = array();
@@ -33,11 +39,6 @@ class PluginState
      * @var array $requires
      */
     protected $requires = array();
-
-    /**
-     * @var array $duplicateLinks
-     */
-    protected $duplicateLinks = array();
 
     /**
      * @var bool $devMode
@@ -130,6 +131,17 @@ class PluginState
     public function __construct(Composer $composer)
     {
         $this->composer = $composer;
+        $this->isComposer1 = version_compare(PluginInterface::PLUGIN_API_VERSION, '2.0.0', '<');
+    }
+
+    /**
+     * Test if this plugin runs within Composer 1.
+     *
+     * @return bool
+     */
+    public function isComposer1()
+    {
+        return $this->isComposer1;
     }
 
     /**
@@ -304,33 +316,6 @@ class PluginState
     public function shouldOptimizeAutoloader()
     {
         return $this->optimizeAutoloader;
-    }
-
-    /**
-     * Add duplicate packages
-     *
-     * @param string $type Package type
-     * @param array $packages
-     */
-    public function addDuplicateLinks($type, array $packages)
-    {
-        if (!isset($this->duplicateLinks[$type])) {
-            $this->duplicateLinks[$type] = array();
-        }
-        $this->duplicateLinks[$type] =
-            array_merge($this->duplicateLinks[$type], $packages);
-    }
-
-    /**
-     * Get duplicate packages
-     *
-     * @param string $type Package type
-     * @return array
-     */
-    public function getDuplicateLinks($type)
-    {
-        return isset($this->duplicateLinks[$type]) ?
-            $this->duplicateLinks[$type] : array();
     }
 
     /**
