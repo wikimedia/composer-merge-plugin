@@ -8,13 +8,13 @@
  * license. See the LICENSE file for details.
  */
 
-namespace Wikimedia\Composer\Merge;
+namespace Wikimedia\Composer\Merge\V2;
 
 use Composer\Package\BasePackage;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers Wikimedia\Composer\Merge\StabilityFlags
+ * @covers \Wikimedia\Composer\Merge\V2\StabilityFlags
  */
 class StabilityFlagsTest extends TestCase
 {

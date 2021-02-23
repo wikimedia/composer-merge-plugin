@@ -8,14 +8,13 @@
  * license. See the LICENSE file for details.
  */
 
-namespace Wikimedia\Composer;
+namespace Wikimedia\Composer\Merge\V2;
 
-use Composer\IO\IOInterface;
 use Prophecy\Argument;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers Wikimedia\Composer\Logger
+ * @covers \Wikimedia\Composer\Merge\V2\Logger
  */
 class LoggerTest extends TestCase
 {

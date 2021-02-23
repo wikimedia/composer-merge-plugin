@@ -8,7 +8,7 @@
  * license. See the LICENSE file for details.
  */
 
-namespace Wikimedia\Composer;
+namespace Wikimedia\Composer\Merge\V2;
 
 use Composer\IO\IOInterface;
 

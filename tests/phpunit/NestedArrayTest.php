@@ -8,13 +8,13 @@
  * license. See the LICENSE file for details.
  */
 
-namespace Wikimedia\Composer\Merge;
+namespace Wikimedia\Composer\Merge\V2;
 
 use Composer\Composer;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @coversDefaultClass Wikimedia\Composer\Merge\NestedArray
+ * @coversDefaultClass \Wikimedia\Composer\Merge\V2\NestedArray
  */
 class NestedArrayTest extends TestCase
 {

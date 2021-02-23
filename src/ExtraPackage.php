@@ -8,9 +8,7 @@
  * license. See the LICENSE file for details.
  */
 
-namespace Wikimedia\Composer\Merge;
-
-use Wikimedia\Composer\Logger;
+namespace Wikimedia\Composer\Merge\V2;
 
 use Composer\Composer;
 use Composer\Json\JsonFile;
@@ -22,8 +20,6 @@ use Composer\Package\RootAliasPackage;
 use Composer\Package\RootPackage;
 use Composer\Package\RootPackageInterface;
 use Composer\Package\Version\VersionParser;
-use Composer\Plugin\PluginInterface;
-use Composer\Semver\Constraint\MultiConstraint as SemverMultiConstraint;
 use Composer\Semver\Intervals;
 use UnexpectedValueException;
 
@@ -346,7 +342,7 @@ class ExtraPackage
         $newPrettyString = $merge->getConstraint()->getPrettyString();
 
         if ($state->isComposer1()) {
-            $constraintClass = 'Wikimedia\\Composer\\Merge\\MultiConstraint';
+            $constraintClass = 'Wikimedia\\Composer\\Merge\\V2\\MultiConstraint';
         } else {
             $constraintClass = 'Composer\\Semver\\Constraint\\MultiConstraint';
 
