@@ -26,6 +26,7 @@ use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
 use Prophecy\Argument;
 use PHPUnit\Framework\TestCase;
+use Prophecy\Prophecy\ObjectProphecy;
 use ReflectionProperty;
 
 /**
@@ -285,7 +286,6 @@ class MergePluginTest extends TestCase
         $this->assertArrayHasKey('monolog/monolog', $packages);
     }
 
-
     /**
      * Given a root package with no requires that disables recursion
      *   and a composer.local.json with one require, which includes a composer.local.2.json
@@ -318,7 +318,6 @@ class MergePluginTest extends TestCase
         $this->assertArrayHasKey('foo', $packages);
         $this->assertArrayNotHasKey('monolog/monolog', $packages);
     }
-
 
     /**
      * Given a root package with requires
@@ -368,7 +367,6 @@ class MergePluginTest extends TestCase
 
         $this->triggerPlugin($root->reveal(), $dir, $fireInit);
     }
-
 
     /**
      * Given a root package
@@ -615,7 +613,6 @@ class MergePluginTest extends TestCase
         $this->triggerPlugin($root->reveal(), $dir, $fireInit);
     }
 
-
     public function testMergedAutoload()
     {
         $that = $this;
@@ -693,7 +690,6 @@ class MergePluginTest extends TestCase
         );
     }
 
-
     /**
      * Given a root package with an extra section
      *   and a composer.local.json with an extra section with no conflicting keys
@@ -729,7 +725,6 @@ class MergePluginTest extends TestCase
         $this->triggerPlugin($root->reveal(), $dir, $fireInit);
     }
 
-
     /**
      * Given a root package with an extra section
      *   and a composer.local.json with an extra section with a conflicting key
@@ -762,7 +757,6 @@ class MergePluginTest extends TestCase
         $this->triggerPlugin($root->reveal(), $dir);
     }
 
-
     /**
      * Given a root package with an extra section
      *   and replace mode is active
@@ -780,7 +774,7 @@ class MergePluginTest extends TestCase
         $root->setExtra(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $extra = $args[0];
-                $that->assertEquals(2, count($extra));
+                $that->assertCount(2, $extra);
                 $that->assertArrayHasKey('merge-plugin', $extra);
                 $that->assertArrayHasKey('wibble', $extra);
                 $that->assertEquals('ping', $extra['wibble']);
@@ -816,9 +810,9 @@ class MergePluginTest extends TestCase
         $root->setExtra(Argument::type('array'))->will(
             function ($args) use ($that, $replace) {
                 $extra = $args[0];
-                $that->assertEquals(3, count($extra));
+                $that->assertCount(3, $extra);
                 $that->assertArrayHasKey('merge-plugin', $extra);
-                $that->assertEquals(4, count($extra['merge-plugin']));
+                $that->assertCount(4, $extra['merge-plugin']);
                 $that->assertArrayHasKey('patches', $extra);
                 $that->assertArrayHasKey('wikimedia/composer-merge-plugin', $extra['patches']);
                 $patches = $extra['patches']['wikimedia/composer-merge-plugin'];
@@ -878,9 +872,9 @@ class MergePluginTest extends TestCase
         $root->setScripts(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $scripts = $args[0];
-                $that->assertEquals(2, count($scripts));
+                $that->assertCount(2, $scripts);
                 $that->assertArrayHasKey('example-script', $scripts);
-                $that->assertEquals(2, count($scripts['example-script']));
+                $that->assertCount(2, $scripts['example-script']);
                 $that->assertArrayHasKey('example-script2', $scripts);
             }
         )->shouldBeCalled();
@@ -910,11 +904,11 @@ class MergePluginTest extends TestCase
         $root->setScripts(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $scripts = $args[0];
-                $that->assertEquals(3, count($scripts));
+                $that->assertCount(3, $scripts);
                 $that->assertArrayHasKey('example-script2', $scripts);
                 $that->assertArrayHasKey('example-script3', $scripts);
                 $that->assertEquals("echo 'goodbye world'", $scripts['example-script2']);
-                $that->assertEquals(1, count($scripts['example-script3']));
+                $that->assertCount(1, $scripts['example-script3']);
                 $that->assertEquals("echo 'adios world'", $scripts['example-script3'][0]);
             }
         )->shouldBeCalled();
@@ -945,12 +939,12 @@ class MergePluginTest extends TestCase
         $root->setScripts(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $scripts = $args[0];
-                $that->assertEquals(3, count($scripts));
+                $that->assertCount(3, $scripts);
                 $that->assertArrayHasKey('example-script', $scripts);
                 $that->assertArrayHasKey('example-script2', $scripts);
-                $that->assertEquals(1, count($scripts['example-script2']));
+                $that->assertCount(1, $scripts['example-script2']);
                 $that->assertEquals("echo 'hello world'", $scripts['example-script2'][0]);
-                $that->assertEquals(1, count($scripts['example-script3']));
+                $that->assertCount(1, $scripts['example-script3']);
                 $that->assertEquals("echo 'hola world'", $scripts['example-script3'][0]);
             }
         )->shouldBeCalled();
@@ -1001,7 +995,6 @@ class MergePluginTest extends TestCase
         );
     }
 
-
     public function provideOnPostPackageInstall()
     {
         return array(
@@ -1010,7 +1003,6 @@ class MergePluginTest extends TestCase
             array('foo/bar', false, false),
         );
     }
-
 
     /**
      * Given a root package with a branch alias
@@ -1022,7 +1014,6 @@ class MergePluginTest extends TestCase
      */
     public function testHasBranchAlias($fireInit)
     {
-        $that = $this;
         $io = $this->io;
         $dir = $this->fixtureDir(__FUNCTION__);
 
@@ -1039,7 +1030,7 @@ class MergePluginTest extends TestCase
         $repoManager->createRepository(
             Argument::type('string'),
             Argument::type('array')
-        )->will(function ($args) use ($that, $io) {
+        )->will(function ($args) use ($io) {
             $config = new \Composer\Config();
             $mockIO = $io->reveal();
             if (version_compare('2.0.0', PluginInterface::PLUGIN_API_VERSION, '>')) {
@@ -1109,7 +1100,6 @@ class MergePluginTest extends TestCase
         $this->triggerPlugin($alias, $dir, $fireInit);
     }
 
-
     /**
      * Given a root package with requires
      *   and a b.json with requires
@@ -1148,7 +1138,6 @@ class MergePluginTest extends TestCase
 
         $this->triggerPlugin($root->reveal(), $dir);
     }
-
 
     /**
      * Test replace link with self.version as version constraint.
@@ -1233,7 +1222,6 @@ class MergePluginTest extends TestCase
         $this->triggerPlugin($root->reveal(), $dir, $fireInit);
     }
 
-
     /**
      * Given a root package with minimum-stability=beta
      *   and a required stable package
@@ -1279,7 +1267,6 @@ class MergePluginTest extends TestCase
         $this->triggerPlugin($root->reveal(), $dir);
     }
 
-
     /**
      * Given a root package with merge-dev=false
      *   and an include with require-dev and autoload-dev sections
@@ -1306,7 +1293,6 @@ class MergePluginTest extends TestCase
         $this->triggerPlugin($root->reveal(), $dir);
     }
 
-
     public function testMissingRequireThrowsException()
     {
         $dir = $this->fixtureDir(__FUNCTION__);
@@ -1317,7 +1303,6 @@ class MergePluginTest extends TestCase
         $root->setReferences(Argument::type('array'))->shouldNotBeCalled();
         $this->triggerPlugin($root->reveal(), $dir);
     }
-
 
     public function testRequire()
     {
@@ -1336,7 +1321,6 @@ class MergePluginTest extends TestCase
 
         $this->triggerPlugin($root->reveal(), $dir);
     }
-
 
     /**
      * @param bool $fireInit Fire the INIT event?

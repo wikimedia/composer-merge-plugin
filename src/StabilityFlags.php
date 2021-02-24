@@ -92,7 +92,6 @@ class StabilityFlags
         });
     }
 
-
     /**
      * Extract the most unstable explicit stability (eg '@dev') from a version
      * specification.
@@ -112,7 +111,6 @@ class StabilityFlags
         }
         return $found;
     }
-
 
     /**
      * Split a version specification into a list of version constraints.
@@ -135,7 +133,6 @@ class StabilityFlags
         }
         return $found;
     }
-
 
     /**
      * Get the stability of a version
@@ -161,7 +158,6 @@ class StabilityFlags
 
         return $stability;
     }
-
 
     /**
      * Get the current stability of a given package.

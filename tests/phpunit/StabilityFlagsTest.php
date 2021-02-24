@@ -53,7 +53,6 @@ class StabilityFlagsTest extends TestCase
         );
     }
 
-
     /**
      * @dataProvider provideLowestWins
      */

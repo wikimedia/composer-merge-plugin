@@ -584,7 +584,7 @@ class ExtraPackage
         $packages = $root->$method();
 
         return array_map(
-            function ($link) use ($linkType, $version, $prettyVersion, $vp, $packages) {
+            static function ($link) use ($linkType, $version, $prettyVersion, $vp, $packages) {
                 if ('self.version' === $link->getPrettyConstraint()) {
                     if (isset($packages[$link->getSource()])) {
                         /** @var Link $package */
@@ -680,8 +680,8 @@ class ExtraPackage
         foreach ($requires as $reqName => $reqVersion) {
             $reqVersion = preg_replace('{^([^,\s@]+) as .+$}', '$1', $reqVersion);
             $stabilityName = VersionParser::parseStability($reqVersion);
-            if (preg_match('{^[^,\s@]+?#([a-f0-9]+)$}', $reqVersion, $match) &&
-                $stabilityName === 'dev'
+            if ($stabilityName === 'dev' &&
+                preg_match('{^[^,\s@]+?#([a-f0-9]+)$}', $reqVersion, $match)
             ) {
                 $name = strtolower($reqName);
                 $references[$name] = $match[1];

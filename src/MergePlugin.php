@@ -78,7 +78,7 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
 {
 
     /**
-     * Offical package name
+     * Official package name
      */
     public const PACKAGE_NAME = 'wikimedia/composer-merge-plugin';
 
@@ -234,7 +234,7 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
         $root = $this->composer->getPackage();
 
         $files = array_map(
-            function ($files, $pattern) use ($required) {
+            static function ($files, $pattern) use ($required) {
                 if ($required && !$files) {
                     throw new MissingFileException(
                         "merge-plugin: No files matched required '{$pattern}'"
@@ -341,10 +341,13 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
 
             $this->logger->log("\n".'<info>Running composer update to apply merge settings</info>');
 
+            $lockBackup = null;
             if (!$this->state->isComposer1()) {
                 $file = Factory::getComposerFile();
                 $lock = Factory::getLockFile($file);
-                $lockBackup = file_exists($lock) ? file_get_contents($lock) : null;
+                if (file_exists($lock)) {
+                    $lockBackup = file_get_contents($lock);
+                }
             }
 
             $config = $this->composer->getConfig();
@@ -375,15 +378,13 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
             }
 
             $status = $installer->run();
-            if ($status !== 0) {
-                if (!$this->state->isComposer1() && $lockBackup) {
-                    $this->logger->log(
-                        "\n".'<error>'.
-                        'Update to apply merge settings failed, reverting '.$lock.' to its original content.'.
-                        '</error>'
-                    );
-                    file_put_contents($lock, $lockBackup);
-                }
+            if (( $status !== 0 ) && !$this->state->isComposer1() && $lockBackup) {
+                $this->logger->log(
+                    "\n".'<error>'.
+                    'Update to apply merge settings failed, reverting '.$lock.' to its original content.'.
+                    '</error>'
+                );
+                file_put_contents($lock, $lockBackup);
             }
         }
         // @codeCoverageIgnoreEnd
