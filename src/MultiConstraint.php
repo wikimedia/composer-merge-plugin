@@ -36,6 +36,8 @@ class MultiConstraint extends SemverMultiConstraint
     public static function create(array $constraints, $conjunctive = true)
     {
         if (\count($constraints) === 0) {
+            // EmptyConstraint only exists in composer 1.x. Configure as to run phan against composer 2.x
+            // @phan-suppress-next-line PhanTypeMismatchReturn, PhanUndeclaredClassMethod
             return new EmptyConstraint();
         }
 

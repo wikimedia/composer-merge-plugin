@@ -28,6 +28,7 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php-version }}
+        extensions: ast
         coverage: xdebug
         tools: composer:v2
 
@@ -48,6 +49,7 @@ jobs:
         dependency-versions: "${{ matrix.composer-dependencies }}"
 
     - run: composer test
+    - run: composer phan
 
   ocular-push:
     runs-on: ubuntu-latest
