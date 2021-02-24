@@ -72,7 +72,7 @@ class MergePluginTest extends TestCase
     {
         $subscriptions = MergePlugin::getSubscribedEvents();
 
-        $this->assertEquals(7, count($subscriptions));
+        $this->assertCount(7, $subscriptions);
 
         $this->assertArrayHasKey(PluginEvents::INIT, $subscriptions);
         $this->assertArrayHasKey(ScriptEvents::PRE_INSTALL_CMD, $subscriptions);
@@ -100,7 +100,7 @@ class MergePluginTest extends TestCase
         $root->setRequires(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $requires = $args[0];
-                $that->assertEquals(1, count($requires));
+                $that->assertCount(1, $requires);
                 $that->assertArrayHasKey('monolog/monolog', $requires);
             }
         );
@@ -109,7 +109,7 @@ class MergePluginTest extends TestCase
         $root->setConflicts(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $suggest = $args[0];
-                $that->assertEquals(1, count($suggest));
+                $that->assertCount(1, $suggest);
                 $that->assertArrayHasKey('conflict/conflict', $suggest);
             }
         );
@@ -117,7 +117,7 @@ class MergePluginTest extends TestCase
         $root->setReplaces(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $suggest = $args[0];
-                $that->assertEquals(1, count($suggest));
+                $that->assertCount(1, $suggest);
                 $that->assertArrayHasKey('replace/replace', $suggest);
             }
         );
@@ -125,7 +125,7 @@ class MergePluginTest extends TestCase
         $root->setProvides(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $suggest = $args[0];
-                $that->assertEquals(1, count($suggest));
+                $that->assertCount(1, $suggest);
                 $that->assertArrayHasKey('provide/provide', $suggest);
             }
         );
@@ -133,7 +133,7 @@ class MergePluginTest extends TestCase
         $root->setSuggests(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $suggest = $args[0];
-                $that->assertEquals(1, count($suggest));
+                $that->assertCount(1, $suggest);
                 $that->assertArrayHasKey('suggest/suggest', $suggest);
             }
         );
@@ -162,7 +162,7 @@ class MergePluginTest extends TestCase
         $root->setRequires(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $requires = $args[0];
-                $that->assertEquals(2, count($requires));
+                $that->assertCount(2, $requires);
                 $that->assertArrayHasKey('monolog/monolog', $requires);
                 $that->assertEquals(
                     '1.10.0',
@@ -198,7 +198,7 @@ class MergePluginTest extends TestCase
         $root->setRequires(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $requires = $args[0];
-                $that->assertEquals(2, count($requires));
+                $that->assertCount(2, $requires);
                 $that->assertArrayHasKey('monolog/monolog', $requires);
                 $that->assertEquals(
                     '~1.0',
@@ -235,7 +235,7 @@ class MergePluginTest extends TestCase
         $root->setRequires(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $requires = $args[0];
-                $that->assertEquals(2, count($requires));
+                $that->assertCount(2, $requires);
                 $that->assertArrayHasKey('monolog/monolog', $requires);
                 $that->assertEquals(
                     '~1.0',
@@ -340,7 +340,7 @@ class MergePluginTest extends TestCase
         $root->setRequires(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $requires = $args[0];
-                $that->assertEquals(2, count($requires));
+                $that->assertCount(2, $requires);
                 $that->assertArrayHasKey(
                     'wikimedia/composer-merge-plugin',
                     $requires
@@ -353,7 +353,7 @@ class MergePluginTest extends TestCase
         $root->setDevRequires(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $requires = $args[0];
-                $that->assertEquals(2, count($requires));
+                $that->assertCount(2, $requires);
                 $that->assertArrayHasKey('foo', $requires);
                 $that->assertArrayHasKey('xyzzy', $requires);
             }
@@ -435,7 +435,7 @@ class MergePluginTest extends TestCase
         $root->setRequires(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $requires = $args[0];
-                $that->assertEquals(1, count($requires));
+                $that->assertCount(1, $requires);
                 $that->assertArrayHasKey(
                     'wikimedia/composer-merge-plugin',
                     $requires
@@ -448,7 +448,7 @@ class MergePluginTest extends TestCase
         $root->setRepositories(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $repos = $args[0];
-                $that->assertEquals(1, count($repos));
+                $that->assertCount(1, $repos);
             }
         );
 
@@ -531,7 +531,7 @@ class MergePluginTest extends TestCase
         $root->setRepositories(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $repos = $args[0];
-                $that->assertEquals(2, count($repos));
+                $that->assertCount(2, $repos);
                 $prependedRepo = $repos[0];
                 $that->assertInstanceOf('Composer\Repository\VcsRepository', $prependedRepo);
                 // Ugly, be we need to check a protected member variable and
@@ -573,7 +573,7 @@ class MergePluginTest extends TestCase
         $root->setRequires(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $requires = $args[0];
-                $that->assertEquals(7, count($requires));
+                $that->assertCount(7, $requires);
                 $that->assertArrayHasKey('test/foo', $requires);
                 $that->assertArrayHasKey('test/bar', $requires);
                 $that->assertArrayHasKey('test/baz', $requires);
@@ -709,9 +709,9 @@ class MergePluginTest extends TestCase
         $root->setExtra(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $extra = $args[0];
-                $that->assertEquals(2, count($extra));
+                $that->assertCount(2, $extra);
                 $that->assertArrayHasKey('merge-plugin', $extra);
-                $that->assertEquals(2, count($extra['merge-plugin']));
+                $that->assertCount(2, $extra['merge-plugin']);
                 $that->assertArrayHasKey('wibble', $extra);
             }
         )->shouldBeCalled();
@@ -741,7 +741,7 @@ class MergePluginTest extends TestCase
         $root->setExtra(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $extra = $args[0];
-                $that->assertEquals(2, count($extra));
+                $that->assertCount(2, $extra);
                 $that->assertArrayHasKey('merge-plugin', $extra);
                 $that->assertArrayHasKey('wibble', $extra);
                 $that->assertEquals('wobble', $extra['wibble']);
@@ -1151,15 +1151,15 @@ class MergePluginTest extends TestCase
         $root->setReplaces(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $replace = $args[0];
-                $that->assertEquals(3, count($replace));
+                $that->assertCount(3, $replace);
 
                 $that->assertArrayHasKey('foo/bar', $replace);
                 $that->assertArrayHasKey('foo/baz', $replace);
                 $that->assertArrayHasKey('foo/xyzzy', $replace);
 
-                $that->assertTrue($replace['foo/bar'] instanceof Link);
-                $that->assertTrue($replace['foo/baz'] instanceof Link);
-                $that->assertTrue($replace['foo/xyzzy'] instanceof Link);
+                $that->assertInstanceOf(Link::class, $replace['foo/bar']);
+                $that->assertInstanceOf(Link::class, $replace['foo/baz']);
+                $that->assertInstanceOf(Link::class, $replace['foo/xyzzy']);
 
                 $that->assertEquals(
                     '1.2.3.4',
@@ -1194,15 +1194,15 @@ class MergePluginTest extends TestCase
         $root->setReplaces(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $replace = $args[0];
-                $that->assertEquals(3, count($replace));
+                $that->assertCount(3, $replace);
 
                 $that->assertArrayHasKey('foo/bar', $replace);
                 $that->assertArrayHasKey('foo/baz', $replace);
                 $that->assertArrayHasKey('foo/xyzzy', $replace);
 
-                $that->assertTrue($replace['foo/bar'] instanceof Link);
-                $that->assertTrue($replace['foo/baz'] instanceof Link);
-                $that->assertTrue($replace['foo/xyzzy'] instanceof Link);
+                $that->assertInstanceOf(Link::class, $replace['foo/bar']);
+                $that->assertInstanceOf(Link::class, $replace['foo/baz']);
+                $that->assertInstanceOf(Link::class, $replace['foo/xyzzy']);
 
                 $that->assertEquals(
                     '~8.0',
@@ -1247,7 +1247,7 @@ class MergePluginTest extends TestCase
         $root->setRequires(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $requires = $args[0];
-                $that->assertEquals(2, count($requires));
+                $that->assertCount(2, $requires);
                 $that->assertArrayHasKey('wikimedia/composer-merge-plugin', $requires);
                 $that->assertArrayHasKey('robbytaylor/test', $requires);
             }
@@ -1282,7 +1282,7 @@ class MergePluginTest extends TestCase
         $root->setRequires(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $requires = $args[0];
-                $that->assertEquals(2, count($requires));
+                $that->assertCount(2, $requires);
                 $that->assertArrayHasKey('wikimedia/composer-merge-plugin', $requires);
                 $that->assertArrayHasKey('acme/foo', $requires);
             }
@@ -1314,7 +1314,7 @@ class MergePluginTest extends TestCase
         $root->setRequires(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $requires = $args[0];
-                $that->assertEquals(1, count($requires));
+                $that->assertCount(1, $requires);
                 $that->assertArrayHasKey('monolog/monolog', $requires);
             }
         );
@@ -1346,7 +1346,7 @@ class MergePluginTest extends TestCase
 
         $checkRefsWithDev = function ($args) use ($that) {
             $references = $args[0];
-            $that->assertEquals(3, count($references));
+            $that->assertCount(3, $references);
 
             $that->assertArrayHasKey('foo/bar', $references);
             $that->assertArrayHasKey('monolog/monolog', $references);
@@ -1360,7 +1360,7 @@ class MergePluginTest extends TestCase
         if ($fireInit) {
             $checkRefs = function ($args) use ($that, $root, $checkRefsWithDev) {
                 $references = $args[0];
-                $that->assertEquals(2, count($references));
+                $that->assertCount(2, $references);
 
                 $that->assertArrayHasKey('foo/bar', $references);
                 $that->assertArrayHasKey('monolog/monolog', $references);

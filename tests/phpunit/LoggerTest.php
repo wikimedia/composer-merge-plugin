@@ -63,7 +63,7 @@ class LoggerTest extends TestCase
 
         $fixture = new Logger('test', $io->reveal());
         $fixture->info('foo');
-        $this->assertEquals(1, count($output));
+        $this->assertCount(1, $output);
         $this->assertStringContainsString('<info>[test]</info>', $output[0]);
     }
 
@@ -92,7 +92,7 @@ class LoggerTest extends TestCase
 
         $fixture = new Logger('test', $io->reveal());
         $fixture->warning('foo');
-        $this->assertEquals(1, count($output));
+        $this->assertCount(1, $output);
         $this->assertStringContainsString('<error>[test]</error>', $output[0]);
     }
 }
