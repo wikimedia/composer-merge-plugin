@@ -8,10 +8,7 @@
  * license. See the LICENSE file for details.
  */
 
-namespace Wikimedia\Composer;
-
-use Wikimedia\Composer\Merge\ExtraPackage;
-use Wikimedia\Composer\Merge\PluginState;
+namespace Wikimedia\Composer\Merge\V2;
 
 use Composer\Composer;
 use Composer\DependencyResolver\Operation\InstallOperation;
@@ -32,12 +29,12 @@ use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 
 /**
- * @covers Wikimedia\Composer\Logger
- * @covers Wikimedia\Composer\Merge\ExtraPackage
- * @covers Wikimedia\Composer\Merge\NestedArray
- * @covers Wikimedia\Composer\Merge\PluginState
- * @covers Wikimedia\Composer\Merge\StabilityFlags
- * @covers Wikimedia\Composer\MergePlugin
+ * @covers \Wikimedia\Composer\Merge\V2\Logger
+ * @covers \Wikimedia\Composer\Merge\V2\ExtraPackage
+ * @covers \Wikimedia\Composer\Merge\V2\NestedArray
+ * @covers \Wikimedia\Composer\Merge\V2\PluginState
+ * @covers \Wikimedia\Composer\Merge\V2\StabilityFlags
+ * @covers \Wikimedia\Composer\Merge\V2\MergePlugin
  */
 class MergePluginTest extends TestCase
 {
@@ -1313,7 +1310,7 @@ class MergePluginTest extends TestCase
     public function testMissingRequireThrowsException()
     {
         $dir = $this->fixtureDir(__FUNCTION__);
-        $this->expectException(\Wikimedia\Composer\Merge\MissingFileException::class);
+        $this->expectException(MissingFileException::class);
         $root = $this->rootFromJson("{$dir}/composer.json");
         $root->getRequires()->shouldNotBeCalled();
         $root->getDevRequires()->shouldNotBeCalled();

@@ -8,7 +8,7 @@
  * license. See the LICENSE file for details.
  */
 
-namespace Wikimedia\Composer\Merge;
+namespace Wikimedia\Composer\Merge\V2;
 
 use Composer\Composer;
 use Composer\Plugin\PluginInterface;

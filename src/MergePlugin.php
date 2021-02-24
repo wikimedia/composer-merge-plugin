@@ -8,11 +8,7 @@
  * license. See the LICENSE file for details.
  */
 
-namespace Wikimedia\Composer;
-
-use Wikimedia\Composer\Merge\ExtraPackage;
-use Wikimedia\Composer\Merge\MissingFileException;
-use Wikimedia\Composer\Merge\PluginState;
+namespace Wikimedia\Composer\Merge\V2;
 
 use Composer\Composer;
 use Composer\DependencyResolver\Operation\InstallOperation;
