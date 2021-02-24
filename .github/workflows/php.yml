@@ -79,6 +79,7 @@ jobs:
 
 #  irc-push:
 #    runs-on: ubuntu-latest
+#    timeout-minutes: 15
 #    if: ${{ always() }} && github.repository == 'wikimedia/composer-merge-plugin'
 #    needs: [run]
 #    steps:
