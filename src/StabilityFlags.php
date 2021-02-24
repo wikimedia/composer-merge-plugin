@@ -31,10 +31,9 @@ class StabilityFlags
     protected $minimumStability;
 
     /**
-     * @var string Regex to extract an explict stability flag (eg '@dev')
+     * @var string Regex to extract an explicit stability flag (eg '@dev')
      */
     protected $explicitStabilityRe;
-
 
     /**
      * @param array $stabilityFlags Current package name => stability mappings
@@ -60,9 +59,7 @@ class StabilityFlags
     protected function getStabilityInt($name)
     {
         $name = VersionParser::normalizeStability($name);
-        return isset(BasePackage::$stabilities[$name]) ?
-            BasePackage::$stabilities[$name] :
-            BasePackage::STABILITY_STABLE;
+        return BasePackage::$stabilities[$name] ?? BasePackage::STABILITY_STABLE;
     }
 
     /**
@@ -174,8 +171,7 @@ class StabilityFlags
      */
     protected function getCurrentStability($name)
     {
-        return isset($this->stabilityFlags[$name]) ?
-            $this->stabilityFlags[$name] : null;
+        return $this->stabilityFlags[$name] ?? null;
     }
 }
 // vim:sw=4:ts=4:sts=4:et:

@@ -184,7 +184,7 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
     /**
      * Handle an event callback for initialization.
      *
-     * @param \Composer\EventDispatcher\Event $event
+     * @param BaseEvent $event
      */
     public function onInit(BaseEvent $event)
     {

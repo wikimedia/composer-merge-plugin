@@ -162,7 +162,7 @@ class PluginState
                 'merge-extra-deep' => false,
                 'merge-scripts' => false,
             ),
-            isset($extra['merge-plugin']) ? $extra['merge-plugin'] : array()
+            $extra['merge-plugin'] ?? array()
         );
 
         $this->includes = (is_array($config['include'])) ?
@@ -385,7 +385,6 @@ class PluginState
     {
         return $this->mergeExtraDeep;
     }
-
 
     /**
      * Should the scripts section be merged?

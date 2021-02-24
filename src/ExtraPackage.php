@@ -89,8 +89,7 @@ class ExtraPackage
      */
     public function getIncludes()
     {
-        return isset($this->json['extra']['merge-plugin']['include']) ?
-            $this->json['extra']['merge-plugin']['include'] : array();
+        return $this->json['extra']['merge-plugin']['include'] ?? array();
     }
 
     /**
@@ -100,8 +99,7 @@ class ExtraPackage
      */
     public function getRequires()
     {
-        return isset($this->json['extra']['merge-plugin']['require']) ?
-            $this->json['extra']['merge-plugin']['require'] : array();
+        return $this->json['extra']['merge-plugin']['require'] ?? array();
     }
 
     /**
@@ -336,8 +334,6 @@ class ExtraPackage
      */
     protected function mergeConstraints(Link $origin, Link $merge, PluginState $state)
     {
-        $parser = $this->versionParser;
-
         $oldPrettyString = $origin->getConstraint()->getPrettyString();
         $newPrettyString = $merge->getConstraint()->getPrettyString();
 
@@ -658,7 +654,7 @@ class ExtraPackage
         // Merge source reference information for merged packages.
         // @see RootPackageLoader::load
         $references = array();
-        $unwrapped = $this->unwrapIfNeeded($root, 'setReferences');
+        $unwrapped = self::unwrapIfNeeded($root, 'setReferences');
         foreach (array('require', 'require-dev') as $linkType) {
             $linkInfo = BasePackage::$supportedLinkTypes[$linkType];
             $method = 'get'.ucfirst($linkInfo['method']);

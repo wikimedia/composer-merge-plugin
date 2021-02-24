@@ -92,7 +92,7 @@ class NestedArray
                 // unless $preserveIntegerKeys is set to TRUE. Note that PHP
                 // automatically converts array keys that are integer strings
                 // (e.g., '1') to integers.
-                if (is_integer($key) && !$preserveIntegerKeys) {
+                if (is_int($key) && !$preserveIntegerKeys) {
                     $result[] = $value;
                 } elseif (isset($result[$key]) &&
                     is_array($result[$key]) &&
