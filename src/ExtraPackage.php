@@ -342,9 +342,9 @@ class ExtraPackage
         $newPrettyString = $merge->getConstraint()->getPrettyString();
 
         if ($state->isComposer1()) {
-            $constraintClass = 'Wikimedia\\Composer\\Merge\\V2\\MultiConstraint';
+            $constraintClass = MultiConstraint::class;
         } else {
-            $constraintClass = 'Composer\\Semver\\Constraint\\MultiConstraint';
+            $constraintClass = \Composer\Semver\Constraint\MultiConstraint::class;
 
             if (Intervals::isSubsetOf($origin->getConstraint(), $merge->getConstraint())) {
                 return $origin;
