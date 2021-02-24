@@ -11,6 +11,7 @@
 
 namespace Wikimedia\Composer\Merge\V2;
 
+use Composer\Semver\Constraint\ConstraintInterface;
 use Composer\Semver\Constraint\EmptyConstraint;
 use Composer\Semver\Constraint\MultiConstraint as SemverMultiConstraint;
 
