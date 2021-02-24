@@ -1520,7 +1520,7 @@ class MergePluginTest extends TestCase
         $root->getStabilityFlags()->willReturn([]);
         $root->setStabilityFlags(Argument::type('array'))->will(
             function ($args) use ($that) {
-                foreach ($args[0] as $key => $value) {
+                foreach ($args[0] as $value) {
                     $that->assertContains($value, BasePackage::$stabilities);
                 }
             }

@@ -39,7 +39,6 @@ class LoggerTest extends TestCase
 
     public function testNotVeryVerboseDebug()
     {
-        $output = [];
         $io = $this->prophesize('Composer\IO\IOInterface');
         $io->isVeryVerbose()->willReturn(false)->shouldBeCalled();
         $io->writeError(Argument::type('string'))->shouldNotBeCalled();
@@ -69,7 +68,6 @@ class LoggerTest extends TestCase
 
     public function testNotVerboseInfo()
     {
-        $output = [];
         $io = $this->prophesize('Composer\IO\IOInterface');
         $io->isVerbose()->willReturn(false)->shouldBeCalled();
         $io->writeError(Argument::type('string'))->shouldNotBeCalled();
