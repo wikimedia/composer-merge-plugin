@@ -34,7 +34,7 @@ $ composer require wikimedia/composer-merge-plugin
 
 ### Upgrading from Composer 1 to 2
 
-If you are already using Composer Merge Plugin 1.4 (or older) and you are updating the plugin to 1.5 (or newer), it is recommended that you update the plugin first using Composer 1.
+If you are already using Composer Merge Plugin 1.4 (or older) and you are updating the plugin to 2.0 (or newer), it is recommended that you update the plugin first using Composer 1.
 
 If you update the incompatible plugin using Composer 2, the plugin will be ignored:
 
