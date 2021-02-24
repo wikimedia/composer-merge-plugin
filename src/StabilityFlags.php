@@ -37,14 +37,14 @@ class StabilityFlags
 
     /**
      * @param array $stabilityFlags Current package name => stability mappings
-     * @param int $minimumStability Current default minimum stability
+     * @param int|string $minimumStability Current default minimum stability
      */
     public function __construct(
         array $stabilityFlags = [],
         $minimumStability = BasePackage::STABILITY_STABLE
     ) {
         $this->stabilityFlags = $stabilityFlags;
-        $this->minimumStability = $this->getStabilityInt($minimumStability);
+        $this->minimumStability = $this->getStabilityInt((string)$minimumStability);
         $this->explicitStabilityRe = '/^[^@]*?@(' .
             implode('|', array_keys(BasePackage::$stabilities)) .
             ')$/i';
