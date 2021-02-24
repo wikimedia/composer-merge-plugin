@@ -24,28 +24,28 @@ class NestedArrayTest extends TestCase
      */
     public function testMergeDeepArray()
     {
-        $link_options_1 = array(
+        $link_options_1 = [
             'fragment' => 'x',
-            'attributes' => array('title' => 'X', 'class' => array('a', 'b')),
+            'attributes' => ['title' => 'X', 'class' => ['a', 'b']],
             'language' => 'en',
-        );
-        $link_options_2 = array(
+        ];
+        $link_options_2 = [
             'fragment' => 'y',
-            'attributes' => array('title' => 'Y', 'class' => array('c', 'd')),
+            'attributes' => ['title' => 'Y', 'class' => ['c', 'd']],
             'absolute' => true,
-        );
-        $expected = array(
+        ];
+        $expected = [
             'fragment' => 'y',
-            'attributes' => array(
-                'title' => 'Y', 'class' => array('a', 'b', 'c', 'd')
-            ),
+            'attributes' => [
+                'title' => 'Y', 'class' => ['a', 'b', 'c', 'd']
+            ],
             'language' => 'en',
             'absolute' => true,
-        );
+        ];
         $this->assertSame(
             $expected,
             NestedArray::mergeDeepArray(
-                array($link_options_1, $link_options_2)
+                [$link_options_1, $link_options_2]
             ),
             'NestedArray::mergeDeepArray() returned a properly merged array.'
         );
@@ -64,17 +64,17 @@ class NestedArrayTest extends TestCase
      */
     public function testMergeImplicitKeys()
     {
-        $a = array(
-            'subkey' => array('X', 'Y'),
-        );
-        $b = array(
-            'subkey' => array('X'),
-        );
+        $a = [
+            'subkey' => ['X', 'Y'],
+        ];
+        $b = [
+            'subkey' => ['X'],
+        ];
         // Drupal core behavior.
-        $expected = array(
-            'subkey' => array('X', 'Y', 'X'),
-        );
-        $actual = NestedArray::mergeDeepArray(array($a, $b));
+        $expected = [
+            'subkey' => ['X', 'Y', 'X'],
+        ];
+        $actual = NestedArray::mergeDeepArray([$a, $b]);
         $this->assertSame(
             $expected,
             $actual,
@@ -89,28 +89,28 @@ class NestedArrayTest extends TestCase
      */
     public function testMergeExplicitKeys()
     {
-        $a = array(
-            'subkey' => array(
+        $a = [
+            'subkey' => [
                 0 => 'A',
                 1 => 'B',
-            ),
-        );
-        $b = array(
-            'subkey' => array(
+            ],
+        ];
+        $b = [
+            'subkey' => [
                 0 => 'C',
                 1 => 'D',
-            ),
-        );
+            ],
+        ];
         // Drupal core behavior.
-        $expected = array(
-            'subkey' => array(
+        $expected = [
+            'subkey' => [
                 0 => 'A',
                 1 => 'B',
                 2 => 'C',
                 3 => 'D',
-            ),
-        );
-        $actual = NestedArray::mergeDeepArray(array($a, $b));
+            ],
+        ];
+        $actual = NestedArray::mergeDeepArray([$a, $b]);
         $this->assertSame(
             $expected,
             $actual,
@@ -129,28 +129,28 @@ class NestedArrayTest extends TestCase
      */
     public function testMergeOutOfSequenceKeys()
     {
-        $a = array(
-            'subkey' => array(
+        $a = [
+            'subkey' => [
                 10 => 'A',
                 30 => 'B',
-            ),
-        );
-        $b = array(
-            'subkey' => array(
+            ],
+        ];
+        $b = [
+            'subkey' => [
                 20 => 'C',
                 0 => 'D',
-            ),
-        );
+            ],
+        ];
         // Drupal core behavior.
-        $expected = array(
-            'subkey' => array(
+        $expected = [
+            'subkey' => [
                 0 => 'A',
                 1 => 'B',
                 2 => 'C',
                 3 => 'D',
-            ),
-        );
-        $actual = NestedArray::mergeDeepArray(array($a, $b));
+            ],
+        ];
+        $actual = NestedArray::mergeDeepArray([$a, $b]);
         $this->assertSame(
             $expected,
             $actual,

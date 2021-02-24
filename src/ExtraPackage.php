@@ -60,7 +60,7 @@ class ExtraPackage
     /**
      * @var array<string, bool> $mergedRequirements
      */
-    protected $mergedRequirements = array();
+    protected $mergedRequirements = [];
 
     /**
      * @var VersionParser $versionParser
@@ -89,7 +89,7 @@ class ExtraPackage
      */
     public function getIncludes()
     {
-        return $this->json['extra']['merge-plugin']['include'] ?? array();
+        return $this->json['extra']['merge-plugin']['include'] ?? [];
     }
 
     /**
@@ -99,7 +99,7 @@ class ExtraPackage
      */
     public function getRequires()
     {
-        return $this->json['extra']['merge-plugin']['require'] ?? array();
+        return $this->json['extra']['merge-plugin']['require'] ?? [];
     }
 
     /**
@@ -212,7 +212,7 @@ class ExtraPackage
             return;
         }
         $repoManager = $this->composer->getRepositoryManager();
-        $newRepos = array();
+        $newRepos = [];
 
         foreach ($this->json['repositories'] as $repoJson) {
             if (!isset($repoJson['type'])) {
@@ -351,10 +351,10 @@ class ExtraPackage
             }
         }
 
-        $newConstraint = $constraintClass::create(array(
+        $newConstraint = $constraintClass::create([
             $origin->getConstraint(),
             $merge->getConstraint()
-        ), true);
+        ], true);
         $newConstraint->setPrettyString($oldPrettyString.', '.$newPrettyString);
 
         return new Link(
@@ -653,12 +653,12 @@ class ExtraPackage
     {
         // Merge source reference information for merged packages.
         // @see RootPackageLoader::load
-        $references = array();
+        $references = [];
         $unwrapped = self::unwrapIfNeeded($root, 'setReferences');
-        foreach (array('require', 'require-dev') as $linkType) {
+        foreach (['require', 'require-dev'] as $linkType) {
             $linkInfo = BasePackage::$supportedLinkTypes[$linkType];
             $method = 'get'.ucfirst($linkInfo['method']);
-            $links = array();
+            $links = [];
             foreach ($unwrapped->$method() as $link) {
                 $links[$link->getTarget()] = $link->getConstraint()->getPrettyString();
             }

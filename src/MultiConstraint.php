@@ -64,7 +64,7 @@ class MultiConstraint extends SemverMultiConstraint
         // [>= 1 < 2] || [>= 2 < 3] || [>= 3 < 4] => [>= 1 < 4]
         if (!$conjunctive) {
             $left = $constraints[0];
-            $mergedConstraints = array();
+            $mergedConstraints = [];
             $optimized = false;
             for ($i = 1, $l = \count($constraints); $i < $l; $i++) {
                 $right = $constraints[$i];
@@ -86,10 +86,10 @@ class MultiConstraint extends SemverMultiConstraint
                 ) {
                     $optimized = true;
                     $left = new MultiConstraint(
-                        array(
+                        [
                             $left->constraints[0],
                             $right->constraints[1],
-                        ),
+                        ],
                         true
                     );
                 } else {
@@ -99,7 +99,7 @@ class MultiConstraint extends SemverMultiConstraint
             }
             if ($optimized) {
                 $mergedConstraints[] = $left;
-                return array($mergedConstraints, false);
+                return [$mergedConstraints, false];
             }
         }
 

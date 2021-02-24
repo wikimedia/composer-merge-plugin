@@ -40,7 +40,7 @@ class StabilityFlags
      * @param int $minimumStability Current default minimum stability
      */
     public function __construct(
-        array $stabilityFlags = array(),
+        array $stabilityFlags = [],
         $minimumStability = BasePackage::STABILITY_STABLE
     ) {
         $this->stabilityFlags = $stabilityFlags;
@@ -71,7 +71,7 @@ class StabilityFlags
      */
     public function extractAll(array $requires)
     {
-        $flags = array();
+        $flags = [];
 
         foreach ($requires as $name => $link) {
             $name = strtolower($name);
@@ -120,7 +120,7 @@ class StabilityFlags
      */
     protected function splitConstraints($version)
     {
-        $found = array();
+        $found = [];
         $orConstraints = preg_split('/\s*\|\|?\s*/', trim($version));
         foreach ($orConstraints as $constraints) {
             $andConstraints = preg_split(

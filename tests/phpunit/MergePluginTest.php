@@ -267,7 +267,7 @@ class MergePluginTest extends TestCase
 
         $root = $this->rootFromJson("{$dir}/composer.json");
 
-        $packages = array();
+        $packages = [];
         $root->setRequires(Argument::type('array'))->will(
             function ($args) use (&$packages) {
                 $packages = array_merge($packages, $args[0]);
@@ -300,7 +300,7 @@ class MergePluginTest extends TestCase
 
         $root = $this->rootFromJson("{$dir}/composer.json");
 
-        $packages = array();
+        $packages = [];
         $root->setRequires(Argument::type('array'))->will(
             function ($args) use (&$packages) {
                 $packages = array_merge($packages, $args[0]);
@@ -587,13 +587,13 @@ class MergePluginTest extends TestCase
         $root->setStabilityFlags(Argument::type('array'))->will(
             function ($args) use ($that, &$expects) {
                 $that->assertSame(
-                    array(
+                    [
                         'test/foo' => BasePackage::STABILITY_DEV,
                         'test/bar' => BasePackage::STABILITY_BETA,
                         'test/baz' => BasePackage::STABILITY_ALPHA,
                         'test/xyzzy' => BasePackage::STABILITY_RC,
                         'test/plugh' => BasePackage::STABILITY_STABLE,
-                    ),
+                    ],
                     $args[0]
                 );
             }
@@ -619,7 +619,7 @@ class MergePluginTest extends TestCase
         $dir = $this->fixtureDir(__FUNCTION__);
         $root = $this->rootFromJson("{$dir}/composer.json");
 
-        $autoload = array();
+        $autoload = [];
 
         $root->getAutoload()->shouldBeCalled();
         $root->getDevAutoload()->shouldBeCalled();
@@ -635,27 +635,27 @@ class MergePluginTest extends TestCase
         $root->setDevAutoload(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $that->assertEquals(
-                    array(
-                        'psr-4' => array(
-                            'Dev\\Kittens\\' => array(
+                    [
+                        'psr-4' => [
+                            'Dev\\Kittens\\' => [
                                 'everywhere/',
                                 'extensions/Foo/a/',
                                 'extensions/Foo/b/',
-                            ),
+                            ],
                             'Dev\\Cats\\' => 'extensions/Foo/src/'
-                        ),
-                        'psr-0' => array(
+                        ],
+                        'psr-0' => [
                             'DevUniqueGlobalClass' => 'extensions/Foo/',
                             '' => 'extensions/Foo/dev/fallback/'
-                        ),
-                        'files' => array(
+                        ],
+                        'files' => [
                             'extensions/Foo/DevSemanticMediaWiki.php',
-                        ),
-                        'classmap' => array(
+                        ],
+                        'classmap' => [
                             'extensions/Foo/DevSemanticMediaWiki.hooks.php',
                             'extensions/Foo/dev/includes/',
-                        ),
-                    ),
+                        ],
+                    ],
                     $args[0]
                 );
             }
@@ -664,28 +664,28 @@ class MergePluginTest extends TestCase
         $this->triggerPlugin($root->reveal(), $dir);
 
         $this->assertEquals(
-            array(
-                'psr-4' => array(
-                    'Kittens\\' => array(
+            [
+                'psr-4' => [
+                    'Kittens\\' => [
                         'everywhere/',
                         'extensions/Foo/a/',
                         'extensions/Foo/b/',
-                    ),
+                    ],
                     'Cats\\' => 'extensions/Foo/src/'
-                ),
-                'psr-0' => array(
+                ],
+                'psr-0' => [
                     'UniqueGlobalClass' => 'extensions/Foo/',
                     '' => 'extensions/Foo/fallback/',
-                ),
-                'files' => array(
+                ],
+                'files' => [
                     'private/bootstrap.php',
                     'extensions/Foo/SemanticMediaWiki.php',
-                ),
-                'classmap' => array(
+                ],
+                'classmap' => [
                     'extensions/Foo/SemanticMediaWiki.hooks.php',
                     'extensions/Foo/includes/',
-                ),
-            ),
+                ],
+            ],
             $autoload
         );
     }
@@ -831,7 +831,7 @@ class MergePluginTest extends TestCase
                 }
                 $that->assertArrayHasKey('anothervendor/some-project', $extra['patches']);
                 $that->assertArrayHasKey('another-patch', $extra['patches']['anothervendor/some-project']);
-                $that->assertEquals(array('first', 'second', 'third', 'fourth'), $extra['list']);
+                $that->assertEquals(['first', 'second', 'third', 'fourth'], $extra['list']);
             }
         )->shouldBeCalled();
 
@@ -846,10 +846,10 @@ class MergePluginTest extends TestCase
 
     public function provideDeepMerge()
     {
-        return array(
-            array('Replace', true),
-            array('', false),
-        );
+        return [
+            ['Replace', true],
+            ['', false],
+        ];
     }
 
     /**
@@ -997,11 +997,11 @@ class MergePluginTest extends TestCase
 
     public function provideOnPostPackageInstall()
     {
-        return array(
-            array(MergePlugin::PACKAGE_NAME, true, true),
-            array(MergePlugin::PACKAGE_NAME, true, false),
-            array('foo/bar', false, false),
-        );
+        return [
+            [MergePlugin::PACKAGE_NAME, true, true],
+            [MergePlugin::PACKAGE_NAME, true, false],
+            ['foo/bar', false, false],
+        ];
     }
 
     /**
@@ -1119,12 +1119,12 @@ class MergePluginTest extends TestCase
         $dir = $this->fixtureDir(__FUNCTION__);
         $root = $this->rootFromJson("{$dir}/composer.json");
 
-        $expects = array(
+        $expects = [
             "merge-plugin/b.json",
             "merge-plugin/a.json",
             "merge-plugin/glob-a-glob2.json",
             "merge-plugin/glob-b-glob1.json"
-        );
+        ];
 
         $root->setRequires(Argument::type('array'))->will(
             function ($args) use ($that, &$expects) {
@@ -1240,9 +1240,9 @@ class MergePluginTest extends TestCase
         $root = $this->rootFromJson("{$dir}/composer.json");
 
         // The root package declares a stable package
-        $root->getStabilityFlags()->willReturn(array(
+        $root->getStabilityFlags()->willReturn([
             'wikimedia/composer-merge-plugin' => BasePackage::STABILITY_STABLE,
-        ))->shouldBeCalled();
+        ])->shouldBeCalled();
 
         $root->setRequires(Argument::type('array'))->will(
             function ($args) use ($that) {
@@ -1256,9 +1256,9 @@ class MergePluginTest extends TestCase
         $root->setStabilityFlags(Argument::type('array'))->will(
             function ($args) use ($that, &$expects) {
                 $that->assertSame(
-                    array(
+                    [
                         'wikimedia/composer-merge-plugin' => BasePackage::STABILITY_DEV,
-                    ),
+                    ],
                     $args[0]
                 );
             }
@@ -1387,10 +1387,10 @@ class MergePluginTest extends TestCase
      */
     public function provideFireInit()
     {
-        return array(
-            "with INIT event" => array(true),
-            "without INIT event" => array(true),
-        );
+        return [
+            "with INIT event" => [true],
+            "without INIT event" => [true],
+        ];
     }
 
     /**
@@ -1416,8 +1416,8 @@ class MergePluginTest extends TestCase
             $this->composer->reveal(),
             $this->io->reveal(),
             true, //dev mode
-            array(),
-            array()
+            [],
+            []
         );
         $this->fixture->onInstallUpdateOrDump($event);
 
@@ -1426,8 +1426,8 @@ class MergePluginTest extends TestCase
             $this->composer->reveal(),
             $this->io->reveal(),
             true, //dev mode
-            array(),
-            array( 'optimize' => true )
+            [],
+            [ 'optimize' => true ]
         );
         $this->fixture->onInstallUpdateOrDump($event);
 
@@ -1436,8 +1436,8 @@ class MergePluginTest extends TestCase
             $this->composer->reveal(),
             $this->io->reveal(),
             true, //dev mode
-            array(),
-            array()
+            [],
+            []
         );
         $this->fixture->onPostInstallOrUpdate($event);
     }
@@ -1461,30 +1461,30 @@ class MergePluginTest extends TestCase
         $json = json_decode(file_get_contents($file), true);
 
         $data = array_merge(
-            array(
+            [
                 'name' => '__root__',
                 'version' => '1.0.0',
-                'repositories' => array(),
-                'require' => array(),
-                'require-dev' => array(),
-                'conflict' => array(),
-                'replace' => array(),
-                'provide' => array(),
-                'suggest' => array(),
-                'extra' => array(),
-                'scripts' => array(),
-                'autoload' => array(),
-                'autoload-dev' => array(),
+                'repositories' => [],
+                'require' => [],
+                'require-dev' => [],
+                'conflict' => [],
+                'replace' => [],
+                'provide' => [],
+                'suggest' => [],
+                'extra' => [],
+                'scripts' => [],
+                'autoload' => [],
+                'autoload-dev' => [],
                 'minimum-stability' => 'stable',
-            ),
+            ],
             $json
         );
 
         // Convert packages to proper links
         $vp = new VersionParser();
-        foreach (array(
+        foreach ([
             'require', 'require-dev', 'conflict', 'replace', 'provide'
-        ) as $type) {
+        ] as $type) {
             $lt = BasePackage::$supportedLinkTypes[$type];
             foreach ($data[$type] as $k => $v) {
                 unset($data[$type][$k]);
@@ -1517,7 +1517,7 @@ class MergePluginTest extends TestCase
         $root->getAutoload()->willReturn($data['autoload']);
         $root->getDevAutoload()->willReturn($data['autoload-dev']);
 
-        $root->getStabilityFlags()->willReturn(array());
+        $root->getStabilityFlags()->willReturn([]);
         $root->setStabilityFlags(Argument::type('array'))->will(
             function ($args) use ($that) {
                 foreach ($args[0] as $key => $value) {

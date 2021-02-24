@@ -21,7 +21,7 @@ class LoggerTest extends TestCase
 
     public function testVeryVerboseDebug()
     {
-        $output = array();
+        $output = [];
         $io = $this->prophesize('Composer\IO\IOInterface');
         $io->isVeryVerbose()->willReturn(true)->shouldBeCalled();
         $io->writeError(Argument::type('string'))->will(
@@ -39,7 +39,7 @@ class LoggerTest extends TestCase
 
     public function testNotVeryVerboseDebug()
     {
-        $output = array();
+        $output = [];
         $io = $this->prophesize('Composer\IO\IOInterface');
         $io->isVeryVerbose()->willReturn(false)->shouldBeCalled();
         $io->writeError(Argument::type('string'))->shouldNotBeCalled();
@@ -51,7 +51,7 @@ class LoggerTest extends TestCase
 
     public function testVerboseInfo()
     {
-        $output = array();
+        $output = [];
         $io = $this->prophesize('Composer\IO\IOInterface');
         $io->isVerbose()->willReturn(true)->shouldBeCalled();
         $io->writeError(Argument::type('string'))->will(
@@ -69,7 +69,7 @@ class LoggerTest extends TestCase
 
     public function testNotVerboseInfo()
     {
-        $output = array();
+        $output = [];
         $io = $this->prophesize('Composer\IO\IOInterface');
         $io->isVerbose()->willReturn(false)->shouldBeCalled();
         $io->writeError(Argument::type('string'))->shouldNotBeCalled();
@@ -81,7 +81,7 @@ class LoggerTest extends TestCase
 
     public function testWarning()
     {
-        $output = array();
+        $output = [];
         $io = $this->prophesize('Composer\IO\IOInterface');
         $io->writeError(Argument::type('string'))->will(
             function ($args) use (&$output) {

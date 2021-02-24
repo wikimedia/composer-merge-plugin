@@ -107,21 +107,21 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
      *
      * @var array<string, bool> $loaded
      */
-    protected $loaded = array();
+    protected $loaded = [];
 
     /**
      * Files that have already been partially processed
      *
      * @var array<string, bool> $loadedNoDev
      */
-    protected $loadedNoDev = array();
+    protected $loadedNoDev = [];
 
     /**
      * Nested packages to restrict update operations.
      *
      * @var array<string, bool> $updateAllowList
      */
-    protected $updateAllowList = array();
+    protected $updateAllowList = [];
 
     /**
      * {@inheritdoc}
@@ -152,22 +152,22 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return array(
+        return [
             PluginEvents::INIT =>
-                array('onInit', self::CALLBACK_PRIORITY),
+                ['onInit', self::CALLBACK_PRIORITY],
             PackageEvents::POST_PACKAGE_INSTALL =>
-                array('onPostPackageInstall', self::CALLBACK_PRIORITY),
+                ['onPostPackageInstall', self::CALLBACK_PRIORITY],
             ScriptEvents::POST_INSTALL_CMD =>
-                array('onPostInstallOrUpdate', self::CALLBACK_PRIORITY),
+                ['onPostInstallOrUpdate', self::CALLBACK_PRIORITY],
             ScriptEvents::POST_UPDATE_CMD =>
-                array('onPostInstallOrUpdate', self::CALLBACK_PRIORITY),
+                ['onPostInstallOrUpdate', self::CALLBACK_PRIORITY],
             ScriptEvents::PRE_AUTOLOAD_DUMP =>
-                array('onInstallUpdateOrDump', self::CALLBACK_PRIORITY),
+                ['onInstallUpdateOrDump', self::CALLBACK_PRIORITY],
             ScriptEvents::PRE_INSTALL_CMD =>
-                array('onInstallUpdateOrDump', self::CALLBACK_PRIORITY),
+                ['onInstallUpdateOrDump', self::CALLBACK_PRIORITY],
             ScriptEvents::PRE_UPDATE_CMD =>
-                array('onInstallUpdateOrDump', self::CALLBACK_PRIORITY),
-        );
+                ['onInstallUpdateOrDump', self::CALLBACK_PRIORITY],
+        ];
     }
 
     /**
@@ -246,7 +246,7 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
             $patterns
         );
 
-        foreach (array_reduce($files, 'array_merge', array()) as $path) {
+        foreach (array_reduce($files, 'array_merge', []) as $path) {
             $this->mergeFile($root, $path);
         }
     }

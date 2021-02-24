@@ -33,12 +33,12 @@ class PluginState
     /**
      * @var array $includes
      */
-    protected $includes = array();
+    protected $includes = [];
 
     /**
      * @var array $requires
      */
-    protected $requires = array();
+    protected $requires = [];
 
     /**
      * @var bool $devMode
@@ -151,9 +151,9 @@ class PluginState
     {
         $extra = $this->composer->getPackage()->getExtra();
         $config = array_merge(
-            array(
-                'include' => array(),
-                'require' => array(),
+            [
+                'include' => [],
+                'require' => [],
                 'recurse' => true,
                 'replace' => false,
                 'ignore-duplicates' => false,
@@ -161,14 +161,14 @@ class PluginState
                 'merge-extra' => false,
                 'merge-extra-deep' => false,
                 'merge-scripts' => false,
-            ),
-            $extra['merge-plugin'] ?? array()
+            ],
+            $extra['merge-plugin'] ?? []
         );
 
         $this->includes = (is_array($config['include'])) ?
-            $config['include'] : array($config['include']);
+            $config['include'] : [$config['include']];
         $this->requires = (is_array($config['require'])) ?
-            $config['require'] : array($config['require']);
+            $config['require'] : [$config['require']];
         $this->recurse = (bool)$config['recurse'];
         $this->replace = (bool)$config['replace'];
         $this->ignore = (bool)$config['ignore-duplicates'];
