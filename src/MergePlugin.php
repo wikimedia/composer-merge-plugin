@@ -373,6 +373,8 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
             $installer->setUpdate(true);
 
             if ($this->state->isComposer1()) {
+                // setUpdateWhitelist() only exists in composer 1.x. Configure as to run phan against composer 2.x
+                // @phan-suppress-next-line PhanUndeclaredMethod
                 $installer->setUpdateWhitelist($requirements);
             } else {
                 $installer->setUpdateAllowList($requirements);
