@@ -59,23 +59,23 @@ class StabilityFlagsTest extends TestCase
     public function testLowestWins($version, $default, $expect)
     {
         $fixture = new StabilityFlags([
-            'test' => BasePackage::STABILITY_ALPHA,
+            'test' => $default,
         ]);
         $got = $fixture->extractAll([
-            'test' => $this->makeLink('@rc')->reveal(),
+            'test' => $this->makeLink($version)->reveal(),
         ]);
-        $this->assertSame(BasePackage::STABILITY_ALPHA, $got['test']);
+        $this->assertSame($expect, $got['test']);
     }
 
     public function provideLowestWins()
     {
         return [
-            'default' => [
+            [
                 '1.0@RC',
                 BasePackage::STABILITY_BETA,
                 BasePackage::STABILITY_BETA
             ],
-            'default' => [
+            [
                 '1.0@dev',
                 BasePackage::STABILITY_BETA,
                 BasePackage::STABILITY_DEV
