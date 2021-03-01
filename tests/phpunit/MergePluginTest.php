@@ -8,15 +8,10 @@
  * license. See the LICENSE file for details.
  */
 
-namespace Wikimedia\Composer;
-
-use Wikimedia\Composer\Merge\ExtraPackage;
-use Wikimedia\Composer\Merge\PluginState;
+namespace Wikimedia\Composer\Merge\V2;
 
 use Composer\Composer;
 use Composer\DependencyResolver\Operation\InstallOperation;
-use Composer\Installer\InstallerEvent;
-use Composer\Installer\InstallerEvents;
 use Composer\Installer\PackageEvents;
 use Composer\IO\IOInterface;
 use Composer\Package\BasePackage;
@@ -26,19 +21,21 @@ use Composer\Package\Package;
 use Composer\Package\RootPackage;
 use Composer\Package\Version\VersionParser;
 use Composer\Plugin\PluginEvents;
+use Composer\Plugin\PluginInterface;
 use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
 use Prophecy\Argument;
 use PHPUnit\Framework\TestCase;
+use Prophecy\Prophecy\ObjectProphecy;
 use ReflectionProperty;
 
 /**
- * @covers Wikimedia\Composer\Logger
- * @covers Wikimedia\Composer\Merge\ExtraPackage
- * @covers Wikimedia\Composer\Merge\NestedArray
- * @covers Wikimedia\Composer\Merge\PluginState
- * @covers Wikimedia\Composer\Merge\StabilityFlags
- * @covers Wikimedia\Composer\MergePlugin
+ * @covers \Wikimedia\Composer\Merge\V2\Logger
+ * @covers \Wikimedia\Composer\Merge\V2\ExtraPackage
+ * @covers \Wikimedia\Composer\Merge\V2\NestedArray
+ * @covers \Wikimedia\Composer\Merge\V2\PluginState
+ * @covers \Wikimedia\Composer\Merge\V2\StabilityFlags
+ * @covers \Wikimedia\Composer\Merge\V2\MergePlugin
  */
 class MergePluginTest extends TestCase
 {
@@ -74,11 +71,9 @@ class MergePluginTest extends TestCase
     public function testSubscribedEvents()
     {
         $subscriptions = MergePlugin::getSubscribedEvents();
-        $this->assertEquals(8, count($subscriptions));
-        $this->assertArrayHasKey(
-            InstallerEvents::PRE_DEPENDENCIES_SOLVING,
-            $subscriptions
-        );
+
+        $this->assertCount(7, $subscriptions);
+
         $this->assertArrayHasKey(PluginEvents::INIT, $subscriptions);
         $this->assertArrayHasKey(ScriptEvents::PRE_INSTALL_CMD, $subscriptions);
         $this->assertArrayHasKey(ScriptEvents::PRE_UPDATE_CMD, $subscriptions);
@@ -105,7 +100,7 @@ class MergePluginTest extends TestCase
         $root->setRequires(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $requires = $args[0];
-                $that->assertEquals(1, count($requires));
+                $that->assertCount(1, $requires);
                 $that->assertArrayHasKey('monolog/monolog', $requires);
             }
         );
@@ -114,7 +109,7 @@ class MergePluginTest extends TestCase
         $root->setConflicts(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $suggest = $args[0];
-                $that->assertEquals(1, count($suggest));
+                $that->assertCount(1, $suggest);
                 $that->assertArrayHasKey('conflict/conflict', $suggest);
             }
         );
@@ -122,7 +117,7 @@ class MergePluginTest extends TestCase
         $root->setReplaces(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $suggest = $args[0];
-                $that->assertEquals(1, count($suggest));
+                $that->assertCount(1, $suggest);
                 $that->assertArrayHasKey('replace/replace', $suggest);
             }
         );
@@ -130,7 +125,7 @@ class MergePluginTest extends TestCase
         $root->setProvides(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $suggest = $args[0];
-                $that->assertEquals(1, count($suggest));
+                $that->assertCount(1, $suggest);
                 $that->assertArrayHasKey('provide/provide', $suggest);
             }
         );
@@ -138,16 +133,14 @@ class MergePluginTest extends TestCase
         $root->setSuggests(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $suggest = $args[0];
-                $that->assertEquals(1, count($suggest));
+                $that->assertCount(1, $suggest);
                 $that->assertArrayHasKey('suggest/suggest', $suggest);
             }
         );
 
         $root->getRepositories()->shouldNotBeCalled();
 
-        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
-
-        $this->assertEquals(0, count($extraInstalls));
+        $this->triggerPlugin($root->reveal(), $dir);
     }
 
 
@@ -169,7 +162,7 @@ class MergePluginTest extends TestCase
         $root->setRequires(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $requires = $args[0];
-                $that->assertEquals(2, count($requires));
+                $that->assertCount(2, $requires);
                 $that->assertArrayHasKey('monolog/monolog', $requires);
                 $that->assertEquals(
                     '1.10.0',
@@ -184,9 +177,7 @@ class MergePluginTest extends TestCase
         $root->getProvides()->shouldNotBeCalled();
         $root->getSuggests()->shouldNotBeCalled();
 
-        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
-
-        $this->assertEquals(0, count($extraInstalls));
+        $this->triggerPlugin($root->reveal(), $dir);
     }
 
     /**
@@ -207,7 +198,7 @@ class MergePluginTest extends TestCase
         $root->setRequires(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $requires = $args[0];
-                $that->assertEquals(2, count($requires));
+                $that->assertCount(2, $requires);
                 $that->assertArrayHasKey('monolog/monolog', $requires);
                 $that->assertEquals(
                     '~1.0',
@@ -222,9 +213,7 @@ class MergePluginTest extends TestCase
         $root->getProvides()->shouldNotBeCalled();
         $root->getSuggests()->shouldNotBeCalled();
 
-        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
-
-        $this->assertEquals(0, count($extraInstalls));
+        $this->triggerPlugin($root->reveal(), $dir);
     }
 
     /**
@@ -246,7 +235,7 @@ class MergePluginTest extends TestCase
         $root->setRequires(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $requires = $args[0];
-                $that->assertEquals(2, count($requires));
+                $that->assertCount(2, $requires);
                 $that->assertArrayHasKey('monolog/monolog', $requires);
                 $that->assertEquals(
                     '~1.0',
@@ -261,9 +250,7 @@ class MergePluginTest extends TestCase
         $root->getProvides()->shouldNotBeCalled();
         $root->getSuggests()->shouldNotBeCalled();
 
-        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
-
-        $this->assertEquals(0, count($extraInstalls));
+        $this->triggerPlugin($root->reveal(), $dir);
     }
 
     /**
@@ -280,7 +267,7 @@ class MergePluginTest extends TestCase
 
         $root = $this->rootFromJson("{$dir}/composer.json");
 
-        $packages = array();
+        $packages = [];
         $root->setRequires(Argument::type('array'))->will(
             function ($args) use (&$packages) {
                 $packages = array_merge($packages, $args[0]);
@@ -293,14 +280,11 @@ class MergePluginTest extends TestCase
         $root->getProvides()->shouldNotBeCalled();
         $root->getSuggests()->shouldNotBeCalled();
 
-        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
+        $this->triggerPlugin($root->reveal(), $dir);
 
         $this->assertArrayHasKey('foo', $packages);
         $this->assertArrayHasKey('monolog/monolog', $packages);
-
-        $this->assertEquals(0, count($extraInstalls));
     }
-
 
     /**
      * Given a root package with no requires that disables recursion
@@ -316,7 +300,7 @@ class MergePluginTest extends TestCase
 
         $root = $this->rootFromJson("{$dir}/composer.json");
 
-        $packages = array();
+        $packages = [];
         $root->setRequires(Argument::type('array'))->will(
             function ($args) use (&$packages) {
                 $packages = array_merge($packages, $args[0]);
@@ -329,14 +313,11 @@ class MergePluginTest extends TestCase
         $root->getProvides()->shouldNotBeCalled();
         $root->getSuggests()->shouldNotBeCalled();
 
-        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
+        $this->triggerPlugin($root->reveal(), $dir);
 
         $this->assertArrayHasKey('foo', $packages);
         $this->assertArrayNotHasKey('monolog/monolog', $packages);
-
-        $this->assertEquals(0, count($extraInstalls));
     }
-
 
     /**
      * Given a root package with requires
@@ -359,7 +340,7 @@ class MergePluginTest extends TestCase
         $root->setRequires(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $requires = $args[0];
-                $that->assertEquals(2, count($requires));
+                $that->assertCount(2, $requires);
                 $that->assertArrayHasKey(
                     'wikimedia/composer-merge-plugin',
                     $requires
@@ -372,7 +353,7 @@ class MergePluginTest extends TestCase
         $root->setDevRequires(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $requires = $args[0];
-                $that->assertEquals(2, count($requires));
+                $that->assertCount(2, $requires);
                 $that->assertArrayHasKey('foo', $requires);
                 $that->assertArrayHasKey('xyzzy', $requires);
             }
@@ -384,13 +365,8 @@ class MergePluginTest extends TestCase
         $root->getProvides()->shouldNotBeCalled();
         $root->getSuggests()->shouldNotBeCalled();
 
-        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir, $fireInit);
-
-        $this->assertEquals(2, count($extraInstalls));
-        $this->assertEquals('monolog/monolog', $extraInstalls[0][0]);
-        $this->assertEquals('foo', $extraInstalls[1][0]);
+        $this->triggerPlugin($root->reveal(), $dir, $fireInit);
     }
-
 
     /**
      * Given a root package
@@ -418,11 +394,26 @@ class MergePluginTest extends TestCase
                     $args[1]['url']
                 );
 
-                return new \Composer\Repository\VcsRepository(
-                    $args[1],
-                    $io->reveal(),
-                    new \Composer\Config()
-                );
+                $config = new \Composer\Config();
+                $mockIO = $io->reveal();
+                if (version_compare('2.0.0', PluginInterface::PLUGIN_API_VERSION, '>')) {
+                    return new \Composer\Repository\VcsRepository(
+                        $args[1],
+                        $mockIO,
+                        $config
+                    );
+                } else {
+                    $httpDownloader = new \Composer\Util\HttpDownloader(
+                        $mockIO,
+                        $config
+                    );
+                    return new \Composer\Repository\VcsRepository(
+                        $args[1],
+                        $mockIO,
+                        $config,
+                        $httpDownloader
+                    );
+                }
             }
         );
         $repoManager->prependRepository(Argument::any())->will(
@@ -444,7 +435,7 @@ class MergePluginTest extends TestCase
         $root->setRequires(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $requires = $args[0];
-                $that->assertEquals(1, count($requires));
+                $that->assertCount(1, $requires);
                 $that->assertArrayHasKey(
                     'wikimedia/composer-merge-plugin',
                     $requires
@@ -457,7 +448,7 @@ class MergePluginTest extends TestCase
         $root->setRepositories(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $repos = $args[0];
-                $that->assertEquals(1, count($repos));
+                $that->assertCount(1, $repos);
             }
         );
 
@@ -466,9 +457,7 @@ class MergePluginTest extends TestCase
         $root->getProvides()->shouldNotBeCalled();
         $root->getSuggests()->shouldNotBeCalled();
 
-        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
-
-        $this->assertEquals(0, count($extraInstalls));
+        $this->triggerPlugin($root->reveal(), $dir);
     }
 
     /**
@@ -497,11 +486,27 @@ class MergePluginTest extends TestCase
                     $args[1]['url']
                 );
 
-                return new \Composer\Repository\VcsRepository(
-                    $args[1],
-                    $io->reveal(),
-                    new \Composer\Config()
-                );
+                $config = new \Composer\Config();
+                $mockIO = $io->reveal();
+                if (version_compare('2.0.0', PluginInterface::PLUGIN_API_VERSION, '>')) {
+                    return new \Composer\Repository\VcsRepository(
+                        $args[1],
+                        $mockIO,
+                        $config
+                    );
+                } else {
+                    $httpDownloader = new \Composer\Util\HttpDownloader(
+                        $mockIO,
+                        $config
+                    );
+
+                    return new \Composer\Repository\VcsRepository(
+                        $args[1],
+                        $mockIO,
+                        $config,
+                        $httpDownloader
+                    );
+                }
             }
         );
         $repoManager->prependRepository(Argument::any())->will(
@@ -526,7 +531,7 @@ class MergePluginTest extends TestCase
         $root->setRepositories(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $repos = $args[0];
-                $that->assertEquals(2, count($repos));
+                $that->assertCount(2, $repos);
                 $prependedRepo = $repos[0];
                 $that->assertInstanceOf('Composer\Repository\VcsRepository', $prependedRepo);
                 // Ugly, be we need to check a protected member variable and
@@ -547,9 +552,7 @@ class MergePluginTest extends TestCase
         $root->getProvides()->shouldNotBeCalled();
         $root->getSuggests()->shouldNotBeCalled();
 
-        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
-
-        $this->assertEquals(0, count($extraInstalls));
+        $this->triggerPlugin($root->reveal(), $dir);
     }
 
     /**
@@ -570,7 +573,7 @@ class MergePluginTest extends TestCase
         $root->setRequires(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $requires = $args[0];
-                $that->assertEquals(7, count($requires));
+                $that->assertCount(7, $requires);
                 $that->assertArrayHasKey('test/foo', $requires);
                 $that->assertArrayHasKey('test/bar', $requires);
                 $that->assertArrayHasKey('test/baz', $requires);
@@ -584,13 +587,13 @@ class MergePluginTest extends TestCase
         $root->setStabilityFlags(Argument::type('array'))->will(
             function ($args) use ($that, &$expects) {
                 $that->assertSame(
-                    array(
+                    [
                         'test/foo' => BasePackage::STABILITY_DEV,
                         'test/bar' => BasePackage::STABILITY_BETA,
                         'test/baz' => BasePackage::STABILITY_ALPHA,
                         'test/xyzzy' => BasePackage::STABILITY_RC,
                         'test/plugh' => BasePackage::STABILITY_STABLE,
-                    ),
+                    ],
                     $args[0]
                 );
             }
@@ -607,11 +610,8 @@ class MergePluginTest extends TestCase
         $root->getSuggests()->shouldNotBeCalled();
         $root->setSuggests(Argument::any())->shouldNotBeCalled();
 
-        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir, $fireInit);
-
-        $this->assertEquals(0, count($extraInstalls));
+        $this->triggerPlugin($root->reveal(), $dir, $fireInit);
     }
-
 
     public function testMergedAutoload()
     {
@@ -619,7 +619,7 @@ class MergePluginTest extends TestCase
         $dir = $this->fixtureDir(__FUNCTION__);
         $root = $this->rootFromJson("{$dir}/composer.json");
 
-        $autoload = array();
+        $autoload = [];
 
         $root->getAutoload()->shouldBeCalled();
         $root->getDevAutoload()->shouldBeCalled();
@@ -635,62 +635,60 @@ class MergePluginTest extends TestCase
         $root->setDevAutoload(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $that->assertEquals(
-                    array(
-                        'psr-4' => array(
-                            'Dev\\Kittens\\' => array(
+                    [
+                        'psr-4' => [
+                            'Dev\\Kittens\\' => [
                                 'everywhere/',
                                 'extensions/Foo/a/',
                                 'extensions/Foo/b/',
-                            ),
+                            ],
                             'Dev\\Cats\\' => 'extensions/Foo/src/'
-                        ),
-                        'psr-0' => array(
+                        ],
+                        'psr-0' => [
                             'DevUniqueGlobalClass' => 'extensions/Foo/',
                             '' => 'extensions/Foo/dev/fallback/'
-                        ),
-                        'files' => array(
+                        ],
+                        'files' => [
                             'extensions/Foo/DevSemanticMediaWiki.php',
-                        ),
-                        'classmap' => array(
+                        ],
+                        'classmap' => [
                             'extensions/Foo/DevSemanticMediaWiki.hooks.php',
                             'extensions/Foo/dev/includes/',
-                        ),
-                    ),
+                        ],
+                    ],
                     $args[0]
                 );
             }
         )->shouldBeCalled();
 
-        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
+        $this->triggerPlugin($root->reveal(), $dir);
 
-        $this->assertEquals(0, count($extraInstalls));
         $this->assertEquals(
-            array(
-                'psr-4' => array(
-                    'Kittens\\' => array(
+            [
+                'psr-4' => [
+                    'Kittens\\' => [
                         'everywhere/',
                         'extensions/Foo/a/',
                         'extensions/Foo/b/',
-                    ),
+                    ],
                     'Cats\\' => 'extensions/Foo/src/'
-                ),
-                'psr-0' => array(
+                ],
+                'psr-0' => [
                     'UniqueGlobalClass' => 'extensions/Foo/',
                     '' => 'extensions/Foo/fallback/',
-                ),
-                'files' => array(
+                ],
+                'files' => [
                     'private/bootstrap.php',
                     'extensions/Foo/SemanticMediaWiki.php',
-                ),
-                'classmap' => array(
+                ],
+                'classmap' => [
                     'extensions/Foo/SemanticMediaWiki.hooks.php',
                     'extensions/Foo/includes/',
-                ),
-            ),
+                ],
+            ],
             $autoload
         );
     }
-
 
     /**
      * Given a root package with an extra section
@@ -711,9 +709,9 @@ class MergePluginTest extends TestCase
         $root->setExtra(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $extra = $args[0];
-                $that->assertEquals(2, count($extra));
+                $that->assertCount(2, $extra);
                 $that->assertArrayHasKey('merge-plugin', $extra);
-                $that->assertEquals(2, count($extra['merge-plugin']));
+                $that->assertCount(2, $extra['merge-plugin']);
                 $that->assertArrayHasKey('wibble', $extra);
             }
         )->shouldBeCalled();
@@ -724,11 +722,8 @@ class MergePluginTest extends TestCase
         $root->getProvides()->shouldNotBeCalled();
         $root->getSuggests()->shouldNotBeCalled();
 
-        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir, $fireInit);
-
-        $this->assertEquals(0, count($extraInstalls));
+        $this->triggerPlugin($root->reveal(), $dir, $fireInit);
     }
-
 
     /**
      * Given a root package with an extra section
@@ -746,7 +741,7 @@ class MergePluginTest extends TestCase
         $root->setExtra(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $extra = $args[0];
-                $that->assertEquals(2, count($extra));
+                $that->assertCount(2, $extra);
                 $that->assertArrayHasKey('merge-plugin', $extra);
                 $that->assertArrayHasKey('wibble', $extra);
                 $that->assertEquals('wobble', $extra['wibble']);
@@ -759,11 +754,8 @@ class MergePluginTest extends TestCase
         $root->getProvides()->shouldNotBeCalled();
         $root->getSuggests()->shouldNotBeCalled();
 
-        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
-
-        $this->assertEquals(0, count($extraInstalls));
+        $this->triggerPlugin($root->reveal(), $dir);
     }
-
 
     /**
      * Given a root package with an extra section
@@ -782,7 +774,7 @@ class MergePluginTest extends TestCase
         $root->setExtra(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $extra = $args[0];
-                $that->assertEquals(2, count($extra));
+                $that->assertCount(2, $extra);
                 $that->assertArrayHasKey('merge-plugin', $extra);
                 $that->assertArrayHasKey('wibble', $extra);
                 $that->assertEquals('ping', $extra['wibble']);
@@ -795,9 +787,7 @@ class MergePluginTest extends TestCase
         $root->getProvides()->shouldNotBeCalled();
         $root->getSuggests()->shouldNotBeCalled();
 
-        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
-
-        $this->assertEquals(0, count($extraInstalls));
+        $this->triggerPlugin($root->reveal(), $dir);
     }
 
     /**
@@ -820,9 +810,9 @@ class MergePluginTest extends TestCase
         $root->setExtra(Argument::type('array'))->will(
             function ($args) use ($that, $replace) {
                 $extra = $args[0];
-                $that->assertEquals(3, count($extra));
+                $that->assertCount(3, $extra);
                 $that->assertArrayHasKey('merge-plugin', $extra);
-                $that->assertEquals(4, count($extra['merge-plugin']));
+                $that->assertCount(4, $extra['merge-plugin']);
                 $that->assertArrayHasKey('patches', $extra);
                 $that->assertArrayHasKey('wikimedia/composer-merge-plugin', $extra['patches']);
                 $patches = $extra['patches']['wikimedia/composer-merge-plugin'];
@@ -841,7 +831,7 @@ class MergePluginTest extends TestCase
                 }
                 $that->assertArrayHasKey('anothervendor/some-project', $extra['patches']);
                 $that->assertArrayHasKey('another-patch', $extra['patches']['anothervendor/some-project']);
-                $that->assertEquals(array('first', 'second', 'third', 'fourth'), $extra['list']);
+                $that->assertEquals(['first', 'second', 'third', 'fourth'], $extra['list']);
             }
         )->shouldBeCalled();
 
@@ -851,17 +841,15 @@ class MergePluginTest extends TestCase
         $root->getProvides()->shouldNotBeCalled();
         $root->getSuggests()->shouldNotBeCalled();
 
-        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
-
-        $this->assertEquals(0, count($extraInstalls));
+        $this->triggerPlugin($root->reveal(), $dir);
     }
 
     public function provideDeepMerge()
     {
-        return array(
-            array('Replace', true),
-            array('', false),
-        );
+        return [
+            ['Replace', true],
+            ['', false],
+        ];
     }
 
     /**
@@ -884,9 +872,9 @@ class MergePluginTest extends TestCase
         $root->setScripts(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $scripts = $args[0];
-                $that->assertEquals(2, count($scripts));
+                $that->assertCount(2, $scripts);
                 $that->assertArrayHasKey('example-script', $scripts);
-                $that->assertEquals(2, count($scripts['example-script']));
+                $that->assertCount(2, $scripts['example-script']);
                 $that->assertArrayHasKey('example-script2', $scripts);
             }
         )->shouldBeCalled();
@@ -897,9 +885,7 @@ class MergePluginTest extends TestCase
         $root->getProvides()->shouldNotBeCalled();
         $root->getSuggests()->shouldNotBeCalled();
 
-        $scriptsInstalls = $this->triggerPlugin($root->reveal(), $dir, $fireInit);
-
-        $this->assertEquals(0, count($scriptsInstalls));
+        $this->triggerPlugin($root->reveal(), $dir, $fireInit);
     }
 
     /**
@@ -918,11 +904,11 @@ class MergePluginTest extends TestCase
         $root->setScripts(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $scripts = $args[0];
-                $that->assertEquals(3, count($scripts));
+                $that->assertCount(3, $scripts);
                 $that->assertArrayHasKey('example-script2', $scripts);
                 $that->assertArrayHasKey('example-script3', $scripts);
                 $that->assertEquals("echo 'goodbye world'", $scripts['example-script2']);
-                $that->assertEquals(1, count($scripts['example-script3']));
+                $that->assertCount(1, $scripts['example-script3']);
                 $that->assertEquals("echo 'adios world'", $scripts['example-script3'][0]);
             }
         )->shouldBeCalled();
@@ -933,9 +919,7 @@ class MergePluginTest extends TestCase
         $root->getProvides()->shouldNotBeCalled();
         $root->getSuggests()->shouldNotBeCalled();
 
-        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
-
-        $this->assertEquals(0, count($extraInstalls));
+        $this->triggerPlugin($root->reveal(), $dir);
     }
 
     /**
@@ -955,12 +939,12 @@ class MergePluginTest extends TestCase
         $root->setScripts(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $scripts = $args[0];
-                $that->assertEquals(3, count($scripts));
+                $that->assertCount(3, $scripts);
                 $that->assertArrayHasKey('example-script', $scripts);
                 $that->assertArrayHasKey('example-script2', $scripts);
-                $that->assertEquals(1, count($scripts['example-script2']));
+                $that->assertCount(1, $scripts['example-script2']);
                 $that->assertEquals("echo 'hello world'", $scripts['example-script2'][0]);
-                $that->assertEquals(1, count($scripts['example-script3']));
+                $that->assertCount(1, $scripts['example-script3']);
                 $that->assertEquals("echo 'hola world'", $scripts['example-script3'][0]);
             }
         )->shouldBeCalled();
@@ -971,9 +955,7 @@ class MergePluginTest extends TestCase
         $root->getProvides()->shouldNotBeCalled();
         $root->getSuggests()->shouldNotBeCalled();
 
-        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
-
-        $this->assertEquals(0, count($extraInstalls));
+        $this->triggerPlugin($root->reveal(), $dir);
     }
 
     /**
@@ -992,7 +974,8 @@ class MergePluginTest extends TestCase
 
         if ($first) {
             $locker = $this->prophesize('Composer\Package\Locker');
-            $locker->isLocked()->willReturn($locked)->shouldBeCalled();
+            $locker->isLocked()->willReturn($locked)
+                ->shouldBeCalled();
             $this->composer->getLocker()->willReturn($locker->reveal())
                 ->shouldBeCalled();
             $event->getComposer()->willReturn($this->composer->reveal())
@@ -1000,20 +983,26 @@ class MergePluginTest extends TestCase
         }
 
         $this->fixture->onPostPackageInstall($event->reveal());
-        $this->assertEquals($first, $this->getState()->isFirstInstall());
-        $this->assertEquals($locked, $this->getState()->isLocked());
-    }
-
-
-    public function provideOnPostPackageInstall()
-    {
-        return array(
-            array(MergePlugin::PACKAGE_NAME, true, true),
-            array(MergePlugin::PACKAGE_NAME, true, false),
-            array('foo/bar', false, false),
+        $this->assertEquals(
+            $first,
+            $this->getState()->isFirstInstall(),
+            'Failed assertion on $first argument:'
+        );
+        $this->assertEquals(
+            $locked,
+            $this->getState()->isLocked(),
+            'Failed assertion on $locked argument:'
         );
     }
 
+    public function provideOnPostPackageInstall()
+    {
+        return [
+            [MergePlugin::PACKAGE_NAME, true, true],
+            [MergePlugin::PACKAGE_NAME, true, false],
+            ['foo/bar', false, false],
+        ];
+    }
 
     /**
      * Given a root package with a branch alias
@@ -1025,7 +1014,6 @@ class MergePluginTest extends TestCase
      */
     public function testHasBranchAlias($fireInit)
     {
-        $that = $this;
         $io = $this->io;
         $dir = $this->fixtureDir(__FUNCTION__);
 
@@ -1042,12 +1030,28 @@ class MergePluginTest extends TestCase
         $repoManager->createRepository(
             Argument::type('string'),
             Argument::type('array')
-        )->will(function ($args) use ($that, $io) {
-            return new \Composer\Repository\VcsRepository(
-                $args[1],
-                $io->reveal(),
-                new \Composer\Config()
-            );
+        )->will(function ($args) use ($io) {
+            $config = new \Composer\Config();
+            $mockIO = $io->reveal();
+            if (version_compare('2.0.0', PluginInterface::PLUGIN_API_VERSION, '>')) {
+                return new \Composer\Repository\VcsRepository(
+                    $args[1],
+                    $mockIO,
+                    $config
+                );
+            } else {
+                $httpDownloader = new \Composer\Util\HttpDownloader(
+                    $mockIO,
+                    $config
+                );
+
+                return new \Composer\Repository\VcsRepository(
+                    $args[1],
+                    $mockIO,
+                    $config,
+                    $httpDownloader
+                );
+            }
         });
         $repoManager->prependRepository(Argument::any())->shouldBeCalled();
         $this->composer->getRepositoryManager()->will(
@@ -1096,7 +1100,6 @@ class MergePluginTest extends TestCase
         $this->triggerPlugin($alias, $dir, $fireInit);
     }
 
-
     /**
      * Given a root package with requires
      *   and a b.json with requires
@@ -1116,12 +1119,12 @@ class MergePluginTest extends TestCase
         $dir = $this->fixtureDir(__FUNCTION__);
         $root = $this->rootFromJson("{$dir}/composer.json");
 
-        $expects = array(
+        $expects = [
             "merge-plugin/b.json",
             "merge-plugin/a.json",
             "merge-plugin/glob-a-glob2.json",
             "merge-plugin/glob-b-glob1.json"
-        );
+        ];
 
         $root->setRequires(Argument::type('array'))->will(
             function ($args) use ($that, &$expects) {
@@ -1132,9 +1135,9 @@ class MergePluginTest extends TestCase
                 );
             }
         );
-        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
-    }
 
+        $this->triggerPlugin($root->reveal(), $dir);
+    }
 
     /**
      * Test replace link with self.version as version constraint.
@@ -1148,15 +1151,15 @@ class MergePluginTest extends TestCase
         $root->setReplaces(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $replace = $args[0];
-                $that->assertEquals(3, count($replace));
+                $that->assertCount(3, $replace);
 
                 $that->assertArrayHasKey('foo/bar', $replace);
                 $that->assertArrayHasKey('foo/baz', $replace);
                 $that->assertArrayHasKey('foo/xyzzy', $replace);
 
-                $that->assertTrue($replace['foo/bar'] instanceof Link);
-                $that->assertTrue($replace['foo/baz'] instanceof Link);
-                $that->assertTrue($replace['foo/xyzzy'] instanceof Link);
+                $that->assertInstanceOf(Link::class, $replace['foo/bar']);
+                $that->assertInstanceOf(Link::class, $replace['foo/baz']);
+                $that->assertInstanceOf(Link::class, $replace['foo/xyzzy']);
 
                 $that->assertEquals(
                     '1.2.3.4',
@@ -1173,8 +1176,7 @@ class MergePluginTest extends TestCase
             }
         );
 
-        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
-        $this->assertEquals(0, count($extraInstalls));
+        $this->triggerPlugin($root->reveal(), $dir);
     }
 
     /**
@@ -1192,15 +1194,15 @@ class MergePluginTest extends TestCase
         $root->setReplaces(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $replace = $args[0];
-                $that->assertEquals(3, count($replace));
+                $that->assertCount(3, $replace);
 
                 $that->assertArrayHasKey('foo/bar', $replace);
                 $that->assertArrayHasKey('foo/baz', $replace);
                 $that->assertArrayHasKey('foo/xyzzy', $replace);
 
-                $that->assertTrue($replace['foo/bar'] instanceof Link);
-                $that->assertTrue($replace['foo/baz'] instanceof Link);
-                $that->assertTrue($replace['foo/xyzzy'] instanceof Link);
+                $that->assertInstanceOf(Link::class, $replace['foo/bar']);
+                $that->assertInstanceOf(Link::class, $replace['foo/baz']);
+                $that->assertInstanceOf(Link::class, $replace['foo/xyzzy']);
 
                 $that->assertEquals(
                     '~8.0',
@@ -1217,10 +1219,8 @@ class MergePluginTest extends TestCase
             }
         );
 
-        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir, $fireInit);
-        $this->assertEquals(0, count($extraInstalls));
+        $this->triggerPlugin($root->reveal(), $dir, $fireInit);
     }
-
 
     /**
      * Given a root package with minimum-stability=beta
@@ -1240,14 +1240,14 @@ class MergePluginTest extends TestCase
         $root = $this->rootFromJson("{$dir}/composer.json");
 
         // The root package declares a stable package
-        $root->getStabilityFlags()->willReturn(array(
+        $root->getStabilityFlags()->willReturn([
             'wikimedia/composer-merge-plugin' => BasePackage::STABILITY_STABLE,
-        ))->shouldBeCalled();
+        ])->shouldBeCalled();
 
         $root->setRequires(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $requires = $args[0];
-                $that->assertEquals(2, count($requires));
+                $that->assertCount(2, $requires);
                 $that->assertArrayHasKey('wikimedia/composer-merge-plugin', $requires);
                 $that->assertArrayHasKey('robbytaylor/test', $requires);
             }
@@ -1256,16 +1256,16 @@ class MergePluginTest extends TestCase
         $root->setStabilityFlags(Argument::type('array'))->will(
             function ($args) use ($that, &$expects) {
                 $that->assertSame(
-                    array(
+                    [
                         'wikimedia/composer-merge-plugin' => BasePackage::STABILITY_DEV,
-                    ),
+                    ],
                     $args[0]
                 );
             }
         );
-        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
-    }
 
+        $this->triggerPlugin($root->reveal(), $dir);
+    }
 
     /**
      * Given a root package with merge-dev=false
@@ -1282,7 +1282,7 @@ class MergePluginTest extends TestCase
         $root->setRequires(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $requires = $args[0];
-                $that->assertEquals(2, count($requires));
+                $that->assertCount(2, $requires);
                 $that->assertArrayHasKey('wikimedia/composer-merge-plugin', $requires);
                 $that->assertArrayHasKey('acme/foo', $requires);
             }
@@ -1290,22 +1290,19 @@ class MergePluginTest extends TestCase
         $root->setDevRequires(Argument::type('array'))->shouldNotBeCalled();
         $root->setRepositories(Argument::type('array'))->shouldNotBeCalled();
 
-        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
-        $this->assertEquals(0, count($extraInstalls));
+        $this->triggerPlugin($root->reveal(), $dir);
     }
-
 
     public function testMissingRequireThrowsException()
     {
         $dir = $this->fixtureDir(__FUNCTION__);
-        $this->expectException(\Wikimedia\Composer\Merge\MissingFileException::class);
+        $this->expectException(MissingFileException::class);
         $root = $this->rootFromJson("{$dir}/composer.json");
         $root->getRequires()->shouldNotBeCalled();
         $root->getDevRequires()->shouldNotBeCalled();
         $root->setReferences(Argument::type('array'))->shouldNotBeCalled();
         $this->triggerPlugin($root->reveal(), $dir);
     }
-
 
     public function testRequire()
     {
@@ -1317,16 +1314,13 @@ class MergePluginTest extends TestCase
         $root->setRequires(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $requires = $args[0];
-                $that->assertEquals(1, count($requires));
+                $that->assertCount(1, $requires);
                 $that->assertArrayHasKey('monolog/monolog', $requires);
             }
         );
 
-        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
-
-        $this->assertEquals(0, count($extraInstalls));
+        $this->triggerPlugin($root->reveal(), $dir);
     }
-
 
     /**
      * @param bool $fireInit Fire the INIT event?
@@ -1352,7 +1346,7 @@ class MergePluginTest extends TestCase
 
         $checkRefsWithDev = function ($args) use ($that) {
             $references = $args[0];
-            $that->assertEquals(3, count($references));
+            $that->assertCount(3, $references);
 
             $that->assertArrayHasKey('foo/bar', $references);
             $that->assertArrayHasKey('monolog/monolog', $references);
@@ -1366,7 +1360,7 @@ class MergePluginTest extends TestCase
         if ($fireInit) {
             $checkRefs = function ($args) use ($that, $root, $checkRefsWithDev) {
                 $references = $args[0];
-                $that->assertEquals(2, count($references));
+                $that->assertCount(2, $references);
 
                 $that->assertArrayHasKey('foo/bar', $references);
                 $that->assertArrayHasKey('monolog/monolog', $references);
@@ -1393,17 +1387,17 @@ class MergePluginTest extends TestCase
      */
     public function provideFireInit()
     {
-        return array(
-            "with INIT event" => array(true),
-            "without INIT event" => array(true),
-        );
+        return [
+            "with INIT event" => [true],
+            "without INIT event" => [true],
+        ];
     }
 
     /**
      * @param RootPackage $package
      * @param string $directory Working directory for composer run
      * @param bool $fireInit Should the init event should be triggered?
-     * @return array Constrains added by MergePlugin::onDependencySolve
+     * @return void
      */
     protected function triggerPlugin($package, $directory, $fireInit = false)
     {
@@ -1422,40 +1416,18 @@ class MergePluginTest extends TestCase
             $this->composer->reveal(),
             $this->io->reveal(),
             true, //dev mode
-            array(),
-            array()
+            [],
+            []
         );
         $this->fixture->onInstallUpdateOrDump($event);
-
-        $requestInstalls = array();
-        $request = $this->prophesize('Composer\DependencyResolver\Request');
-        $request->install(Argument::any(), Argument::any())->will(
-            function ($args) use (&$requestInstalls) {
-                $requestInstalls[] = $args;
-            }
-        );
-
-        $event = new InstallerEvent(
-            InstallerEvents::PRE_DEPENDENCIES_SOLVING,
-            $this->composer->reveal(),
-            $this->io->reveal(),
-            true, //dev mode
-            $this->prophesize('Composer\DependencyResolver\PolicyInterface')->reveal(),
-            $this->prophesize('Composer\DependencyResolver\Pool')->reveal(),
-            $this->prophesize('Composer\Repository\CompositeRepository')->reveal(),
-            $request->reveal(),
-            array()
-        );
-
-        $this->fixture->onDependencySolve($event);
 
         $event = new Event(
             ScriptEvents::PRE_AUTOLOAD_DUMP,
             $this->composer->reveal(),
             $this->io->reveal(),
             true, //dev mode
-            array(),
-            array( 'optimize' => true )
+            [],
+            [ 'optimize' => true ]
         );
         $this->fixture->onInstallUpdateOrDump($event);
 
@@ -1464,12 +1436,10 @@ class MergePluginTest extends TestCase
             $this->composer->reveal(),
             $this->io->reveal(),
             true, //dev mode
-            array(),
-            array()
+            [],
+            []
         );
         $this->fixture->onPostInstallOrUpdate($event);
-
-        return $requestInstalls;
     }
 
     /**
@@ -1491,30 +1461,30 @@ class MergePluginTest extends TestCase
         $json = json_decode(file_get_contents($file), true);
 
         $data = array_merge(
-            array(
+            [
                 'name' => '__root__',
                 'version' => '1.0.0',
-                'repositories' => array(),
-                'require' => array(),
-                'require-dev' => array(),
-                'conflict' => array(),
-                'replace' => array(),
-                'provide' => array(),
-                'suggest' => array(),
-                'extra' => array(),
-                'scripts' => array(),
-                'autoload' => array(),
-                'autoload-dev' => array(),
+                'repositories' => [],
+                'require' => [],
+                'require-dev' => [],
+                'conflict' => [],
+                'replace' => [],
+                'provide' => [],
+                'suggest' => [],
+                'extra' => [],
+                'scripts' => [],
+                'autoload' => [],
+                'autoload-dev' => [],
                 'minimum-stability' => 'stable',
-            ),
+            ],
             $json
         );
 
         // Convert packages to proper links
         $vp = new VersionParser();
-        foreach (array(
+        foreach ([
             'require', 'require-dev', 'conflict', 'replace', 'provide'
-        ) as $type) {
+        ] as $type) {
             $lt = BasePackage::$supportedLinkTypes[$type];
             foreach ($data[$type] as $k => $v) {
                 unset($data[$type][$k]);
@@ -1547,10 +1517,10 @@ class MergePluginTest extends TestCase
         $root->getAutoload()->willReturn($data['autoload']);
         $root->getDevAutoload()->willReturn($data['autoload-dev']);
 
-        $root->getStabilityFlags()->willReturn(array());
+        $root->getStabilityFlags()->willReturn([]);
         $root->setStabilityFlags(Argument::type('array'))->will(
             function ($args) use ($that) {
-                foreach ($args[0] as $key => $value) {
+                foreach ($args[0] as $value) {
                     $that->assertContains($value, BasePackage::$stabilities);
                 }
             }

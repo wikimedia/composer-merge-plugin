@@ -8,13 +8,13 @@
  * license. See the LICENSE file for details.
  */
 
-namespace Wikimedia\Composer\Merge;
+namespace Wikimedia\Composer\Merge\V2;
 
 use Composer\Package\BasePackage;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers Wikimedia\Composer\Merge\StabilityFlags
+ * @covers \Wikimedia\Composer\Merge\V2\StabilityFlags
  */
 class StabilityFlagsTest extends TestCase
 {
@@ -25,63 +25,62 @@ class StabilityFlagsTest extends TestCase
     public function testExplicitStability($version, $expect)
     {
         $fixture = new StabilityFlags();
-        $got = $fixture->extractAll(array(
+        $got = $fixture->extractAll([
             'test' => $this->makeLink($version)->reveal(),
-        ));
+        ]);
         $this->assertSame($expect, $got['test']);
     }
 
     public function provideExplicitStability()
     {
-        return array(
-            '@dev' => array('1.0@dev', BasePackage::STABILITY_DEV),
-            'dev-' => array('dev-master', BasePackage::STABILITY_DEV),
-            '-dev' => array('dev-master#2eb0c09', BasePackage::STABILITY_DEV),
-            '@alpha' => array('1.0@alpha', BasePackage::STABILITY_ALPHA),
-            '@beta' => array('1.0@beta', BasePackage::STABILITY_BETA),
-            '@RC' => array('1.0@RC', BasePackage::STABILITY_RC),
-            '@stable' => array('1.0@stable', BasePackage::STABILITY_STABLE),
-            '-dev & stable' => array(
+        return [
+            '@dev' => ['1.0@dev', BasePackage::STABILITY_DEV],
+            'dev-' => ['dev-master', BasePackage::STABILITY_DEV],
+            '-dev' => ['dev-master#2eb0c09', BasePackage::STABILITY_DEV],
+            '@alpha' => ['1.0@alpha', BasePackage::STABILITY_ALPHA],
+            '@beta' => ['1.0@beta', BasePackage::STABILITY_BETA],
+            '@RC' => ['1.0@RC', BasePackage::STABILITY_RC],
+            '@stable' => ['1.0@stable', BasePackage::STABILITY_STABLE],
+            '-dev & stable' => [
                 '1.0-dev as 1.0.0, 2.0', BasePackage::STABILITY_DEV
-            ),
-            '@dev | stable' => array(
+            ],
+            '@dev | stable' => [
                 '1.0@dev || 2.0', BasePackage::STABILITY_DEV
-            ),
-            '@rc | @beta' => array(
+            ],
+            '@rc | @beta' => [
                 '1.0@rc || 2.0@beta', BasePackage::STABILITY_BETA
-            ),
-        );
+            ],
+        ];
     }
-
 
     /**
      * @dataProvider provideLowestWins
      */
     public function testLowestWins($version, $default, $expect)
     {
-        $fixture = new StabilityFlags(array(
-            'test' => BasePackage::STABILITY_ALPHA,
-        ));
-        $got = $fixture->extractAll(array(
-            'test' => $this->makeLink('@rc')->reveal(),
-        ));
-        $this->assertSame(BasePackage::STABILITY_ALPHA, $got['test']);
+        $fixture = new StabilityFlags([
+            'test' => $default,
+        ]);
+        $got = $fixture->extractAll([
+            'test' => $this->makeLink($version)->reveal(),
+        ]);
+        $this->assertSame($expect, $got['test']);
     }
 
     public function provideLowestWins()
     {
-        return array(
-            'default' => array(
+        return [
+            [
                 '1.0@RC',
                 BasePackage::STABILITY_BETA,
                 BasePackage::STABILITY_BETA
-            ),
-            'default' => array(
+            ],
+            [
                 '1.0@dev',
                 BasePackage::STABILITY_BETA,
                 BasePackage::STABILITY_DEV
-            ),
-        );
+            ],
+        ];
     }
 
     protected function makeLink($version)

@@ -1,0 +1,94 @@
+name: PHP Composer
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version:
+          - "7.2"
+          - "7.3"
+          - "7.4"
+          - "8.0"
+        composer-dependencies:
+          - 'highest'
+    env:
+      COMPOSER_DISABLE_XDEBUG_WARN: 1
+
+    name: Test PHP ${{ matrix.php-version }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup PHP version
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-version }}
+        extensions: ast
+        coverage: xdebug
+        tools: composer:v2
+
+    - name: Test Composer v1
+      run: composer require --dev --no-update composer/composer:^1.1
+
+    - uses: "ramsey/composer-install@v1"
+      with:
+        dependency-versions: "${{ matrix.composer-dependencies }}"
+
+    - run: composer test
+
+    - name: Test Composer v2
+      run: composer require --dev --no-update composer/composer:^2.0
+
+    - uses: "ramsey/composer-install@v1"
+      with:
+        dependency-versions: "${{ matrix.composer-dependencies }}"
+
+    - run: composer test
+    - run: composer phan
+
+  ocular-push:
+    runs-on: ubuntu-latest
+    if: ${{ success() }} && github.repository == 'wikimedia/composer-merge-plugin'
+    needs: [run]
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup PHP version for coverage
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: "7.2"
+        coverage: xdebug
+        tools: composer:v1
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Run coverage
+      run: composer coverage
+
+    - name: Get Ocular
+      run: wget https://scrutinizer-ci.com/ocular.phar
+
+    - name: Upload code coverage
+      run: php ocular.phar code-coverage:upload --format=php-clover reports/coverage.xml
+
+#  irc-push:
+#    runs-on: ubuntu-latest
+#    timeout-minutes: 15
+#    if: ${{ always() }} && github.repository == 'wikimedia/composer-merge-plugin'
+#    needs: [run]
+#    steps:
+#    - name: IRC push notification
+#      uses: rectalogic/notify-irc@v1
+#      if: github.event_name == 'push'
+#      with:
+#        channel: "#wikimedia-dev"
+#        nickname: wikimedia-github
+#        message: "${{ github.repository }}#${{ github.run_id }} (${{ github.ref }} - ${{ github.sha }} ${{ github.actor }}): ${{ job.status }} - https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"

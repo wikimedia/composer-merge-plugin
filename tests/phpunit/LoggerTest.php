@@ -8,21 +8,20 @@
  * license. See the LICENSE file for details.
  */
 
-namespace Wikimedia\Composer;
+namespace Wikimedia\Composer\Merge\V2;
 
-use Composer\IO\IOInterface;
 use Prophecy\Argument;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers Wikimedia\Composer\Logger
+ * @covers \Wikimedia\Composer\Merge\V2\Logger
  */
 class LoggerTest extends TestCase
 {
 
     public function testVeryVerboseDebug()
     {
-        $output = array();
+        $output = [];
         $io = $this->prophesize('Composer\IO\IOInterface');
         $io->isVeryVerbose()->willReturn(true)->shouldBeCalled();
         $io->writeError(Argument::type('string'))->will(
@@ -40,7 +39,6 @@ class LoggerTest extends TestCase
 
     public function testNotVeryVerboseDebug()
     {
-        $output = array();
         $io = $this->prophesize('Composer\IO\IOInterface');
         $io->isVeryVerbose()->willReturn(false)->shouldBeCalled();
         $io->writeError(Argument::type('string'))->shouldNotBeCalled();
@@ -52,7 +50,7 @@ class LoggerTest extends TestCase
 
     public function testVerboseInfo()
     {
-        $output = array();
+        $output = [];
         $io = $this->prophesize('Composer\IO\IOInterface');
         $io->isVerbose()->willReturn(true)->shouldBeCalled();
         $io->writeError(Argument::type('string'))->will(
@@ -64,13 +62,12 @@ class LoggerTest extends TestCase
 
         $fixture = new Logger('test', $io->reveal());
         $fixture->info('foo');
-        $this->assertEquals(1, count($output));
+        $this->assertCount(1, $output);
         $this->assertStringContainsString('<info>[test]</info>', $output[0]);
     }
 
     public function testNotVerboseInfo()
     {
-        $output = array();
         $io = $this->prophesize('Composer\IO\IOInterface');
         $io->isVerbose()->willReturn(false)->shouldBeCalled();
         $io->writeError(Argument::type('string'))->shouldNotBeCalled();
@@ -82,7 +79,7 @@ class LoggerTest extends TestCase
 
     public function testWarning()
     {
-        $output = array();
+        $output = [];
         $io = $this->prophesize('Composer\IO\IOInterface');
         $io->writeError(Argument::type('string'))->will(
             function ($args) use (&$output) {
@@ -93,7 +90,7 @@ class LoggerTest extends TestCase
 
         $fixture = new Logger('test', $io->reveal());
         $fixture->warning('foo');
-        $this->assertEquals(1, count($output));
+        $this->assertCount(1, $output);
         $this->assertStringContainsString('<error>[test]</error>', $output[0]);
     }
 }

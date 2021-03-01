@@ -8,9 +8,10 @@
  * license. See the LICENSE file for details.
  */
 
-namespace Wikimedia\Composer\Merge;
+namespace Wikimedia\Composer\Merge\V2;
 
 use Composer\Composer;
+use Composer\Plugin\PluginInterface;
 
 /**
  * Mutable plugin state
@@ -25,19 +26,19 @@ class PluginState
     protected $composer;
 
     /**
+     * @var bool $isComposer1
+     */
+    protected $isComposer1;
+
+    /**
      * @var array $includes
      */
-    protected $includes = array();
+    protected $includes = [];
 
     /**
      * @var array $requires
      */
-    protected $requires = array();
-
-    /**
-     * @var array $duplicateLinks
-     */
-    protected $duplicateLinks = array();
+    protected $requires = [];
 
     /**
      * @var bool $devMode
@@ -130,6 +131,17 @@ class PluginState
     public function __construct(Composer $composer)
     {
         $this->composer = $composer;
+        $this->isComposer1 = version_compare(PluginInterface::PLUGIN_API_VERSION, '2.0.0', '<');
+    }
+
+    /**
+     * Test if this plugin runs within Composer 1.
+     *
+     * @return bool
+     */
+    public function isComposer1()
+    {
+        return $this->isComposer1;
     }
 
     /**
@@ -139,9 +151,9 @@ class PluginState
     {
         $extra = $this->composer->getPackage()->getExtra();
         $config = array_merge(
-            array(
-                'include' => array(),
-                'require' => array(),
+            [
+                'include' => [],
+                'require' => [],
                 'recurse' => true,
                 'replace' => false,
                 'ignore-duplicates' => false,
@@ -149,14 +161,14 @@ class PluginState
                 'merge-extra' => false,
                 'merge-extra-deep' => false,
                 'merge-scripts' => false,
-            ),
-            isset($extra['merge-plugin']) ? $extra['merge-plugin'] : array()
+            ],
+            $extra['merge-plugin'] ?? []
         );
 
         $this->includes = (is_array($config['include'])) ?
-            $config['include'] : array($config['include']);
+            $config['include'] : [$config['include']];
         $this->requires = (is_array($config['require'])) ?
-            $config['require'] : array($config['require']);
+            $config['require'] : [$config['require']];
         $this->recurse = (bool)$config['recurse'];
         $this->replace = (bool)$config['replace'];
         $this->ignore = (bool)$config['ignore-duplicates'];
@@ -307,33 +319,6 @@ class PluginState
     }
 
     /**
-     * Add duplicate packages
-     *
-     * @param string $type Package type
-     * @param array $packages
-     */
-    public function addDuplicateLinks($type, array $packages)
-    {
-        if (!isset($this->duplicateLinks[$type])) {
-            $this->duplicateLinks[$type] = array();
-        }
-        $this->duplicateLinks[$type] =
-            array_merge($this->duplicateLinks[$type], $packages);
-    }
-
-    /**
-     * Get duplicate packages
-     *
-     * @param string $type Package type
-     * @return array
-     */
-    public function getDuplicateLinks($type)
-    {
-        return isset($this->duplicateLinks[$type]) ?
-            $this->duplicateLinks[$type] : array();
-    }
-
-    /**
      * Should includes be recursively processed?
      *
      * @return bool
@@ -400,7 +385,6 @@ class PluginState
     {
         return $this->mergeExtraDeep;
     }
-
 
     /**
      * Should the scripts section be merged?

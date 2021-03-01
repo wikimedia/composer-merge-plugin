@@ -8,9 +8,7 @@
  * license. See the LICENSE file for details.
  */
 
-namespace Wikimedia\Composer\Merge;
-
-use Wikimedia\Composer\Logger;
+namespace Wikimedia\Composer\Merge\V2;
 
 use Composer\Composer;
 use Composer\Json\JsonFile;
@@ -22,6 +20,7 @@ use Composer\Package\RootAliasPackage;
 use Composer\Package\RootPackage;
 use Composer\Package\RootPackageInterface;
 use Composer\Package\Version\VersionParser;
+use Composer\Semver\Intervals;
 use UnexpectedValueException;
 
 /**
@@ -59,6 +58,11 @@ class ExtraPackage
     protected $package;
 
     /**
+     * @var array<string, bool> $mergedRequirements
+     */
+    protected $mergedRequirements = [];
+
+    /**
      * @var VersionParser $versionParser
      */
     protected $versionParser;
@@ -85,8 +89,7 @@ class ExtraPackage
      */
     public function getIncludes()
     {
-        return isset($this->json['extra']['merge-plugin']['include']) ?
-            $this->json['extra']['merge-plugin']['include'] : array();
+        return $this->json['extra']['merge-plugin']['include'] ?? [];
     }
 
     /**
@@ -96,8 +99,17 @@ class ExtraPackage
      */
     public function getRequires()
     {
-        return isset($this->json['extra']['merge-plugin']['require']) ?
-            $this->json['extra']['merge-plugin']['require'] : array();
+        return $this->json['extra']['merge-plugin']['require'] ?? [];
+    }
+
+    /**
+     * Get list of merged requirements from this package.
+     *
+     * @return string[]
+     */
+    public function getMergedRequirements()
+    {
+        return array_keys($this->mergedRequirements);
     }
 
     /**
@@ -200,7 +212,7 @@ class ExtraPackage
             return;
         }
         $repoManager = $this->composer->getRepositoryManager();
-        $newRepos = array();
+        $newRepos = [];
 
         $namedIndex = false;
         foreach ($this->json['repositories'] as $repoKey => $repoJson) {
@@ -216,8 +228,7 @@ class ExtraPackage
 
             if (is_numeric($repoKey)) {
                 $newRepos[] = $repo;
-            }
-            else {
+            } else {
                 // Indexed repository name.
                 $newRepos[$repoKey] = $repo;
                 $namedIndex = true;
@@ -281,31 +292,85 @@ class ExtraPackage
         $type,
         array $origin,
         array $merge,
-        $state
+        PluginState $state
     ) {
         if ($state->ignoreDuplicateLinks() && $state->replaceDuplicateLinks()) {
             $this->logger->warning("Both replace and ignore-duplicates are true. These are mutually exclusive.");
             $this->logger->warning("Duplicate packages will be ignored.");
         }
 
-        $dups = array();
         foreach ($merge as $name => $link) {
-            if (isset($origin[$name]) && $state->ignoreDuplicateLinks()) {
-                $this->logger->info("Ignoring duplicate <comment>{$name}</comment>");
-                continue;
-            } elseif (!isset($origin[$name]) || $state->replaceDuplicateLinks()) {
-                $this->logger->info("Merging <comment>{$name}</comment>");
-                $origin[$name] = $link;
+            if (isset($origin[$name])) {
+                if ($state->ignoreDuplicateLinks()) {
+                    $this->logger->info("Ignoring duplicate <comment>{$name}</comment>");
+                    continue;
+                }
+
+                if ($state->replaceDuplicateLinks()) {
+                    $this->logger->info("Replacing <comment>{$name}</comment>");
+                    $this->mergedRequirements[$name] = true;
+                    $origin[$name] = $link;
+                } else {
+                    $this->logger->info("Merging <comment>{$name}</comment>");
+                    $this->mergedRequirements[$name] = true;
+                    $origin[$name] = $this->mergeConstraints($origin[$name], $link, $state);
+                }
             } else {
-                // Defer to solver.
-                $this->logger->info(
-                    "Deferring duplicate <comment>{$name}</comment>"
-                );
-                $dups[] = $link;
+                $this->logger->info("Adding <comment>{$name}</comment>");
+                $this->mergedRequirements[$name] = true;
+                $origin[$name] = $link;
             }
         }
-        $state->addDuplicateLinks($type, $dups);
+
+        if (!$state->isComposer1()) {
+            Intervals::clear();
+        }
+
         return $origin;
+    }
+
+    /**
+     * Merge package constraints.
+     *
+     * Adapted from Composer's UpdateCommand::appendConstraintToLink
+     *
+     * @param Link $origin The base package link.
+     * @param Link $merge  The related package link to merge.
+     * @param PluginState $state
+     * @return Link Merged link.
+     */
+    protected function mergeConstraints(Link $origin, Link $merge, PluginState $state)
+    {
+        $oldPrettyString = $origin->getConstraint()->getPrettyString();
+        $newPrettyString = $merge->getConstraint()->getPrettyString();
+
+        if ($state->isComposer1()) {
+            $constraintClass = MultiConstraint::class;
+        } else {
+            $constraintClass = \Composer\Semver\Constraint\MultiConstraint::class;
+
+            if (Intervals::isSubsetOf($origin->getConstraint(), $merge->getConstraint())) {
+                return $origin;
+            }
+
+            if (Intervals::isSubsetOf($merge->getConstraint(), $origin->getConstraint())) {
+                return $merge;
+            }
+        }
+
+        $newConstraint = $constraintClass::create([
+            $origin->getConstraint(),
+            $merge->getConstraint()
+        ], true);
+        $newConstraint->setPrettyString($oldPrettyString.', '.$newPrettyString);
+
+        return new Link(
+            $origin->getSource(),
+            $origin->getTarget(),
+            $newConstraint,
+            $origin->getDescription(),
+            $origin->getPrettyConstraint() . ', ' . $newPrettyString
+        );
     }
 
     /**
@@ -526,7 +591,7 @@ class ExtraPackage
         $packages = $root->$method();
 
         return array_map(
-            function ($link) use ($linkType, $version, $prettyVersion, $vp, $packages) {
+            static function ($link) use ($linkType, $version, $prettyVersion, $vp, $packages) {
                 if ('self.version' === $link->getPrettyConstraint()) {
                     if (isset($packages[$link->getSource()])) {
                         /** @var Link $package */
@@ -595,12 +660,12 @@ class ExtraPackage
     {
         // Merge source reference information for merged packages.
         // @see RootPackageLoader::load
-        $references = array();
-        $unwrapped = $this->unwrapIfNeeded($root, 'setReferences');
-        foreach (array('require', 'require-dev') as $linkType) {
+        $references = [];
+        $unwrapped = self::unwrapIfNeeded($root, 'setReferences');
+        foreach (['require', 'require-dev'] as $linkType) {
             $linkInfo = BasePackage::$supportedLinkTypes[$linkType];
             $method = 'get'.ucfirst($linkInfo['method']);
-            $links = array();
+            $links = [];
             foreach ($unwrapped->$method() as $link) {
                 $links[$link->getTarget()] = $link->getConstraint()->getPrettyString();
             }
@@ -622,8 +687,8 @@ class ExtraPackage
         foreach ($requires as $reqName => $reqVersion) {
             $reqVersion = preg_replace('{^([^,\s@]+) as .+$}', '$1', $reqVersion);
             $stabilityName = VersionParser::parseStability($reqVersion);
-            if (preg_match('{^[^,\s@]+?#([a-f0-9]+)$}', $reqVersion, $match) &&
-                $stabilityName === 'dev'
+            if ($stabilityName === 'dev' &&
+                preg_match('{^[^,\s@]+?#([a-f0-9]+)$}', $reqVersion, $match)
             ) {
                 $name = strtolower($reqName);
                 $references[$name] = $match[1];

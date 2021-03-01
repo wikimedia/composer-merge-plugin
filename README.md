@@ -1,5 +1,5 @@
 [![Latest Stable Version]](https://packagist.org/packages/wikimedia/composer-merge-plugin) [![License]](https://github.com/wikimedia/composer-merge-plugin/blob/master/LICENSE)
-[![Build Status]](https://travis-ci.org/wikimedia/composer-merge-plugin)
+[![Build Status]](https://github.com/wikimedia/composer-merge-plugin/actions)
 [![Code Coverage]](https://scrutinizer-ci.com/g/wikimedia/composer-merge-plugin/?branch=master)
 
 Composer Merge Plugin
@@ -24,12 +24,23 @@ extensions which may be managed via Composer.
 Installation
 ------------
 
-Composer Merge Plugin requires [Composer 1.0.0](https://getcomposer.org/) or
-newer.
+Composer Merge Plugin 1.4.x (and older) requires Composer 1.x.
+
+Composer Merge Plugin 2.0.x (and newer) is compatible with both Composer 2.x and 1.x.
 
 ```
 $ composer require wikimedia/composer-merge-plugin
 ```
+
+### Upgrading from Composer 1 to 2
+
+If you are already using Composer Merge Plugin 1.4 (or older) and you are updating the plugin to 2.0 (or newer), it is recommended that you update the plugin first using Composer 1.
+
+If you update the incompatible plugin using Composer 2, the plugin will be ignored:
+
+> The "wikimedia/composer-merge-plugin" plugin was skipped because it requires a Plugin API version ("^1.0") that does not match your Composer installation ("2.0.0"). You may need to run composer update with the "--no-plugins" option.
+
+Consequently, Composer will be unaware of the merged dependencies and will remove them requiring you to run `composer update` again to reinstall merged dependencies.
 
 
 Usage
@@ -64,13 +75,13 @@ Usage
 ### Updating sub-levels `composer.json` files
 
 
-In order for composer-merge-plugin to install dependencies from updated or newly created sub-level `composer.json` files in your project you need to run the command:
+In order for Composer Merge Plugin to install dependencies from updated or newly created sub-level `composer.json` files in your project you need to run the command:
 
 ```
-$ composer update --lock
+$ composer update
 ```
 
-This will [instruct Composer to recalculate the file hash](https://getcomposer.org/doc/03-cli.md#update) for the top-level `composer.json` thus triggering composer-merge-plugin to look for the sub-level configuration files and update your dependencies.
+This will [instruct Composer to recalculate the file hash](https://getcomposer.org/doc/03-cli.md#update) for the top-level `composer.json` thus triggering Composer Merge Plugin to look for the sub-level configuration files and update your dependencies.
 
 
 Plugin configuration
@@ -228,6 +239,6 @@ Composer Merge plugin is licensed under the MIT license. See the
 [PHP Code Sniffer]: http://pear.php.net/package/PHP_CodeSniffer
 [Latest Stable Version]: https://img.shields.io/packagist/v/wikimedia/composer-merge-plugin.svg?style=flat
 [License]: https://img.shields.io/packagist/l/wikimedia/composer-merge-plugin.svg?style=flat
-[Build Status]: https://img.shields.io/travis/wikimedia/composer-merge-plugin.svg?style=flat
+[Build Status]: https://img.shields.io/github/workflow/status/wikimedia/composer-merge-plugin/PHP%20Composer/master?style=flat
 [Code Coverage]: https://img.shields.io/scrutinizer/coverage/g/wikimedia/composer-merge-plugin/master.svg?style=flat
 [custom commands]: https://getcomposer.org/doc/articles/scripts.md#writing-custom-commands
