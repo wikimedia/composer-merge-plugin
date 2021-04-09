@@ -1,5 +1,5 @@
 [![Latest Stable Version]](https://packagist.org/packages/wikimedia/composer-merge-plugin) [![License]](https://github.com/wikimedia/composer-merge-plugin/blob/master/LICENSE)
-[![Build Status]](https://github.com/wikimedia/composer-merge-plugin/actions)
+[![Build Status]](https://github.com/wikimedia/composer-merge-plugin/actions/workflows/CI.yaml)
 [![Code Coverage]](https://scrutinizer-ci.com/g/wikimedia/composer-merge-plugin/?branch=master)
 
 Composer Merge Plugin
@@ -239,6 +239,6 @@ Composer Merge plugin is licensed under the MIT license. See the
 [PHP Code Sniffer]: http://pear.php.net/package/PHP_CodeSniffer
 [Latest Stable Version]: https://img.shields.io/packagist/v/wikimedia/composer-merge-plugin.svg?style=flat
 [License]: https://img.shields.io/packagist/l/wikimedia/composer-merge-plugin.svg?style=flat
-[Build Status]: https://img.shields.io/github/workflow/status/wikimedia/composer-merge-plugin/PHP%20Composer/master?style=flat
+[Build Status]: https://github.com/wikimedia/composer-merge-plugin/actions/workflows/CI.yaml/badge.svg
 [Code Coverage]: https://img.shields.io/scrutinizer/coverage/g/wikimedia/composer-merge-plugin/master.svg?style=flat
 [custom commands]: https://getcomposer.org/doc/articles/scripts.md#writing-custom-commands

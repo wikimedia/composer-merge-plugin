@@ -1,4 +1,4 @@
-name: PHP Composer
+name: CI
 
 on:
   push:
@@ -6,53 +6,56 @@ on:
 
 jobs:
   run:
-    runs-on: ubuntu-latest
     strategy:
       matrix:
-        php-version:
-          - "7.2"
-          - "7.3"
-          - "7.4"
-          - "8.0"
-        composer-dependencies:
-          - 'highest'
+        include:
+          # Includes php7.1-8.0, composer 2, php-xdebug, and more
+          # https://github.com/actions/virtual-environments/blob/ubuntu18/20210318.0/images/linux/Ubuntu1804-README.md#php
+          - os: ubuntu-18.04
+            php: "7.2"
+          - os: ubuntu-18.04
+            php: "7.3"
+          # Includes php7.4-8.x, composer 2, php-xdebug, and more
+          # https://github.com/actions/virtual-environments/blob/ubuntu20/20210318.0/images/linux/Ubuntu2004-README.md#php
+          - os: ubuntu-20.04
+            php: "7.4"
+          - os: ubuntu-20.04
+            php: "8.0"
+
+    name: Test PHP ${{ matrix.php }}
+    runs-on: ${{ matrix.os }}
     env:
       COMPOSER_DISABLE_XDEBUG_WARN: 1
 
-    name: Test PHP ${{ matrix.php-version }}
     steps:
     - name: Checkout
       uses: actions/checkout@v2
 
-    - name: Setup PHP version
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: ${{ matrix.php-version }}
-        extensions: ast
-        coverage: xdebug
-        tools: composer:v2
+    - name: Use PHP ${{ matrix.php }}
+      run: |
+        sudo update-alternatives --set php /usr/bin/php${{ matrix.php }}
+        sudo apt-add-repository ppa:ondrej/php -y
+        sudo apt-fast install -y --no-install-recommends php${{ matrix.php }}-ast
 
-    - name: Test Composer v1
+    - name: Use Composer v1
       run: composer require --dev --no-update composer/composer:^1.1
 
-    - uses: "ramsey/composer-install@v1"
-      with:
-        dependency-versions: "${{ matrix.composer-dependencies }}"
+    - name: composer install
+      run: composer update --no-interaction --no-progress --ansi
 
     - run: composer test
 
-    - name: Test Composer v2
+    - name: Use Composer v2
       run: composer require --dev --no-update composer/composer:^2.0
 
-    - uses: "ramsey/composer-install@v1"
-      with:
-        dependency-versions: "${{ matrix.composer-dependencies }}"
+    - name: composer install
+      run: composer update --no-interaction --no-progress --ansi
 
     - run: composer test
     - run: composer phan
 
   ocular-push:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     if: ${{ success() }} && github.repository == 'wikimedia/composer-merge-plugin'
     needs: [run]
 
@@ -60,24 +63,24 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
-    - name: Setup PHP version for coverage
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: "7.2"
-        coverage: xdebug
-        tools: composer:v1
+    - name: Use PHP 7.2
+      run: sudo update-alternatives --set php /usr/bin/php7.2
 
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
 
     - name: Run coverage
       run: composer coverage
+      env:
+        XDEBUG_MODE: coverage
 
     - name: Get Ocular
       run: wget https://scrutinizer-ci.com/ocular.phar
+      continue-on-error: true
 
     - name: Upload code coverage
       run: php ocular.phar code-coverage:upload --format=php-clover reports/coverage.xml
+      continue-on-error: true
 
 #  irc-push:
 #    runs-on: ubuntu-latest
