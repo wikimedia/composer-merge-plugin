@@ -126,6 +126,11 @@ class PluginState
     protected $optimizeAutoloader = false;
 
     /**
+     * @var bool $mergeScriptsDeep
+     */
+    protected $mergeScriptsDeep = false;
+
+    /**
      * @param Composer $composer
      */
     public function __construct(Composer $composer)
@@ -161,6 +166,7 @@ class PluginState
                 'merge-extra' => false,
                 'merge-extra-deep' => false,
                 'merge-scripts' => false,
+                'merge-scripts-deep' => false,
             ],
             $extra['merge-plugin'] ?? []
         );
@@ -176,6 +182,7 @@ class PluginState
         $this->mergeExtra = (bool)$config['merge-extra'];
         $this->mergeExtraDeep = (bool)$config['merge-extra-deep'];
         $this->mergeScripts = (bool)$config['merge-scripts'];
+        $this->mergeScriptsDeep = (bool)$config['merge-scripts-deep'];
     }
 
     /**
@@ -396,6 +403,11 @@ class PluginState
     public function shouldMergeScripts()
     {
         return $this->mergeScripts;
+    }
+
+    public function scriptsMergeDeep()
+    {
+        return $this->mergeScriptsDeep;
     }
 }
 // vim:sw=4:ts=4:sts=4:et:
