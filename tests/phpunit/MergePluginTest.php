@@ -287,6 +287,41 @@ class MergePluginTest extends TestCase
     }
 
     /**
+     * Given a root package with no requires
+     *   and a subdirectory/composer.local.json with one require, which includes a composer.local.2.json
+     *   and a subdirectory/composer.local.2.json with one additional require
+     * When the plugin is run
+     * Then the root package should inherit both requires
+     *   and no modifications should be made by the pre-dependency hook.
+     */
+    public function testRecursiveIncludesWithSubDirectory()
+    {
+        $dir = $this->fixtureDir(__FUNCTION__);
+
+        $root = $this->rootFromJson("{$dir}/composer.json");
+
+        $packages = array();
+        $root->setRequires(Argument::type('array'))->will(
+            function ($args) use (&$packages) {
+                $packages = array_merge($packages, $args[0]);
+            }
+        );
+
+        $root->getRepositories()->shouldNotBeCalled();
+        $root->getConflicts()->shouldNotBeCalled();
+        $root->getReplaces()->shouldNotBeCalled();
+        $root->getProvides()->shouldNotBeCalled();
+        $root->getSuggests()->shouldNotBeCalled();
+
+        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
+
+        $this->assertArrayHasKey('foo', $packages);
+        $this->assertArrayHasKey('monolog/monolog', $packages);
+
+        $this->assertEquals(null, $extraInstalls);
+    }
+
+    /**
      * Given a root package with no requires that disables recursion
      *   and a composer.local.json with one require, which includes a composer.local.2.json
      *   and a composer.local.2.json with one additional require
@@ -317,6 +352,162 @@ class MergePluginTest extends TestCase
 
         $this->assertArrayHasKey('foo', $packages);
         $this->assertArrayNotHasKey('monolog/monolog', $packages);
+    }
+
+    /**
+     * Given a root package with no requires
+     *   and a subdirectory/composer.local.json with one require, which includes a composer.local.2.json
+     *   and a subdirectory/composer.local.2.json with one additional require and a repository of type 'path'
+     *   and url with a value of 'localdirectory'
+     * When the plugin is run
+     * Then the root package should inherit both requires
+     *   and should have the repository path url fixed to 'subdirectory/localdirectory'
+     *   and no modifications should be made by the pre-dependency hook.
+     */
+    public function testRecursivePathRepositoriesWithSubDirectory()
+    {
+        $that = $this;
+        $io = $this->io;
+        $dir = $this->fixtureDir(__FUNCTION__);
+
+        $repoManager = $this->prophesize(
+            'Composer\Repository\RepositoryManager'
+        );
+        $repoManager->createRepository(
+            Argument::type('string'),
+            Argument::type('array')
+        )->will(
+            function ($args) use ($that, $io) {
+                $that->assertEquals('path', $args[0]);
+                $that->assertEquals(
+                    'subdirectory/local/directory',
+                    $args[1]['url']
+                );
+
+                return new \Composer\Repository\PathRepository(
+                    $args[1],
+                    $io->reveal(),
+                    new \Composer\Config()
+                );
+            }
+        );
+        $repoManager->prependRepository(Argument::any())->will(
+            function ($args) use ($that) {
+                $that->assertInstanceOf(
+                    'Composer\Repository\PathRepository',
+                    $args[0]
+                );
+            }
+        );
+        $this->composer->getRepositoryManager()->will(
+            function () use ($repoManager) {
+                return $repoManager->reveal();
+            }
+        );
+
+        $root = $this->rootFromJson("{$dir}/composer.json");
+
+        $packages = array();
+        $root->setRequires(Argument::type('array'))->will(
+            function ($args) use (&$packages) {
+                $packages = array_merge($packages, $args[0]);
+            }
+        );
+
+        $root->setDevRequires()->shouldNotBeCalled();
+
+        $root->setRepositories(Argument::type('array'))->will(
+            function ($args) use ($that) {
+                $repos = $args[0];
+                $that->assertEquals(1, count($repos));
+            }
+        );
+
+        $root->getConflicts()->shouldNotBeCalled();
+        $root->getReplaces()->shouldNotBeCalled();
+        $root->getProvides()->shouldNotBeCalled();
+        $root->getSuggests()->shouldNotBeCalled();
+
+        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
+
+        $this->assertArrayHasKey('foo', $packages);
+        $this->assertArrayHasKey('wikimedia/composer-merge-plugin', $packages);
+
+        $this->assertEquals(null, $extraInstalls);
+    }
+
+
+    /**
+     * Given a root package with no requires
+     *   and a composer.local.json with one require, which requires a composer.local.2.json
+     *   and a composer.local.2.json with one additional require
+     * When the plugin is run
+     * Then the root package should inherit both requires
+     *   and no modifications should be made by the pre-dependency hook.
+     */
+    public function testRecursiveRequires()
+    {
+        $dir = $this->fixtureDir(__FUNCTION__);
+
+        $root = $this->rootFromJson("{$dir}/composer.json");
+
+        $packages = array();
+
+        $root->setRequires(Argument::type('array'))->will(
+            function ($args) use (&$packages) {
+                $packages = array_merge($packages, $args[0]);
+            }
+        );
+
+        $root->getRepositories()->shouldNotBeCalled();
+        $root->getConflicts()->shouldNotBeCalled();
+        $root->getReplaces()->shouldNotBeCalled();
+        $root->getProvides()->shouldNotBeCalled();
+        $root->getSuggests()->shouldNotBeCalled();
+
+        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
+
+
+
+        $this->assertArrayHasKey('foo', $packages);
+        $this->assertArrayHasKey('monolog/monolog', $packages);
+
+        $this->assertEquals(null, $extraInstalls);
+    }
+
+    /**
+     * Given a root package with no requires
+     *   and a subdirectory/composer.local.json with one require, which requires a composer.local.2.json
+     *   and a subdirectory/composer.local.2.json with one additional require
+     * When the plugin is run
+     * Then the root package should inherit both requires
+     *   and no modifications should be made by the pre-dependency hook.
+     */
+    public function testRecursiveRequiresWithSubDirectory()
+    {
+        $dir = $this->fixtureDir(__FUNCTION__);
+
+        $root = $this->rootFromJson("{$dir}/composer.json");
+
+        $packages = array();
+        $root->setRequires(Argument::type('array'))->will(
+            function ($args) use (&$packages) {
+                $packages = array_merge($packages, $args[0]);
+            }
+        );
+
+        $root->getRepositories()->shouldNotBeCalled();
+        $root->getConflicts()->shouldNotBeCalled();
+        $root->getReplaces()->shouldNotBeCalled();
+        $root->getProvides()->shouldNotBeCalled();
+        $root->getSuggests()->shouldNotBeCalled();
+
+        $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
+
+        $this->assertArrayHasKey('foo', $packages);
+        $this->assertArrayHasKey('monolog/monolog', $packages);
+
+        $this->assertEquals(null, $extraInstalls);
     }
 
     /**
