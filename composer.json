@@ -16,6 +16,7 @@
         "composer-plugin-api": "^1.1||^2.0"
     },
     "require-dev": {
+        "ext-json": "*",
         "composer/composer": "^1.1||^2.0",
         "mediawiki/mediawiki-phan-config": "0.10.6",
         "php-parallel-lint/php-parallel-lint": "~1.2.0",
