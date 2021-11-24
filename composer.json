@@ -44,11 +44,13 @@
             "phpcs --encoding=utf-8 --standard=PSR2 --report-checkstyle=reports/checkstyle-phpcs.xml --report-full --extensions=php src/* tests/phpunit/*"
         ],
         "phan": "phan -d . --long-progress-bar",
+        "phpcs": "phpcs --encoding=utf-8 --standard=PSR2 --extensions=php src/* tests/phpunit/*",
+        "phpunit": "phpunit",
         "test": [
             "composer validate --no-interaction",
             "parallel-lint src tests",
-            "phpunit",
-            "phpcs --encoding=utf-8 --standard=PSR2 --extensions=php src/* tests/phpunit/*"
+            "@phpunit",
+            "@phpcs"
         ]
     }
 }
