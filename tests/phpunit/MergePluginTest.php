@@ -1572,6 +1572,27 @@ class MergePluginTest extends TestCase
         $this->triggerPlugin($root->reveal(), $dir, $fireInit);
     }
 
+    public function testGitHubIssue222()
+    {
+        $that = $this;
+        $dir = $this->fixtureDir(__FUNCTION__);
+
+        $root = $this->rootFromJson("{$dir}/composer.json");
+        $root->setRequires(Argument::type('array'))->will(
+            function ($args) use ($that) {
+                $requires = $args[0];
+                $that->assertCount(2, $requires);
+                $that->assertArrayHasKey('symfony/yaml', $requires);
+
+                $that->assertEquals(
+                    '5.3.6',
+                    $requires['symfony/yaml']->getPrettyConstraint()
+                );
+            }
+        );
+        $this->triggerPlugin($root->reveal(), $dir);
+    }
+
     /**
      * Generic provider for tests that should be tried with and without an
      * INIT event.
