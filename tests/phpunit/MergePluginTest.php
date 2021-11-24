@@ -300,7 +300,7 @@ class MergePluginTest extends TestCase
 
         $root = $this->rootFromJson("{$dir}/composer.json");
 
-        $packages = array();
+        $packages = [];
         $root->setRequires(Argument::type('array'))->will(
             function ($args) use (&$packages) {
                 $packages = array_merge($packages, $args[0]);
@@ -407,7 +407,7 @@ class MergePluginTest extends TestCase
 
         $root = $this->rootFromJson("{$dir}/composer.json");
 
-        $packages = array();
+        $packages = [];
         $root->setRequires(Argument::type('array'))->will(
             function ($args) use (&$packages) {
                 $packages = array_merge($packages, $args[0]);
@@ -451,7 +451,7 @@ class MergePluginTest extends TestCase
 
         $root = $this->rootFromJson("{$dir}/composer.json");
 
-        $packages = array();
+        $packages = [];
 
         $root->setRequires(Argument::type('array'))->will(
             function ($args) use (&$packages) {
@@ -489,7 +489,7 @@ class MergePluginTest extends TestCase
 
         $root = $this->rootFromJson("{$dir}/composer.json");
 
-        $packages = array();
+        $packages = [];
         $root->setRequires(Argument::type('array'))->will(
             function ($args) use (&$packages) {
                 $packages = array_merge($packages, $args[0]);
