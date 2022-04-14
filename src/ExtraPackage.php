@@ -333,7 +333,7 @@ class ExtraPackage
      * Adapted from Composer's UpdateCommand::appendConstraintToLink
      *
      * @param Link $origin The base package link.
-     * @param Link $merge  The related package link to merge.
+     * @param Link $merge The related package link to merge.
      * @param PluginState $state
      * @return Link Merged link.
      */
@@ -437,7 +437,7 @@ class ExtraPackage
     }
 
     /**
-     * Merge package links of the given type  into a RootPackageInterface
+     * Merge package links of the given type into a RootPackageInterface
      *
      * @param string $type 'conflict', 'replace' or 'provide'
      * @param RootPackageInterface $root
