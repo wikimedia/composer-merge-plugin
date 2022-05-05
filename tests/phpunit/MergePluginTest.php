@@ -92,49 +92,48 @@ class MergePluginTest extends TestCase
      */
     public function testOneMergeNoConflicts()
     {
-        $that = $this;
         $dir = $this->fixtureDir(__FUNCTION__);
 
         $root = $this->rootFromJson("{$dir}/composer.json");
 
         $root->setRequires(Argument::type('array'))->will(
-            function ($args) use ($that) {
+            function ($args) {
                 $requires = $args[0];
-                $that->assertCount(1, $requires);
-                $that->assertArrayHasKey('monolog/monolog', $requires);
+                $this->assertCount(1, $requires);
+                $this->assertArrayHasKey('monolog/monolog', $requires);
             }
         );
 
         $root->getConflicts()->shouldBeCalled();
         $root->setConflicts(Argument::type('array'))->will(
-            function ($args) use ($that) {
+            function ($args) {
                 $suggest = $args[0];
-                $that->assertCount(1, $suggest);
-                $that->assertArrayHasKey('conflict/conflict', $suggest);
+                $this->assertCount(1, $suggest);
+                $this->assertArrayHasKey('conflict/conflict', $suggest);
             }
         );
         $root->getReplaces()->shouldBeCalled();
         $root->setReplaces(Argument::type('array'))->will(
-            function ($args) use ($that) {
+            function ($args) {
                 $suggest = $args[0];
-                $that->assertCount(1, $suggest);
-                $that->assertArrayHasKey('replace/replace', $suggest);
+                $this->assertCount(1, $suggest);
+                $this->assertArrayHasKey('replace/replace', $suggest);
             }
         );
         $root->getProvides()->shouldBeCalled();
         $root->setProvides(Argument::type('array'))->will(
-            function ($args) use ($that) {
+            function ($args) {
                 $suggest = $args[0];
-                $that->assertCount(1, $suggest);
-                $that->assertArrayHasKey('provide/provide', $suggest);
+                $this->assertCount(1, $suggest);
+                $this->assertArrayHasKey('provide/provide', $suggest);
             }
         );
         $root->getSuggests()->shouldBeCalled();
         $root->setSuggests(Argument::type('array'))->will(
-            function ($args) use ($that) {
+            function ($args) {
                 $suggest = $args[0];
-                $that->assertCount(1, $suggest);
-                $that->assertArrayHasKey('suggest/suggest', $suggest);
+                $this->assertCount(1, $suggest);
+                $this->assertArrayHasKey('suggest/suggest', $suggest);
             }
         );
 
@@ -154,17 +153,16 @@ class MergePluginTest extends TestCase
      */
     public function testMergeWithReplace()
     {
-        $that = $this;
         $dir = $this->fixtureDir(__FUNCTION__);
 
         $root = $this->rootFromJson("{$dir}/composer.json");
 
         $root->setRequires(Argument::type('array'))->will(
-            function ($args) use ($that) {
+            function ($args) {
                 $requires = $args[0];
-                $that->assertCount(2, $requires);
-                $that->assertArrayHasKey('monolog/monolog', $requires);
-                $that->assertEquals(
+                $this->assertCount(2, $requires);
+                $this->assertArrayHasKey('monolog/monolog', $requires);
+                $this->assertEquals(
                     '1.10.0',
                     $requires['monolog/monolog']->getPrettyConstraint()
                 );
@@ -190,17 +188,16 @@ class MergePluginTest extends TestCase
      */
     public function testMergeWithIgnore()
     {
-        $that = $this;
         $dir = $this->fixtureDir(__FUNCTION__);
 
         $root = $this->rootFromJson("{$dir}/composer.json");
 
         $root->setRequires(Argument::type('array'))->will(
-            function ($args) use ($that) {
+            function ($args) {
                 $requires = $args[0];
-                $that->assertCount(2, $requires);
-                $that->assertArrayHasKey('monolog/monolog', $requires);
-                $that->assertEquals(
+                $this->assertCount(2, $requires);
+                $this->assertArrayHasKey('monolog/monolog', $requires);
+                $this->assertEquals(
                     '~1.0',
                     $requires['monolog/monolog']->getPrettyConstraint()
                 );
@@ -227,17 +224,16 @@ class MergePluginTest extends TestCase
      */
     public function testMergeWithIgnoreAndReplace()
     {
-        $that = $this;
         $dir = $this->fixtureDir(__FUNCTION__);
 
         $root = $this->rootFromJson("{$dir}/composer.json");
 
         $root->setRequires(Argument::type('array'))->will(
-            function ($args) use ($that) {
+            function ($args) {
                 $requires = $args[0];
-                $that->assertCount(2, $requires);
-                $that->assertArrayHasKey('monolog/monolog', $requires);
-                $that->assertEquals(
+                $this->assertCount(2, $requires);
+                $this->assertArrayHasKey('monolog/monolog', $requires);
+                $this->assertEquals(
                     '~1.0',
                     $requires['monolog/monolog']->getPrettyConstraint()
                 );
@@ -366,7 +362,6 @@ class MergePluginTest extends TestCase
      */
     public function testRecursivePathRepositoriesWithSubDirectory()
     {
-        $that = $this;
         $io = $this->io;
         $dir = $this->fixtureDir(__FUNCTION__);
 
@@ -377,9 +372,9 @@ class MergePluginTest extends TestCase
             Argument::type('string'),
             Argument::type('array')
         )->will(
-            function ($args) use ($that, $io) {
-                $that->assertEquals('path', $args[0]);
-                $that->assertEquals(
+            function ($args) use ($io) {
+                $this->assertEquals('path', $args[0]);
+                $this->assertEquals(
                     'subdirectory/local/directory',
                     $args[1]['url']
                 );
@@ -392,8 +387,8 @@ class MergePluginTest extends TestCase
             }
         );
         $repoManager->prependRepository(Argument::any())->will(
-            function ($args) use ($that) {
-                $that->assertInstanceOf(
+            function ($args) {
+                $this->assertInstanceOf(
                     'Composer\Repository\PathRepository',
                     $args[0]
                 );
@@ -417,9 +412,9 @@ class MergePluginTest extends TestCase
         $root->setDevRequires()->shouldNotBeCalled();
 
         $root->setRepositories(Argument::type('array'))->will(
-            function ($args) use ($that) {
+            function ($args) {
                 $repos = $args[0];
-                $that->assertEquals(1, count($repos));
+                $this->assertEquals(1, count($repos));
             }
         );
 
@@ -523,30 +518,29 @@ class MergePluginTest extends TestCase
      */
     public function testOneMergeWithConflicts($fireInit)
     {
-        $that = $this;
         $dir = $this->fixtureDir(__FUNCTION__);
 
         $root = $this->rootFromJson("{$dir}/composer.json");
 
         $root->setRequires(Argument::type('array'))->will(
-            function ($args) use ($that) {
+            function ($args) {
                 $requires = $args[0];
-                $that->assertCount(2, $requires);
-                $that->assertArrayHasKey(
+                $this->assertCount(2, $requires);
+                $this->assertArrayHasKey(
                     'wikimedia/composer-merge-plugin',
                     $requires
                 );
-                $that->assertArrayHasKey('monolog/monolog', $requires);
+                $this->assertArrayHasKey('monolog/monolog', $requires);
             }
         );
 
         $root->getDevRequires()->shouldBeCalled();
         $root->setDevRequires(Argument::type('array'))->will(
-            function ($args) use ($that) {
+            function ($args) {
                 $requires = $args[0];
-                $that->assertCount(2, $requires);
-                $that->assertArrayHasKey('foo', $requires);
-                $that->assertArrayHasKey('xyzzy', $requires);
+                $this->assertCount(2, $requires);
+                $this->assertArrayHasKey('foo', $requires);
+                $this->assertArrayHasKey('xyzzy', $requires);
             }
         )->shouldBeCalled();
 
@@ -567,7 +561,6 @@ class MergePluginTest extends TestCase
      */
     public function testMergedRepositories()
     {
-        $that = $this;
         $io = $this->io;
         $dir = $this->fixtureDir(__FUNCTION__);
 
@@ -578,9 +571,9 @@ class MergePluginTest extends TestCase
             Argument::type('string'),
             Argument::type('array')
         )->will(
-            function ($args) use ($that, $io) {
-                $that->assertEquals('vcs', $args[0]);
-                $that->assertEquals(
+            function ($args) use ($io) {
+                $this->assertEquals('vcs', $args[0]);
+                $this->assertEquals(
                     'https://github.com/bd808/composer-merge-plugin.git',
                     $args[1]['url']
                 );
@@ -608,8 +601,8 @@ class MergePluginTest extends TestCase
             }
         );
         $repoManager->prependRepository(Argument::any())->will(
-            function ($args) use ($that) {
-                $that->assertInstanceOf(
+            function ($args) {
+                $this->assertInstanceOf(
                     'Composer\Repository\VcsRepository',
                     $args[0]
                 );
@@ -624,10 +617,10 @@ class MergePluginTest extends TestCase
         $root = $this->rootFromJson("{$dir}/composer.json");
 
         $root->setRequires(Argument::type('array'))->will(
-            function ($args) use ($that) {
+            function ($args) {
                 $requires = $args[0];
-                $that->assertCount(1, $requires);
-                $that->assertArrayHasKey(
+                $this->assertCount(1, $requires);
+                $this->assertArrayHasKey(
                     'wikimedia/composer-merge-plugin',
                     $requires
                 );
@@ -637,9 +630,9 @@ class MergePluginTest extends TestCase
         $root->setDevRequires()->shouldNotBeCalled();
 
         $root->setRepositories(Argument::type('array'))->will(
-            function ($args) use ($that) {
+            function ($args) {
                 $repos = $args[0];
-                $that->assertCount(1, $repos);
+                $this->assertCount(1, $repos);
             }
         );
 
@@ -659,7 +652,6 @@ class MergePluginTest extends TestCase
      */
     public function testPrependRepositories()
     {
-        $that = $this;
         $io = $this->io;
         $dir = $this->fixtureDir(__FUNCTION__);
 
@@ -670,9 +662,9 @@ class MergePluginTest extends TestCase
             Argument::type('string'),
             Argument::type('array')
         )->will(
-            function ($args) use ($that, $io) {
-                $that->assertEquals('vcs', $args[0]);
-                $that->assertEquals(
+            function ($args) use ($io) {
+                $this->assertEquals('vcs', $args[0]);
+                $this->assertEquals(
                     'https://github.com/furgas/composer-merge-plugin.git',
                     $args[1]['url']
                 );
@@ -701,8 +693,8 @@ class MergePluginTest extends TestCase
             }
         );
         $repoManager->prependRepository(Argument::any())->will(
-            function ($args) use ($that) {
-                $that->assertInstanceOf(
+            function ($args) {
+                $this->assertInstanceOf(
                     'Composer\Repository\VcsRepository',
                     $args[0]
                 );
@@ -720,18 +712,18 @@ class MergePluginTest extends TestCase
         $root->setDevRequires()->shouldNotBeCalled();
 
         $root->setRepositories(Argument::type('array'))->will(
-            function ($args) use ($that) {
+            function ($args) {
                 $repos = $args[0];
-                $that->assertCount(2, $repos);
+                $this->assertCount(2, $repos);
                 $prependedRepo = $repos[0];
-                $that->assertInstanceOf('Composer\Repository\VcsRepository', $prependedRepo);
+                $this->assertInstanceOf('Composer\Repository\VcsRepository', $prependedRepo);
                 // Ugly, be we need to check a protected member variable and
                 // PHPUnit decided that having the assertAttributeEquals
                 // assertion to make that easy was a code smell.
                 $clazz = new \ReflectionClass($prependedRepo);
                 $url = $clazz->getProperty('url');
                 $url->setAccessible(true);
-                $that->assertEquals(
+                $this->assertEquals(
                     'https://github.com/furgas/composer-merge-plugin.git',
                     $url->getValue($prependedRepo)
                 );
@@ -757,27 +749,26 @@ class MergePluginTest extends TestCase
      */
     public function testUpdateStabilityFlags($fireInit)
     {
-        $that = $this;
         $dir = $this->fixtureDir(__FUNCTION__);
         $root = $this->rootFromJson("{$dir}/composer.json");
 
         $root->setRequires(Argument::type('array'))->will(
-            function ($args) use ($that) {
+            function ($args) {
                 $requires = $args[0];
-                $that->assertCount(7, $requires);
-                $that->assertArrayHasKey('test/foo', $requires);
-                $that->assertArrayHasKey('test/bar', $requires);
-                $that->assertArrayHasKey('test/baz', $requires);
-                $that->assertArrayHasKey('test/xyzzy', $requires);
-                $that->assertArrayHasKey('test/plugh', $requires);
-                $that->assertArrayHasKey('test/plover', $requires);
-                $that->assertArrayHasKey('test/bedquilt', $requires);
+                $this->assertCount(7, $requires);
+                $this->assertArrayHasKey('test/foo', $requires);
+                $this->assertArrayHasKey('test/bar', $requires);
+                $this->assertArrayHasKey('test/baz', $requires);
+                $this->assertArrayHasKey('test/xyzzy', $requires);
+                $this->assertArrayHasKey('test/plugh', $requires);
+                $this->assertArrayHasKey('test/plover', $requires);
+                $this->assertArrayHasKey('test/bedquilt', $requires);
             }
         );
 
         $root->setStabilityFlags(Argument::type('array'))->will(
-            function ($args) use ($that, &$expects) {
-                $that->assertSame(
+            function ($args) use (&$expects) {
+                $this->assertSame(
                     [
                         'test/foo' => BasePackage::STABILITY_DEV,
                         'test/bar' => BasePackage::STABILITY_BETA,
@@ -806,7 +797,6 @@ class MergePluginTest extends TestCase
 
     public function testMergedAutoload()
     {
-        $that = $this;
         $dir = $this->fixtureDir(__FUNCTION__);
         $root = $this->rootFromJson("{$dir}/composer.json");
 
@@ -824,8 +814,8 @@ class MergePluginTest extends TestCase
             }
         )->shouldBeCalledTimes(2);
         $root->setDevAutoload(Argument::type('array'))->will(
-            function ($args) use ($that) {
-                $that->assertEquals(
+            function ($args) {
+                $this->assertEquals(
                     [
                         'psr-4' => [
                             'Dev\\Kittens\\' => [
@@ -892,18 +882,17 @@ class MergePluginTest extends TestCase
      */
     public function testMergeExtra($fireInit)
     {
-        $that = $this;
         $dir = $this->fixtureDir(__FUNCTION__);
 
         $root = $this->rootFromJson("{$dir}/composer.json");
 
         $root->setExtra(Argument::type('array'))->will(
-            function ($args) use ($that) {
+            function ($args) {
                 $extra = $args[0];
-                $that->assertCount(2, $extra);
-                $that->assertArrayHasKey('merge-plugin', $extra);
-                $that->assertCount(2, $extra['merge-plugin']);
-                $that->assertArrayHasKey('wibble', $extra);
+                $this->assertCount(2, $extra);
+                $this->assertArrayHasKey('merge-plugin', $extra);
+                $this->assertCount(2, $extra['merge-plugin']);
+                $this->assertArrayHasKey('wibble', $extra);
             }
         )->shouldBeCalled();
 
@@ -924,18 +913,17 @@ class MergePluginTest extends TestCase
      */
     public function testMergeExtraConflict()
     {
-        $that = $this;
         $dir = $this->fixtureDir(__FUNCTION__);
 
         $root = $this->rootFromJson("{$dir}/composer.json");
 
         $root->setExtra(Argument::type('array'))->will(
-            function ($args) use ($that) {
+            function ($args) {
                 $extra = $args[0];
-                $that->assertCount(2, $extra);
-                $that->assertArrayHasKey('merge-plugin', $extra);
-                $that->assertArrayHasKey('wibble', $extra);
-                $that->assertEquals('wobble', $extra['wibble']);
+                $this->assertCount(2, $extra);
+                $this->assertArrayHasKey('merge-plugin', $extra);
+                $this->assertArrayHasKey('wibble', $extra);
+                $this->assertEquals('wobble', $extra['wibble']);
             }
         )->shouldBeCalled();
 
@@ -957,18 +945,17 @@ class MergePluginTest extends TestCase
      */
     public function testMergeExtraConflictReplace()
     {
-        $that = $this;
         $dir = $this->fixtureDir(__FUNCTION__);
 
         $root = $this->rootFromJson("{$dir}/composer.json");
 
         $root->setExtra(Argument::type('array'))->will(
-            function ($args) use ($that) {
+            function ($args) {
                 $extra = $args[0];
-                $that->assertCount(2, $extra);
-                $that->assertArrayHasKey('merge-plugin', $extra);
-                $that->assertArrayHasKey('wibble', $extra);
-                $that->assertEquals('ping', $extra['wibble']);
+                $this->assertCount(2, $extra);
+                $this->assertArrayHasKey('merge-plugin', $extra);
+                $this->assertArrayHasKey('wibble', $extra);
+                $this->assertEquals('ping', $extra['wibble']);
             }
         )->shouldBeCalled();
 
@@ -993,36 +980,35 @@ class MergePluginTest extends TestCase
      */
     public function testMergeExtraDeep($suffix, $replace)
     {
-        $that = $this;
         $dir = $this->fixtureDir(__FUNCTION__ . $suffix);
 
         $root = $this->rootFromJson("{$dir}/composer.json");
 
         $root->setExtra(Argument::type('array'))->will(
-            function ($args) use ($that, $replace) {
+            function ($args) use ($replace) {
                 $extra = $args[0];
-                $that->assertCount(3, $extra);
-                $that->assertArrayHasKey('merge-plugin', $extra);
-                $that->assertCount(4, $extra['merge-plugin']);
-                $that->assertArrayHasKey('patches', $extra);
-                $that->assertArrayHasKey('wikimedia/composer-merge-plugin', $extra['patches']);
+                $this->assertCount(3, $extra);
+                $this->assertArrayHasKey('merge-plugin', $extra);
+                $this->assertCount(4, $extra['merge-plugin']);
+                $this->assertArrayHasKey('patches', $extra);
+                $this->assertArrayHasKey('wikimedia/composer-merge-plugin', $extra['patches']);
                 $patches = $extra['patches']['wikimedia/composer-merge-plugin'];
                 $key = 'Allow merging of sections in a deep way';
-                $that->assertEquals('patches/add-merge-extra-deep-option.diff', $patches[$key]);
+                $this->assertEquals('patches/add-merge-extra-deep-option.diff', $patches[$key]);
                 $key = 'Add tests for merge-extra-deep option';
-                $that->assertEquals('patches/add-tests-for-merge-extra-deep-option.diff', $patches[$key]);
-                $that->assertArrayHasKey('somevendor/some-project', $extra['patches']);
-                $that->assertArrayHasKey('some-patch', $extra['patches']['somevendor/some-project']);
+                $this->assertEquals('patches/add-tests-for-merge-extra-deep-option.diff', $patches[$key]);
+                $this->assertArrayHasKey('somevendor/some-project', $extra['patches']);
+                $this->assertArrayHasKey('some-patch', $extra['patches']['somevendor/some-project']);
                 $value = $extra['patches']['somevendor/some-project']['some-patch'];
-                $that->assertEquals('patches/overridden-patch.diff', $value);
+                $this->assertEquals('patches/overridden-patch.diff', $value);
                 if (!$replace) {
-                    $that->assertArrayHasKey('base-patch', $extra['patches']['somevendor/some-project']);
+                    $this->assertArrayHasKey('base-patch', $extra['patches']['somevendor/some-project']);
                     $value = $extra['patches']['somevendor/some-project']['base-patch'];
-                    $that->assertEquals('patches/always-patch.diff', $value);
+                    $this->assertEquals('patches/always-patch.diff', $value);
                 }
-                $that->assertArrayHasKey('anothervendor/some-project', $extra['patches']);
-                $that->assertArrayHasKey('another-patch', $extra['patches']['anothervendor/some-project']);
-                $that->assertEquals(['first', 'second', 'third', 'fourth'], $extra['list']);
+                $this->assertArrayHasKey('anothervendor/some-project', $extra['patches']);
+                $this->assertArrayHasKey('another-patch', $extra['patches']['anothervendor/some-project']);
+                $this->assertEquals(['first', 'second', 'third', 'fourth'], $extra['list']);
             }
         )->shouldBeCalled();
 
@@ -1055,18 +1041,17 @@ class MergePluginTest extends TestCase
      */
     public function testMergeScripts($fireInit)
     {
-        $that = $this;
         $dir = $this->fixtureDir(__FUNCTION__);
 
         $root = $this->rootFromJson("{$dir}/composer.json");
 
         $root->setScripts(Argument::type('array'))->will(
-            function ($args) use ($that) {
+            function ($args) {
                 $scripts = $args[0];
-                $that->assertCount(2, $scripts);
-                $that->assertArrayHasKey('example-script', $scripts);
-                $that->assertCount(2, $scripts['example-script']);
-                $that->assertArrayHasKey('example-script2', $scripts);
+                $this->assertCount(2, $scripts);
+                $this->assertArrayHasKey('example-script', $scripts);
+                $this->assertCount(2, $scripts['example-script']);
+                $this->assertArrayHasKey('example-script2', $scripts);
             }
         )->shouldBeCalled();
 
@@ -1087,20 +1072,19 @@ class MergePluginTest extends TestCase
      */
     public function testMergeScriptsConflict()
     {
-        $that = $this;
         $dir = $this->fixtureDir(__FUNCTION__);
 
         $root = $this->rootFromJson("{$dir}/composer.json");
 
         $root->setScripts(Argument::type('array'))->will(
-            function ($args) use ($that) {
+            function ($args) {
                 $scripts = $args[0];
-                $that->assertCount(3, $scripts);
-                $that->assertArrayHasKey('example-script2', $scripts);
-                $that->assertArrayHasKey('example-script3', $scripts);
-                $that->assertEquals("echo 'goodbye world'", $scripts['example-script2']);
-                $that->assertCount(1, $scripts['example-script3']);
-                $that->assertEquals("echo 'adios world'", $scripts['example-script3'][0]);
+                $this->assertCount(3, $scripts);
+                $this->assertArrayHasKey('example-script2', $scripts);
+                $this->assertArrayHasKey('example-script3', $scripts);
+                $this->assertEquals("echo 'goodbye world'", $scripts['example-script2']);
+                $this->assertCount(1, $scripts['example-script3']);
+                $this->assertEquals("echo 'adios world'", $scripts['example-script3'][0]);
             }
         )->shouldBeCalled();
 
@@ -1122,21 +1106,20 @@ class MergePluginTest extends TestCase
      */
     public function testMergeScriptsConflictReplace()
     {
-        $that = $this;
         $dir = $this->fixtureDir(__FUNCTION__);
 
         $root = $this->rootFromJson("{$dir}/composer.json");
 
         $root->setScripts(Argument::type('array'))->will(
-            function ($args) use ($that) {
+            function ($args) {
                 $scripts = $args[0];
-                $that->assertCount(3, $scripts);
-                $that->assertArrayHasKey('example-script', $scripts);
-                $that->assertArrayHasKey('example-script2', $scripts);
-                $that->assertCount(1, $scripts['example-script2']);
-                $that->assertEquals("echo 'hello world'", $scripts['example-script2'][0]);
-                $that->assertCount(1, $scripts['example-script3']);
-                $that->assertEquals("echo 'hola world'", $scripts['example-script3'][0]);
+                $this->assertCount(3, $scripts);
+                $this->assertArrayHasKey('example-script', $scripts);
+                $this->assertArrayHasKey('example-script2', $scripts);
+                $this->assertCount(1, $scripts['example-script2']);
+                $this->assertEquals("echo 'hello world'", $scripts['example-script2'][0]);
+                $this->assertCount(1, $scripts['example-script3']);
+                $this->assertEquals("echo 'hola world'", $scripts['example-script3'][0]);
             }
         )->shouldBeCalled();
 
@@ -1306,7 +1289,6 @@ class MergePluginTest extends TestCase
      */
     public function testCorrectMergeOrderOfSpecifiedFilesAndGlobFiles()
     {
-        $that = $this;
         $dir = $this->fixtureDir(__FUNCTION__);
         $root = $this->rootFromJson("{$dir}/composer.json");
 
@@ -1318,9 +1300,9 @@ class MergePluginTest extends TestCase
         ];
 
         $root->setRequires(Argument::type('array'))->will(
-            function ($args) use ($that, &$expects) {
+            function ($args) use (&$expects) {
                 $expectedSource = array_shift($expects);
-                $that->assertEquals(
+                $this->assertEquals(
                     $expectedSource,
                     $args[0]['wibble/wobble']->getSource()
                 );
@@ -1335,32 +1317,31 @@ class MergePluginTest extends TestCase
      */
     public function testSelfVersion()
     {
-        $that = $this;
         $dir = $this->fixtureDir(__FUNCTION__);
         $root = $this->rootFromJson("{$dir}/composer.json");
 
         $root->setReplaces(Argument::type('array'))->will(
-            function ($args) use ($that) {
+            function ($args) {
                 $replace = $args[0];
-                $that->assertCount(3, $replace);
+                $this->assertCount(3, $replace);
 
-                $that->assertArrayHasKey('foo/bar', $replace);
-                $that->assertArrayHasKey('foo/baz', $replace);
-                $that->assertArrayHasKey('foo/xyzzy', $replace);
+                $this->assertArrayHasKey('foo/bar', $replace);
+                $this->assertArrayHasKey('foo/baz', $replace);
+                $this->assertArrayHasKey('foo/xyzzy', $replace);
 
-                $that->assertInstanceOf(Link::class, $replace['foo/bar']);
-                $that->assertInstanceOf(Link::class, $replace['foo/baz']);
-                $that->assertInstanceOf(Link::class, $replace['foo/xyzzy']);
+                $this->assertInstanceOf(Link::class, $replace['foo/bar']);
+                $this->assertInstanceOf(Link::class, $replace['foo/baz']);
+                $this->assertInstanceOf(Link::class, $replace['foo/xyzzy']);
 
-                $that->assertEquals(
+                $this->assertEquals(
                     '1.2.3.4',
                     $replace['foo/bar']->getPrettyConstraint()
                 );
-                $that->assertEquals(
+                $this->assertEquals(
                     '1.2.3.4',
                     $replace['foo/baz']->getPrettyConstraint()
                 );
-                $that->assertEquals(
+                $this->assertEquals(
                     '~1.0',
                     $replace['foo/xyzzy']->getPrettyConstraint()
                 );
@@ -1378,32 +1359,31 @@ class MergePluginTest extends TestCase
      */
     public function testSelfVersionNoRootVersion($fireInit)
     {
-        $that = $this;
         $dir = $this->fixtureDir(__FUNCTION__);
         $root = $this->rootFromJson("{$dir}/composer.json");
 
         $root->setReplaces(Argument::type('array'))->will(
-            function ($args) use ($that) {
+            function ($args) {
                 $replace = $args[0];
-                $that->assertCount(3, $replace);
+                $this->assertCount(3, $replace);
 
-                $that->assertArrayHasKey('foo/bar', $replace);
-                $that->assertArrayHasKey('foo/baz', $replace);
-                $that->assertArrayHasKey('foo/xyzzy', $replace);
+                $this->assertArrayHasKey('foo/bar', $replace);
+                $this->assertArrayHasKey('foo/baz', $replace);
+                $this->assertArrayHasKey('foo/xyzzy', $replace);
 
-                $that->assertInstanceOf(Link::class, $replace['foo/bar']);
-                $that->assertInstanceOf(Link::class, $replace['foo/baz']);
-                $that->assertInstanceOf(Link::class, $replace['foo/xyzzy']);
+                $this->assertInstanceOf(Link::class, $replace['foo/bar']);
+                $this->assertInstanceOf(Link::class, $replace['foo/baz']);
+                $this->assertInstanceOf(Link::class, $replace['foo/xyzzy']);
 
-                $that->assertEquals(
+                $this->assertEquals(
                     '~8.0',
                     $replace['foo/bar']->getPrettyConstraint()
                 );
-                $that->assertEquals(
+                $this->assertEquals(
                     '~8.0',
                     $replace['foo/baz']->getPrettyConstraint()
                 );
-                $that->assertEquals(
+                $this->assertEquals(
                     '~1.0',
                     $replace['foo/xyzzy']->getPrettyConstraint()
                 );
@@ -1426,7 +1406,6 @@ class MergePluginTest extends TestCase
      */
     public function testMergedStabilityFlagsRespectsMinimumStability()
     {
-        $that = $this;
         $dir = $this->fixtureDir(__FUNCTION__);
         $root = $this->rootFromJson("{$dir}/composer.json");
 
@@ -1436,17 +1415,17 @@ class MergePluginTest extends TestCase
         ])->shouldBeCalled();
 
         $root->setRequires(Argument::type('array'))->will(
-            function ($args) use ($that) {
+            function ($args) {
                 $requires = $args[0];
-                $that->assertCount(2, $requires);
-                $that->assertArrayHasKey('wikimedia/composer-merge-plugin', $requires);
-                $that->assertArrayHasKey('robbytaylor/test', $requires);
+                $this->assertCount(2, $requires);
+                $this->assertArrayHasKey('wikimedia/composer-merge-plugin', $requires);
+                $this->assertArrayHasKey('robbytaylor/test', $requires);
             }
         );
 
         $root->setStabilityFlags(Argument::type('array'))->will(
-            function ($args) use ($that, &$expects) {
-                $that->assertSame(
+            function ($args) use (&$expects) {
+                $this->assertSame(
                     [
                         'wikimedia/composer-merge-plugin' => BasePackage::STABILITY_DEV,
                     ],
@@ -1466,16 +1445,15 @@ class MergePluginTest extends TestCase
      */
     public function testMergeDevFalse()
     {
-        $that = $this;
         $dir = $this->fixtureDir(__FUNCTION__);
 
         $root = $this->rootFromJson("{$dir}/composer.json");
         $root->setRequires(Argument::type('array'))->will(
-            function ($args) use ($that) {
+            function ($args) {
                 $requires = $args[0];
-                $that->assertCount(2, $requires);
-                $that->assertArrayHasKey('wikimedia/composer-merge-plugin', $requires);
-                $that->assertArrayHasKey('acme/foo', $requires);
+                $this->assertCount(2, $requires);
+                $this->assertArrayHasKey('wikimedia/composer-merge-plugin', $requires);
+                $this->assertArrayHasKey('acme/foo', $requires);
             }
         )->shouldBeCalled();
         $root->setDevRequires(Argument::type('array'))->shouldNotBeCalled();
@@ -1497,16 +1475,15 @@ class MergePluginTest extends TestCase
 
     public function testRequire()
     {
-        $that = $this;
         $dir = $this->fixtureDir(__FUNCTION__);
 
         $root = $this->rootFromJson("{$dir}/composer.json");
 
         $root->setRequires(Argument::type('array'))->will(
-            function ($args) use ($that) {
+            function ($args) {
                 $requires = $args[0];
-                $that->assertCount(1, $requires);
-                $that->assertArrayHasKey('monolog/monolog', $requires);
+                $this->assertCount(1, $requires);
+                $this->assertArrayHasKey('monolog/monolog', $requires);
             }
         );
 
@@ -1519,7 +1496,6 @@ class MergePluginTest extends TestCase
      */
     public function testVersionConstraintWithRevision($fireInit)
     {
-        $that = $this;
         $dir = $this->fixtureDir(__FUNCTION__);
         $root = $this->rootFromJson("{$dir}/composer.json");
 
@@ -1535,29 +1511,29 @@ class MergePluginTest extends TestCase
             }
         )->shouldBeCalled();
 
-        $checkRefsWithDev = function ($args) use ($that) {
+        $checkRefsWithDev = function ($args) {
             $references = $args[0];
-            $that->assertCount(3, $references);
+            $this->assertCount(3, $references);
 
-            $that->assertArrayHasKey('foo/bar', $references);
-            $that->assertArrayHasKey('monolog/monolog', $references);
-            $that->assertArrayHasKey('foo/baz', $references);
+            $this->assertArrayHasKey('foo/bar', $references);
+            $this->assertArrayHasKey('monolog/monolog', $references);
+            $this->assertArrayHasKey('foo/baz', $references);
 
-            $that->assertSame($references['foo/bar'], '1234567');
-            $that->assertSame($references['monolog/monolog'], 'cb641a8');
-            $that->assertSame($references['foo/baz'], 'abc1234');
+            $this->assertSame($references['foo/bar'], '1234567');
+            $this->assertSame($references['monolog/monolog'], 'cb641a8');
+            $this->assertSame($references['foo/baz'], 'abc1234');
         };
 
         if ($fireInit) {
-            $checkRefs = function ($args) use ($that, $root, $checkRefsWithDev) {
+            $checkRefs = function ($args) use ($root, $checkRefsWithDev) {
                 $references = $args[0];
-                $that->assertCount(2, $references);
+                $this->assertCount(2, $references);
 
-                $that->assertArrayHasKey('foo/bar', $references);
-                $that->assertArrayHasKey('monolog/monolog', $references);
+                $this->assertArrayHasKey('foo/bar', $references);
+                $this->assertArrayHasKey('monolog/monolog', $references);
 
-                $that->assertSame($references['foo/bar'], '1234567');
-                $that->assertSame($references['monolog/monolog'], 'cb641a8');
+                $this->assertSame($references['foo/bar'], '1234567');
+                $this->assertSame($references['monolog/monolog'], 'cb641a8');
 
                 // onInit does parse without require-dev, so this is called a
                 // second time when onInstallUpdateOrDump() fires with the dev
@@ -1648,7 +1624,6 @@ class MergePluginTest extends TestCase
      */
     protected function rootFromJson($file)
     {
-        $that = $this;
         $json = json_decode(file_get_contents($file), true);
 
         $data = array_merge(
@@ -1710,9 +1685,9 @@ class MergePluginTest extends TestCase
 
         $root->getStabilityFlags()->willReturn([]);
         $root->setStabilityFlags(Argument::type('array'))->will(
-            function ($args) use ($that) {
+            function ($args) {
                 foreach ($args[0] as $value) {
-                    $that->assertContains($value, BasePackage::$stabilities);
+                    $this->assertContains($value, BasePackage::$stabilities);
                 }
             }
         );
