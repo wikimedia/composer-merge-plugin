@@ -1,5 +1,5 @@
 {
-    "name": "wikimedia/composer-merge-plugin",
+    "name": "enjoys/composer-merge-plugin",
     "description": "Composer plugin to merge multiple composer.json files",
     "type": "composer-plugin",
     "license": "MIT",
