@@ -1156,18 +1156,22 @@ class MergePluginTest extends TestCase
 
         $root = $this->rootFromJson("{$dir}/composer.json");
 
+
         $root->setScripts(Argument::type('array'))->will(
             function ($args) use ($that) {
                 $scripts = $args[0];
-                $that->assertCount(3, $scripts);
-                $that->assertArrayHasKey('example-script2', $scripts);
-                $that->assertArrayHasKey('example-script3', $scripts);
-                $that->assertEquals("echo 'goodbye world'", $scripts['example-script2']);
-                $that->assertCount(3, $scripts['example-script3']);
+                var_dump($scripts);
+                $that->assertCount(4, $scripts);
+                $that->assertArrayHasKey('script2', $scripts);
+                $that->assertArrayHasKey('script3', $scripts);
+                $that->assertEquals(["echo 'script2-root'", "echo 'script2-1'"], $scripts['script2']);
+                $that->assertCount(3, $scripts['script3']);
                 $that->assertEquals(
-                    ["echo 'hola world'", "echo 'hola again world'", "echo 'adios world'"],
-                    $scripts['example-script3']
+                    ["echo 'script3-root'", "echo 'script3-1'", "echo 'script3-2'"],
+                    $scripts['script3']
                 );
+                $that->assertCount(2, $scripts['script4']);
+                $that->assertEquals(["echo 'script4'", "echo 'script4'"], $scripts['script4']);
             }
         )->shouldBeCalled();
 

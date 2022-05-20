@@ -1,13 +1,14 @@
 {
   "scripts": {
-    "example-script": [
-      "echo 'hello world'",
-      "echo 'hello again world'"
+
+    "script1": "echo 'script1-1'",
+    "script2": "echo 'script2-1'",
+    "script3": [
+      "echo 'script3-1'",
+      "echo 'script3-2'"
     ],
-    "example-script2": "echo 'hello world'",
-    "example-script3": [
-      "echo 'hola world'",
-      "echo 'hola again world'"
+    "script4": [
+      "echo 'script4'"
     ]
   }
 }

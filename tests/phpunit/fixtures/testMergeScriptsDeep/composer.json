@@ -3,13 +3,16 @@
     "merge-plugin": {
       "merge-scripts": true,
       "merge-scripts-deep": true,
-      "include": "composer.local.json"
+      "include": [
+        "composer.local.json"
+      ]
     }
   },
   "scripts": {
-    "example-script2": "echo 'goodbye world'",
-    "example-script3": [
-      "echo 'adios world'"
-    ]
+    "script2": "echo 'script2-root'",
+    "script3": [
+      "echo 'script3-root'"
+    ],
+    "script4": "echo 'script4'"
   }
 }
