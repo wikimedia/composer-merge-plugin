@@ -106,6 +106,12 @@ class PluginState
     protected $mergeScripts = false;
 
     /**
+     * @var bool $mergeScriptsDeep
+     */
+    protected $mergeScriptsDeep = false;
+
+
+    /**
      * @var bool $firstInstall
      */
     protected $firstInstall = false;
@@ -161,6 +167,7 @@ class PluginState
                 'merge-extra' => false,
                 'merge-extra-deep' => false,
                 'merge-scripts' => false,
+                'merge-scripts-deep' => false,
             ],
             $extra['merge-plugin'] ?? []
         );
@@ -176,6 +183,7 @@ class PluginState
         $this->mergeExtra = (bool)$config['merge-extra'];
         $this->mergeExtraDeep = (bool)$config['merge-extra-deep'];
         $this->mergeScripts = (bool)$config['merge-scripts'];
+        $this->mergeScriptsDeep  = (bool)$config['merge-scripts-deep'];
     }
 
     /**
@@ -396,6 +404,18 @@ class PluginState
     public function shouldMergeScripts()
     {
         return $this->mergeScripts;
+    }
+
+    /**
+     * Should the scripts section be deep merged?
+     *
+     * By default, the scripts section is not merged.
+     *
+     * @return bool
+     */
+    public function shouldMergeScriptsDeep()
+    {
+        return $this->mergeScriptsDeep;
     }
 }
 // vim:sw=4:ts=4:sts=4:et:

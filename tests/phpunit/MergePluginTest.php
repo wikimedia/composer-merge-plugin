@@ -1149,6 +1149,37 @@ class MergePluginTest extends TestCase
         $this->triggerPlugin($root->reveal(), $dir);
     }
 
+    public function testMergeScriptsDeep()
+    {
+        $that = $this;
+        $dir = $this->fixtureDir(__FUNCTION__);
+
+        $root = $this->rootFromJson("{$dir}/composer.json");
+
+        $root->setScripts(Argument::type('array'))->will(
+            function ($args) use ($that) {
+                $scripts = $args[0];
+                $that->assertCount(3, $scripts);
+                $that->assertArrayHasKey('example-script2', $scripts);
+                $that->assertArrayHasKey('example-script3', $scripts);
+                $that->assertEquals("echo 'goodbye world'", $scripts['example-script2']);
+                $that->assertCount(3, $scripts['example-script3']);
+                $that->assertEquals(
+                    ["echo 'hola world'", "echo 'hola again world'", "echo 'adios world'"],
+                    $scripts['example-script3']
+                );
+            }
+        )->shouldBeCalled();
+
+        $root->getRepositories()->shouldNotBeCalled();
+        $root->getConflicts()->shouldNotBeCalled();
+        $root->getReplaces()->shouldNotBeCalled();
+        $root->getProvides()->shouldNotBeCalled();
+        $root->getSuggests()->shouldNotBeCalled();
+
+        $this->triggerPlugin($root->reveal(), $dir);
+    }
+
     /**
      * @dataProvider provideOnPostPackageInstall
      * @param string $package Package installed
