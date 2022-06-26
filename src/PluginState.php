@@ -99,6 +99,13 @@ class PluginState
     protected $mergeExtraDeep = false;
 
     /**
+     * Whether to merge the replace section.
+     *
+     * @var bool $mergeReplace
+     */
+    protected $mergeReplace = true;
+
+    /**
      * Whether to merge the scripts section.
      *
      * @var bool $mergeScripts
@@ -160,6 +167,7 @@ class PluginState
                 'merge-dev' => true,
                 'merge-extra' => false,
                 'merge-extra-deep' => false,
+                'merge-replace' => true,
                 'merge-scripts' => false,
             ],
             $extra['merge-plugin'] ?? []
@@ -175,6 +183,7 @@ class PluginState
         $this->mergeDev = (bool)$config['merge-dev'];
         $this->mergeExtra = (bool)$config['merge-extra'];
         $this->mergeExtraDeep = (bool)$config['merge-extra-deep'];
+        $this->mergeReplace = (bool)$config['merge-replace'];
         $this->mergeScripts = (bool)$config['merge-scripts'];
     }
 
@@ -384,6 +393,18 @@ class PluginState
     public function shouldMergeExtraDeep()
     {
         return $this->mergeExtraDeep;
+    }
+
+    /**
+     * Should the replace section be merged?
+     *
+     * By default, the replace section is merged.
+     *
+     * @return bool
+     */
+    public function shouldMergeReplace()
+    {
+        return $this->mergeReplace;
     }
 
     /**
