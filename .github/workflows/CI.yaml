@@ -41,6 +41,9 @@ jobs:
     - name: Use Composer v1
       run: composer require --dev --no-update composer/composer:^1.1
 
+    - name: Print Composer version
+      run: composer --version
+
     - name: composer install
       run: composer update --no-interaction --no-progress --ansi
 
@@ -48,6 +51,9 @@ jobs:
 
     - name: Use Composer v2
       run: composer require --dev --no-update composer/composer:^2.0
+
+    - name: Print Composer version
+      run: composer --version
 
     - name: composer install
       run: composer update --no-interaction --no-progress --ansi
