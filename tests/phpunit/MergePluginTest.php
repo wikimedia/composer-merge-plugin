@@ -57,8 +57,8 @@ class MergePluginTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->composer = $this->prophesize('Composer\Composer');
-        $this->io = $this->prophesize('Composer\IO\IOInterface');
+        $this->composer = $this->prophesize(\Composer\Composer::class);
+        $this->io = $this->prophesize(\Composer\IO\IOInterface::class);
 
         $this->fixture = new MergePlugin();
         $this->fixture->activate(
@@ -370,7 +370,7 @@ class MergePluginTest extends TestCase
         $dir = $this->fixtureDir(__FUNCTION__);
 
         $repoManager = $this->prophesize(
-            'Composer\Repository\RepositoryManager'
+            \Composer\Repository\RepositoryManager::class
         );
         $repoManager->createRepository(
             Argument::type('string'),
@@ -465,8 +465,6 @@ class MergePluginTest extends TestCase
         $root->getSuggests()->shouldNotBeCalled();
 
         $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
-
-
 
         $this->assertArrayHasKey('foo', $packages);
         $this->assertArrayHasKey('monolog/monolog', $packages);
@@ -571,7 +569,7 @@ class MergePluginTest extends TestCase
         $dir = $this->fixtureDir(__FUNCTION__);
 
         $repoManager = $this->prophesize(
-            'Composer\Repository\RepositoryManager'
+            \Composer\Repository\RepositoryManager::class
         );
         $repoManager->createRepository(
             Argument::type('string'),
@@ -663,7 +661,7 @@ class MergePluginTest extends TestCase
         $dir = $this->fixtureDir(__FUNCTION__);
 
         $repoManager = $this->prophesize(
-            'Composer\Repository\RepositoryManager'
+            \Composer\Repository\RepositoryManager::class
         );
         $repoManager->createRepository(
             Argument::type('string'),
@@ -702,7 +700,7 @@ class MergePluginTest extends TestCase
         $repoManager->prependRepository(Argument::any())->will(
             function ($args) use ($that) {
                 $that->assertInstanceOf(
-                    'Composer\Repository\VcsRepository',
+                    \Composer\Repository\VcsRepository::class,
                     $args[0]
                 );
             }
@@ -1193,11 +1191,11 @@ class MergePluginTest extends TestCase
         $operation = new InstallOperation(
             new Package($package, '1.2.3.4', '1.2.3')
         );
-        $event = $this->prophesize('Composer\Installer\PackageEvent');
+        $event = $this->prophesize(\Composer\Installer\PackageEvent::class);
         $event->getOperation()->willReturn($operation)->shouldBeCalled();
 
         if ($first) {
-            $locker = $this->prophesize('Composer\Package\Locker');
+            $locker = $this->prophesize(\Composer\Package\Locker::class);
             $locker->isLocked()->willReturn($locked)
                 ->shouldBeCalled();
             $this->composer->getLocker()->willReturn($locker->reveal())
@@ -1244,12 +1242,12 @@ class MergePluginTest extends TestCase
         // RootAliasPackage was updated in 06c44ce to include more setters
         // that we take advantage of if available
         $haveComposerWithCompleteRootAlias = method_exists(
-            'Composer\Package\RootPackageInterface',
+            \Composer\Package\RootPackageInterface::class,
             'setRepositories'
         );
 
         $repoManager = $this->prophesize(
-            'Composer\Repository\RepositoryManager'
+            \Composer\Repository\RepositoryManager::class
         );
         $repoManager->createRepository(
             Argument::type('string'),
@@ -1569,7 +1567,7 @@ class MergePluginTest extends TestCase
             }
         )->shouldBeCalled();
 
-        $checkRefsWithDev = function ($args) use ($that) {
+        $checkRefsWithDev = static function ($args) use ($that) {
             $references = $args[0];
             $that->assertCount(3, $references);
 
@@ -1583,7 +1581,7 @@ class MergePluginTest extends TestCase
         };
 
         if ($fireInit) {
-            $checkRefs = function ($args) use ($that, $root, $checkRefsWithDev) {
+            $checkRefs = static function ($args) use ($that, $root, $checkRefsWithDev) {
                 $references = $args[0];
                 $that->assertCount(2, $references);
 
@@ -1764,7 +1762,7 @@ class MergePluginTest extends TestCase
      */
     protected function makeAliasFor($root)
     {
-        $alias = $this->prophesize('Composer\Package\RootAliasPackage');
+        $alias = $this->prophesize(\Composer\Package\RootAliasPackage::class);
         $alias->getAliasOf()->willReturn($root);
         $alias->getVersion()->will(function () use ($root) {
             return $root->getVersion();

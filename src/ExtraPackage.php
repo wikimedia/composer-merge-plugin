@@ -654,7 +654,7 @@ class ExtraPackage
     protected function mergeAliases(RootPackageInterface $root)
     {
         $aliases = array();
-        $unwrapped = $this->unwrapIfNeeded($root, 'setAliases');
+        $unwrapped = self::unwrapIfNeeded($root, 'setAliases');
         foreach (array('require', 'require-dev') as $linkType) {
             $linkInfo = BasePackage::$supportedLinkTypes[$linkType];
             $method = 'get'.ucfirst($linkInfo['method']);

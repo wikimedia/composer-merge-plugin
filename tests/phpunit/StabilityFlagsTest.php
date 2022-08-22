@@ -85,7 +85,7 @@ class StabilityFlagsTest extends TestCase
 
     protected function makeLink($version)
     {
-        $link = $this->prophesize('Composer\Package\Link');
+        $link = $this->prophesize(\Composer\Package\Link::class);
         $link->getPrettyConstraint()->willReturn($version)->shouldBeCalled();
         return $link;
     }
