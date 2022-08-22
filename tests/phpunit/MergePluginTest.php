@@ -1289,6 +1289,7 @@ class MergePluginTest extends TestCase
         // Always handled by alias
         $root->setDevRequires(Argument::type('array'))->shouldNotBeCalled();
         $root->setRequires(Argument::type('array'))->shouldNotBeCalled();
+        $root->setReferences(Argument::type('array'))->shouldBeCalled();
 
         $alias = $this->makeAliasFor($root->reveal());
         $alias->getExtra()->shouldBeCalled();
