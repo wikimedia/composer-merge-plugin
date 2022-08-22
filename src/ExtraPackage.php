@@ -222,7 +222,7 @@ class ExtraPackage
             if (!isset($repoJson['type'])) {
                 continue;
             }
-            if ($repoJson['type'] == 'path' && isset($repoJson['url'])) {
+            if ($repoJson['type'] === 'path' && isset($repoJson['url'])) {
                 $repoJson['url'] = $this->fixRelativePaths(array($repoJson['url']))[0];
             }
             $this->logger->info("Prepending {$repoJson['type']} repository");

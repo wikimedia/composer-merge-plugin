@@ -352,8 +352,8 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
             }
 
             $config = $this->composer->getConfig();
-            $preferSource = $config->get('preferred-install') == 'source';
-            $preferDist = $config->get('preferred-install') == 'dist';
+            $preferSource = $config->get('preferred-install') === 'source';
+            $preferDist = $config->get('preferred-install') === 'dist';
 
             $installer = Installer::create(
                 $event->getIO(),
