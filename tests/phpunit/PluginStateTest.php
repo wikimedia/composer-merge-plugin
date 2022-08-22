@@ -21,7 +21,7 @@ class PluginStateTest extends TestCase
 
     public function testLocked()
     {
-        $composer = $this->prophesize(\Composer\Composer::class)->reveal();
+        $composer = $this->prophesize(Composer::class)->reveal();
         $fixture = new PluginState($composer);
 
         $this->assertFalse($fixture->isLocked());
@@ -34,7 +34,7 @@ class PluginStateTest extends TestCase
 
     public function testDumpAutoloader()
     {
-        $composer = $this->prophesize(\Composer\Composer::class)->reveal();
+        $composer = $this->prophesize(Composer::class)->reveal();
         $fixture = new PluginState($composer);
 
         $this->assertFalse($fixture->shouldDumpAutoloader());
@@ -45,7 +45,7 @@ class PluginStateTest extends TestCase
 
     public function testOptimizeAutoloader()
     {
-        $composer = $this->prophesize(\Composer\Composer::class)->reveal();
+        $composer = $this->prophesize(Composer::class)->reveal();
         $fixture = new PluginState($composer);
 
         $this->assertFalse($fixture->shouldOptimizeAutoloader());

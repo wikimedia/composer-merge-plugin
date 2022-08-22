@@ -11,6 +11,7 @@
 namespace Wikimedia\Composer\Merge\V2;
 
 use Composer\Package\BasePackage;
+use Composer\Package\Link;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -85,7 +86,7 @@ class StabilityFlagsTest extends TestCase
 
     protected function makeLink($version)
     {
-        $link = $this->prophesize(\Composer\Package\Link::class);
+        $link = $this->prophesize(Link::class);
         $link->getPrettyConstraint()->willReturn($version)->shouldBeCalled();
         return $link;
     }
