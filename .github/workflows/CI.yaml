@@ -10,12 +10,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Includes php7.1-8.0, composer 2, php-xdebug, and more
-          # https://github.com/actions/virtual-environments/blob/ubuntu18/20210318.0/images/linux/Ubuntu1804-README.md#php
-          - os: ubuntu-18.04
-            php: "7.2"
-          - os: ubuntu-18.04
-            php: "7.3"
           # Includes php7.4-8.x, composer 2, php-xdebug, and more
           # https://github.com/actions/virtual-environments/blob/ubuntu20/20210318.0/images/linux/Ubuntu2004-README.md#php
           - os: ubuntu-20.04
@@ -64,7 +58,7 @@ jobs:
     - run: composer phan
 
   ocular-push:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     if: ${{ success() }} && github.repository == 'wikimedia/composer-merge-plugin'
     needs: [run]
 
@@ -72,8 +66,8 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
-    - name: Use PHP 7.2
-      run: sudo update-alternatives --set php /usr/bin/php7.2
+    - name: Use PHP 7.4
+      run: sudo update-alternatives --set php /usr/bin/php7.4
 
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress

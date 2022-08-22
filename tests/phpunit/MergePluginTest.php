@@ -25,6 +25,7 @@ use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
 use Prophecy\Argument;
 use PHPUnit\Framework\TestCase;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 use ReflectionProperty;
 
@@ -38,6 +39,7 @@ use ReflectionProperty;
  */
 class MergePluginTest extends TestCase
 {
+    use ProphecyTrait;
 
     /**
      * @var Composer

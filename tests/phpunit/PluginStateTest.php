@@ -12,12 +12,14 @@ namespace Wikimedia\Composer\Merge\V2;
 
 use Composer\Composer;
 use PHPUnit\Framework\TestCase;
+use Prophecy\PhpUnit\ProphecyTrait;
 
 /**
  * @covers \Wikimedia\Composer\Merge\V2\PluginState
  */
 class PluginStateTest extends TestCase
 {
+    use ProphecyTrait;
 
     public function testLocked()
     {

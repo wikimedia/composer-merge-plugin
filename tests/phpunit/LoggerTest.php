@@ -12,12 +12,14 @@ namespace Wikimedia\Composer\Merge\V2;
 
 use Prophecy\Argument;
 use PHPUnit\Framework\TestCase;
+use Prophecy\PhpUnit\ProphecyTrait;
 
 /**
  * @covers \Wikimedia\Composer\Merge\V2\Logger
  */
 class LoggerTest extends TestCase
 {
+    use ProphecyTrait;
 
     public function testVeryVerboseDebug()
     {
