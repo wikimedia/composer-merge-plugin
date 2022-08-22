@@ -653,12 +653,12 @@ class ExtraPackage
 
     protected function mergeAliases(RootPackageInterface $root)
     {
-        $aliases = array();
+        $aliases = [];
         $unwrapped = self::unwrapIfNeeded($root, 'setAliases');
         foreach (array('require', 'require-dev') as $linkType) {
             $linkInfo = BasePackage::$supportedLinkTypes[$linkType];
             $method = 'get'.ucfirst($linkInfo['method']);
-            $links = array();
+            $links = [];
             foreach ($unwrapped->$method() as $link) {
                 $links[$link->getTarget()] = $link->getConstraint()->getPrettyString();
             }
@@ -679,12 +679,12 @@ class ExtraPackage
     {
         foreach ($requires as $reqName => $reqVersion) {
             if (preg_match('{^([^,\s#]+)(?:#[^ ]+)? +as +([^,\s]+)$}', $reqVersion, $match)) {
-                $aliases[] = array(
+                $aliases[] = [
                     'package' => strtolower($reqName),
                     'version' => $this->versionParser->normalize($match[1], $reqVersion),
                     'alias' => $match[2],
                     'alias_normalized' => $this->versionParser->normalize($match[2], $reqVersion),
-                );
+                ];
             } elseif (strpos($reqVersion, ' as ') !== false) {
                 throw new UnexpectedValueException(
                     'Invalid alias definition in "'.$reqName.'": "'.$reqVersion.'". '
