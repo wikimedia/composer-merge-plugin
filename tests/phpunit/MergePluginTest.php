@@ -393,7 +393,7 @@ class MergePluginTest extends TestCase
         $repoManager->prependRepository(Argument::any())->will(
             function ($args) use ($that) {
                 $that->assertInstanceOf(
-                    'Composer\Repository\PathRepository',
+                    \Composer\Repository\PathRepository::class,
                     $args[0]
                 );
             }
@@ -607,7 +607,7 @@ class MergePluginTest extends TestCase
         $repoManager->prependRepository(Argument::any())->will(
             function ($args) use ($that) {
                 $that->assertInstanceOf(
-                    'Composer\Repository\VcsRepository',
+                    \Composer\Repository\VcsRepository::class,
                     $args[0]
                 );
             }
@@ -721,7 +721,7 @@ class MergePluginTest extends TestCase
                 $repos = $args[0];
                 $that->assertCount(2, $repos);
                 $prependedRepo = $repos[0];
-                $that->assertInstanceOf('Composer\Repository\VcsRepository', $prependedRepo);
+                $that->assertInstanceOf(\Composer\Repository\VcsRepository::class, $prependedRepo);
                 // Ugly, be we need to check a protected member variable and
                 // PHPUnit decided that having the assertAttributeEquals
                 // assertion to make that easy was a code smell.
@@ -1724,7 +1724,7 @@ class MergePluginTest extends TestCase
             }
         }
 
-        $root = $this->prophesize('Composer\Package\RootPackage');
+        $root = $this->prophesize(\Composer\Package\RootPackage::class);
         $root->getVersion()->willReturn($vp->normalize($data['version']));
         $root->getPrettyVersion()->willReturn($data['version']);
         $root->getMinimumStability()->willReturn($data['minimum-stability']);
