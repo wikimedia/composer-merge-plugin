@@ -34,6 +34,7 @@ use Composer\Script\ScriptEvents;
 use Composer\Util\HttpDownloader;
 use Prophecy\Argument;
 use PHPUnit\Framework\TestCase;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 use ReflectionClass;
 use ReflectionProperty;
@@ -48,6 +49,7 @@ use ReflectionProperty;
  */
 class MergePluginTest extends TestCase
 {
+    use ProphecyTrait;
 
     /**
      * @var Composer
