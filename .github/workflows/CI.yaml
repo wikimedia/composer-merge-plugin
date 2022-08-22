@@ -7,6 +7,7 @@ on:
 jobs:
   run:
     strategy:
+      fail-fast: false
       matrix:
         include:
           # Includes php7.1-8.0, composer 2, php-xdebug, and more
