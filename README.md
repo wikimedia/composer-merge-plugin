@@ -66,6 +66,7 @@ Usage
             "merge-dev": true,
             "merge-extra": false,
             "merge-extra-deep": false,
+            "merge-replace": true,
             "merge-scripts": false
         }
     }
@@ -179,6 +180,11 @@ they are processed by Composer.
 
 Note that `merge-plugin` sections are excluded from the merge process, but are
 always processed by the plugin unless [recursion](#recurse) is disabled.
+
+### merge-replace
+
+By default, the `replace` section of included files are merged.
+A `"merge-replace": false` setting will disable this behavior.
 
 ### merge-scripts
 
