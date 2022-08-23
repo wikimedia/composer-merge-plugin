@@ -110,6 +110,7 @@ in the top-level composer.json file:
 * [conflict](https://getcomposer.org/doc/04-schema.md#conflict)
 * [provide](https://getcomposer.org/doc/04-schema.md#provide)
 * [replace](https://getcomposer.org/doc/04-schema.md#replace)
+  (optional, see [merge-replace](#merge-replace) below)
 * [repositories](https://getcomposer.org/doc/04-schema.md#repositories)
 * [require](https://getcomposer.org/doc/04-schema.md#require)
 * [require-dev](https://getcomposer.org/doc/04-schema.md#require-dev)
