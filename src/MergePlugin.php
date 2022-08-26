@@ -388,6 +388,9 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
                     '</error>'
                 );
                 file_put_contents($lock, $lockBackup);
+                // propagate error to the parent process to allow proper status code being returned
+                // this is important for any CI/CD tools to properly recognize if an error occurred in this phase
+                exit($status);
             }
         }
         // @codeCoverageIgnoreEnd
