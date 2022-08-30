@@ -7,6 +7,7 @@ on:
 jobs:
   run:
     strategy:
+      fail-fast: false
       matrix:
         include:
           # Includes php7.1-8.0, composer 2, php-xdebug, and more
@@ -21,6 +22,8 @@ jobs:
             php: "7.4"
           - os: ubuntu-20.04
             php: "8.0"
+          - os: ubuntu-20.04
+            php: "8.1"
 
     name: Test PHP ${{ matrix.php }}
     runs-on: ${{ matrix.os }}
@@ -40,6 +43,9 @@ jobs:
     - name: Use Composer v1
       run: composer require --dev --no-update composer/composer:^1.1
 
+    - name: Print Composer version
+      run: composer --version
+
     - name: composer install
       run: composer update --no-interaction --no-progress --ansi
 
@@ -47,6 +53,9 @@ jobs:
 
     - name: Use Composer v2
       run: composer require --dev --no-update composer/composer:^2.0
+
+    - name: Print Composer version
+      run: composer --version
 
     - name: composer install
       run: composer update --no-interaction --no-progress --ansi

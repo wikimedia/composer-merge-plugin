@@ -1,15 +1,13 @@
-<phpunit colors="true"
-    beStrictAboutTestsThatDoNotTestAnything="true"
-    beStrictAboutOutputDuringTests="true"
-    beStrictAboutChangesToGlobalState="true">
-    <testsuites>
-        <testsuite name="Tests">
-            <directory>./tests/phpunit</directory>
-        </testsuite>
-    </testsuites>
-    <filter>
-        <whitelist addUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">./src</directory>
-        </whitelist>
-    </filter>
+<?xml version="1.0"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" colors="true" beStrictAboutTestsThatDoNotTestAnything="true" beStrictAboutOutputDuringTests="true" beStrictAboutChangesToGlobalState="true" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
+  <coverage includeUncoveredFiles="true">
+    <include>
+      <directory suffix=".php">./src</directory>
+    </include>
+  </coverage>
+  <testsuites>
+    <testsuite name="Tests">
+      <directory>./tests/phpunit</directory>
+    </testsuite>
+  </testsuites>
 </phpunit>
