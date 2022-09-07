@@ -66,6 +66,7 @@ Usage
             "merge-dev": true,
             "merge-extra": false,
             "merge-extra-deep": false,
+            "merge-replace": true,
             "merge-scripts": false
         }
     }
@@ -109,6 +110,7 @@ in the top-level composer.json file:
 * [conflict](https://getcomposer.org/doc/04-schema.md#conflict)
 * [provide](https://getcomposer.org/doc/04-schema.md#provide)
 * [replace](https://getcomposer.org/doc/04-schema.md#replace)
+  (optional, see [merge-replace](#merge-replace) below)
 * [repositories](https://getcomposer.org/doc/04-schema.md#repositories)
 * [require](https://getcomposer.org/doc/04-schema.md#require)
 * [require-dev](https://getcomposer.org/doc/04-schema.md#require-dev)
@@ -179,6 +181,11 @@ they are processed by Composer.
 
 Note that `merge-plugin` sections are excluded from the merge process, but are
 always processed by the plugin unless [recursion](#recurse) is disabled.
+
+### merge-replace
+
+By default, the `replace` section of included files are merged.
+A `"merge-replace": false` setting will disable this behavior.
 
 ### merge-scripts
 

@@ -171,7 +171,11 @@ class ExtraPackage
         $this->mergeRequires('require', $root, $state);
 
         $this->mergePackageLinks('conflict', $root);
-        $this->mergePackageLinks('replace', $root);
+
+        if ($state->shouldMergeReplace()) {
+            $this->mergePackageLinks('replace', $root);
+        }
+
         $this->mergePackageLinks('provide', $root);
 
         $this->mergeSuggests($root);
