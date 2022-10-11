@@ -12,12 +12,15 @@ namespace Wikimedia\Composer\Merge\V2;
 
 use Composer\Composer;
 use PHPUnit\Framework\TestCase;
+use Prophecy\PhpUnit\ProphecyTrait;
 
 /**
  * @coversDefaultClass \Wikimedia\Composer\Merge\V2\NestedArray
  */
 class NestedArrayTest extends TestCase
 {
+    use ProphecyTrait;
+
     /**
      * @covers ::mergeDeep
      * @covers ::mergeDeepArray
