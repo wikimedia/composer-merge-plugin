@@ -370,7 +370,14 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
                 $this->state->shouldOptimizeAutoloader()
             );
 
-            $installer->setUpdate(true);
+            if ($this->state->forceUpdate()) {
+                // Force update mode so that new packages are processed rather
+                // than just telling the user that composer.json and
+                // composer.lock don't match.
+                $installer->setUpdate(true);
+            } else {
+                $this->logger->log('You may need to manually run composer update to apply merge settings');
+            }
 
             if ($this->state->isComposer1()) {
                 // setUpdateWhitelist() only exists in composer 1.x. Configure as to run phan against composer 2.x
