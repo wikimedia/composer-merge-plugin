@@ -10,6 +10,7 @@
 
 namespace Wikimedia\Composer\Merge\V2;
 
+use Composer\IO\IOInterface;
 use Prophecy\Argument;
 use PHPUnit\Framework\TestCase;
 
@@ -22,7 +23,7 @@ class LoggerTest extends TestCase
     public function testVeryVerboseDebug()
     {
         $output = [];
-        $io = $this->prophesize('Composer\IO\IOInterface');
+        $io = $this->prophesize(IOInterface::class);
         $io->isVeryVerbose()->willReturn(true)->shouldBeCalled();
         $io->writeError(Argument::type('string'))->will(
             function ($args) use (&$output) {
@@ -39,7 +40,7 @@ class LoggerTest extends TestCase
 
     public function testNotVeryVerboseDebug()
     {
-        $io = $this->prophesize('Composer\IO\IOInterface');
+        $io = $this->prophesize(IOInterface::class);
         $io->isVeryVerbose()->willReturn(false)->shouldBeCalled();
         $io->writeError(Argument::type('string'))->shouldNotBeCalled();
         $io->write(Argument::type('string'))->shouldNotBeCalled();
@@ -51,7 +52,7 @@ class LoggerTest extends TestCase
     public function testVerboseInfo()
     {
         $output = [];
-        $io = $this->prophesize('Composer\IO\IOInterface');
+        $io = $this->prophesize(IOInterface::class);
         $io->isVerbose()->willReturn(true)->shouldBeCalled();
         $io->writeError(Argument::type('string'))->will(
             function ($args) use (&$output) {
@@ -68,7 +69,7 @@ class LoggerTest extends TestCase
 
     public function testNotVerboseInfo()
     {
-        $io = $this->prophesize('Composer\IO\IOInterface');
+        $io = $this->prophesize(IOInterface::class);
         $io->isVerbose()->willReturn(false)->shouldBeCalled();
         $io->writeError(Argument::type('string'))->shouldNotBeCalled();
         $io->write(Argument::type('string'))->shouldNotBeCalled();
@@ -80,7 +81,7 @@ class LoggerTest extends TestCase
     public function testWarning()
     {
         $output = [];
-        $io = $this->prophesize('Composer\IO\IOInterface');
+        $io = $this->prophesize(IOInterface::class);
         $io->writeError(Argument::type('string'))->will(
             function ($args) use (&$output) {
                 $output[] = $args[0];

@@ -11,22 +11,31 @@
 namespace Wikimedia\Composer\Merge\V2;
 
 use Composer\Composer;
+use Composer\Config;
 use Composer\DependencyResolver\Operation\InstallOperation;
+use Composer\Installer\PackageEvent;
 use Composer\Installer\PackageEvents;
 use Composer\IO\IOInterface;
 use Composer\Package\BasePackage;
 use Composer\Package\Link;
 use Composer\Package\Locker;
 use Composer\Package\Package;
+use Composer\Package\RootAliasPackage;
 use Composer\Package\RootPackage;
+use Composer\Package\RootPackageInterface;
 use Composer\Package\Version\VersionParser;
 use Composer\Plugin\PluginEvents;
 use Composer\Plugin\PluginInterface;
+use Composer\Repository\PathRepository;
+use Composer\Repository\RepositoryManager;
+use Composer\Repository\VcsRepository;
 use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
+use Composer\Util\HttpDownloader;
 use Prophecy\Argument;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Prophecy\ObjectProphecy;
+use ReflectionClass;
 use ReflectionProperty;
 
 /**
@@ -58,8 +67,8 @@ class MergePluginTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->composer = $this->prophesize('Composer\Composer');
-        $this->io = $this->prophesize('Composer\IO\IOInterface');
+        $this->composer = $this->prophesize(Composer::class);
+        $this->io = $this->prophesize(IOInterface::class);
 
         $this->fixture = new MergePlugin();
         $this->fixture->activate(
@@ -371,7 +380,7 @@ class MergePluginTest extends TestCase
         $dir = $this->fixtureDir(__FUNCTION__);
 
         $repoManager = $this->prophesize(
-            'Composer\Repository\RepositoryManager'
+            RepositoryManager::class
         );
         $repoManager->createRepository(
             Argument::type('string'),
@@ -384,17 +393,17 @@ class MergePluginTest extends TestCase
                     $args[1]['url']
                 );
 
-                return new \Composer\Repository\PathRepository(
+                return new PathRepository(
                     $args[1],
                     $io->reveal(),
-                    new \Composer\Config()
+                    new Config()
                 );
             }
         );
         $repoManager->prependRepository(Argument::any())->will(
             function ($args) use ($that) {
                 $that->assertInstanceOf(
-                    'Composer\Repository\PathRepository',
+                    PathRepository::class,
                     $args[0]
                 );
             }
@@ -466,8 +475,6 @@ class MergePluginTest extends TestCase
         $root->getSuggests()->shouldNotBeCalled();
 
         $extraInstalls = $this->triggerPlugin($root->reveal(), $dir);
-
-
 
         $this->assertArrayHasKey('foo', $packages);
         $this->assertArrayHasKey('monolog/monolog', $packages);
@@ -572,7 +579,7 @@ class MergePluginTest extends TestCase
         $dir = $this->fixtureDir(__FUNCTION__);
 
         $repoManager = $this->prophesize(
-            'Composer\Repository\RepositoryManager'
+            RepositoryManager::class
         );
         $repoManager->createRepository(
             Argument::type('string'),
@@ -585,20 +592,20 @@ class MergePluginTest extends TestCase
                     $args[1]['url']
                 );
 
-                $config = new \Composer\Config();
+                $config = new Config();
                 $mockIO = $io->reveal();
                 if (version_compare('2.0.0', PluginInterface::PLUGIN_API_VERSION, '>')) {
-                    return new \Composer\Repository\VcsRepository(
+                    return new VcsRepository(
                         $args[1],
                         $mockIO,
                         $config
                     );
                 } else {
-                    $httpDownloader = new \Composer\Util\HttpDownloader(
+                    $httpDownloader = new HttpDownloader(
                         $mockIO,
                         $config
                     );
-                    return new \Composer\Repository\VcsRepository(
+                    return new VcsRepository(
                         $args[1],
                         $mockIO,
                         $config,
@@ -610,7 +617,7 @@ class MergePluginTest extends TestCase
         $repoManager->prependRepository(Argument::any())->will(
             function ($args) use ($that) {
                 $that->assertInstanceOf(
-                    'Composer\Repository\VcsRepository',
+                    VcsRepository::class,
                     $args[0]
                 );
             }
@@ -664,7 +671,7 @@ class MergePluginTest extends TestCase
         $dir = $this->fixtureDir(__FUNCTION__);
 
         $repoManager = $this->prophesize(
-            'Composer\Repository\RepositoryManager'
+            RepositoryManager::class
         );
         $repoManager->createRepository(
             Argument::type('string'),
@@ -677,21 +684,21 @@ class MergePluginTest extends TestCase
                     $args[1]['url']
                 );
 
-                $config = new \Composer\Config();
+                $config = new Config();
                 $mockIO = $io->reveal();
                 if (version_compare('2.0.0', PluginInterface::PLUGIN_API_VERSION, '>')) {
-                    return new \Composer\Repository\VcsRepository(
+                    return new VcsRepository(
                         $args[1],
                         $mockIO,
                         $config
                     );
                 } else {
-                    $httpDownloader = new \Composer\Util\HttpDownloader(
+                    $httpDownloader = new HttpDownloader(
                         $mockIO,
                         $config
                     );
 
-                    return new \Composer\Repository\VcsRepository(
+                    return new VcsRepository(
                         $args[1],
                         $mockIO,
                         $config,
@@ -703,7 +710,7 @@ class MergePluginTest extends TestCase
         $repoManager->prependRepository(Argument::any())->will(
             function ($args) use ($that) {
                 $that->assertInstanceOf(
-                    'Composer\Repository\VcsRepository',
+                    VcsRepository::class,
                     $args[0]
                 );
             }
@@ -724,11 +731,11 @@ class MergePluginTest extends TestCase
                 $repos = $args[0];
                 $that->assertCount(2, $repos);
                 $prependedRepo = $repos[0];
-                $that->assertInstanceOf('Composer\Repository\VcsRepository', $prependedRepo);
+                $that->assertInstanceOf(VcsRepository::class, $prependedRepo);
                 // Ugly, be we need to check a protected member variable and
                 // PHPUnit decided that having the assertAttributeEquals
                 // assertion to make that easy was a code smell.
-                $clazz = new \ReflectionClass($prependedRepo);
+                $clazz = new ReflectionClass($prependedRepo);
                 $url = $clazz->getProperty('url');
                 $url->setAccessible(true);
                 $that->assertEquals(
@@ -803,6 +810,40 @@ class MergePluginTest extends TestCase
 
         $this->triggerPlugin($root->reveal(), $dir, $fireInit);
     }
+
+    public function testAliases()
+    {
+        $that = $this;
+        $dir = $this->fixtureDir(__FUNCTION__);
+        $root = $this->rootFromJson("{$dir}/composer.json");
+
+        $root->setRequires(Argument::type('array'))->will(
+            function ($args, $root) {
+                $root->getRequires()->willReturn($args[0]);
+            }
+        )->shouldBeCalled();
+
+        $root->setAliases(Argument::type('array'))->will(
+            function ($args) use ($that) {
+                $that->assertSame(
+                    array(
+                        array(
+                            'package' => 'test/foo',
+                            'version' => '1.1.0.0',
+                            'alias' => '1.0.0',
+                            'alias_normalized' => '1.0.0.0',
+                        ),
+                    ),
+                    $args[0]
+                );
+            }
+        );
+
+        $root->setDevRequires(Argument::any())->shouldNotBeCalled();
+
+        $this->triggerPlugin($root->reveal(), $dir);
+    }
+
 
     public function testMergedAutoload()
     {
@@ -1160,11 +1201,11 @@ class MergePluginTest extends TestCase
         $operation = new InstallOperation(
             new Package($package, '1.2.3.4', '1.2.3')
         );
-        $event = $this->prophesize('Composer\Installer\PackageEvent');
+        $event = $this->prophesize(PackageEvent::class);
         $event->getOperation()->willReturn($operation)->shouldBeCalled();
 
         if ($first) {
-            $locker = $this->prophesize('Composer\Package\Locker');
+            $locker = $this->prophesize(Locker::class);
             $locker->isLocked()->willReturn($locked)
                 ->shouldBeCalled();
             $this->composer->getLocker()->willReturn($locker->reveal())
@@ -1211,32 +1252,32 @@ class MergePluginTest extends TestCase
         // RootAliasPackage was updated in 06c44ce to include more setters
         // that we take advantage of if available
         $haveComposerWithCompleteRootAlias = method_exists(
-            'Composer\Package\RootPackageInterface',
+            RootPackageInterface::class,
             'setRepositories'
         );
 
         $repoManager = $this->prophesize(
-            'Composer\Repository\RepositoryManager'
+            RepositoryManager::class
         );
         $repoManager->createRepository(
             Argument::type('string'),
             Argument::type('array')
         )->will(function ($args) use ($io) {
-            $config = new \Composer\Config();
+            $config = new Config();
             $mockIO = $io->reveal();
             if (version_compare('2.0.0', PluginInterface::PLUGIN_API_VERSION, '>')) {
-                return new \Composer\Repository\VcsRepository(
+                return new VcsRepository(
                     $args[1],
                     $mockIO,
                     $config
                 );
             } else {
-                $httpDownloader = new \Composer\Util\HttpDownloader(
+                $httpDownloader = new HttpDownloader(
                     $mockIO,
                     $config
                 );
 
-                return new \Composer\Repository\VcsRepository(
+                return new VcsRepository(
                     $args[1],
                     $mockIO,
                     $config,
@@ -1492,6 +1533,7 @@ class MergePluginTest extends TestCase
         $root->getRequires()->shouldNotBeCalled();
         $root->getDevRequires()->shouldNotBeCalled();
         $root->setReferences(Argument::type('array'))->shouldNotBeCalled();
+        $root->setAliases(Argument::type('array'))->shouldNotBeCalled();
         $this->triggerPlugin($root->reveal(), $dir);
     }
 
@@ -1535,7 +1577,7 @@ class MergePluginTest extends TestCase
             }
         )->shouldBeCalled();
 
-        $checkRefsWithDev = function ($args) use ($that) {
+        $checkRefsWithDev = static function ($args) use ($that) {
             $references = $args[0];
             $that->assertCount(3, $references);
 
@@ -1549,7 +1591,7 @@ class MergePluginTest extends TestCase
         };
 
         if ($fireInit) {
-            $checkRefs = function ($args) use ($that, $root, $checkRefsWithDev) {
+            $checkRefs = static function ($args) use ($that, $root, $checkRefsWithDev) {
                 $references = $args[0];
                 $that->assertCount(2, $references);
 
@@ -1692,7 +1734,7 @@ class MergePluginTest extends TestCase
             }
         }
 
-        $root = $this->prophesize('Composer\Package\RootPackage');
+        $root = $this->prophesize(RootPackage::class);
         $root->getVersion()->willReturn($vp->normalize($data['version']));
         $root->getPrettyVersion()->willReturn($data['version']);
         $root->getMinimumStability()->willReturn($data['minimum-stability']);
@@ -1717,6 +1759,7 @@ class MergePluginTest extends TestCase
             }
         );
         $root->setReferences(Argument::type('array'))->shouldBeCalled();
+        $root->setAliases(Argument::type('array'))->shouldBeCalled();
 
         return $root;
     }
@@ -1729,7 +1772,7 @@ class MergePluginTest extends TestCase
      */
     protected function makeAliasFor($root)
     {
-        $alias = $this->prophesize('Composer\Package\RootAliasPackage');
+        $alias = $this->prophesize(RootAliasPackage::class);
         $alias->getAliasOf()->willReturn($root);
         $alias->getVersion()->will(function () use ($root) {
             return $root->getVersion();
