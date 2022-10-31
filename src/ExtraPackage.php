@@ -115,6 +115,16 @@ class ExtraPackage
     }
 
     /**
+     * Get the name of this package
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->json['name'];
+    }
+
+    /**
      * Read the contents of a composer.json style file into an array.
      *
      * The package contents are fixed up to be usable to create a Package
