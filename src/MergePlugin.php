@@ -157,8 +157,6 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
                 ['onInit', self::CALLBACK_PRIORITY],
             PackageEvents::POST_PACKAGE_INSTALL =>
                 ['onPostPackageInstall', self::CALLBACK_PRIORITY],
-            ScriptEvents::POST_INSTALL_CMD =>
-                ['onPostInstallOrUpdate', self::CALLBACK_PRIORITY],
             ScriptEvents::POST_UPDATE_CMD =>
                 ['onPostInstallOrUpdate', self::CALLBACK_PRIORITY],
             ScriptEvents::PRE_AUTOLOAD_DUMP =>
