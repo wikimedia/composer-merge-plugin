@@ -83,7 +83,7 @@ class MergePluginTest extends TestCase
     {
         $subscriptions = MergePlugin::getSubscribedEvents();
 
-        $this->assertCount(7, $subscriptions);
+        $this->assertCount(6, $subscriptions);
 
         $this->assertArrayHasKey(PluginEvents::INIT, $subscriptions);
         $this->assertArrayHasKey(ScriptEvents::PRE_INSTALL_CMD, $subscriptions);
