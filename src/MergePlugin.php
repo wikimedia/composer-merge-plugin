@@ -193,8 +193,12 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
         // so assume it is false. The dev section will be merged later when
         // the other events fire.
         $this->state->setDevMode(false);
-        $this->mergeFiles($this->state->getIncludes(), false);
-        $this->mergeFiles($this->state->getRequires(), true);
+
+        $include_files = $this->findFiles($this->state->getIncludes(), false);
+        $exclude_files = $this->findFiles($this->state->getExcludes(), false);
+
+        $this->mergeFiles(array_diff($include_files, $exclude_files));
+        $this->mergeFiles($this->findFiles($this->state->getRequires(), true));
     }
 
     /**
@@ -208,8 +212,12 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
     {
         $this->state->loadSettings();
         $this->state->setDevMode($event->isDevMode());
-        $this->mergeFiles($this->state->getIncludes(), false);
-        $this->mergeFiles($this->state->getRequires(), true);
+
+        $include_files = $this->findFiles($this->state->getIncludes(), false);
+        $exclude_files = $this->findFiles($this->state->getExcludes(), false);
+
+        $this->mergeFiles(array_diff($include_files, $exclude_files));
+        $this->mergeFiles($this->findFiles($this->state->getRequires(), true));
 
         if ($event->getName() === ScriptEvents::PRE_AUTOLOAD_DUMP) {
             $this->state->setDumpAutoloader(true);
@@ -224,17 +232,26 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
      * Find configuration files matching the configured glob patterns and
      * merge their contents with the master package.
      *
-     * @param array $patterns List of files/glob patterns
-     * @param bool $required Are the patterns required to match files?
+     * @param array $files List of files
      * @throws MissingFileException when required and a pattern returns no
      *      results
      */
-    protected function mergeFiles(array $patterns, $required = false)
+    protected function mergeFiles(array $files)
     {
         $root = $this->composer->getPackage();
+        foreach ($files as $path) {
+            $this->mergeFile($root, $path);
+        }
+    }
 
-        $files = array_map(
-            static function ($files, $pattern) use ($required) {
+    /**
+     * @param array $patterns A list for files/patterns
+     * @param bool $required Are the patterns required to match files?
+     */
+    protected function findFiles(array $patterns, bool $required = false)
+    {
+        $found_files = array_map(
+            function ($files, $pattern) use ($required) {
                 if ($required && !$files) {
                     throw new MissingFileException(
                         "merge-plugin: No files matched required '{$pattern}'"
@@ -245,10 +262,7 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
             array_map('glob', $patterns),
             $patterns
         );
-
-        foreach (array_reduce($files, 'array_merge', []) as $path) {
-            $this->mergeFile($root, $path);
-        }
+        return array_reduce($found_files, 'array_merge', array());
     }
 
     /**
@@ -295,8 +309,8 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
         }
 
         if ($this->state->recurseIncludes()) {
-            $this->mergeFiles($package->getIncludes(), false);
-            $this->mergeFiles($package->getRequires(), true);
+            $this->mergeFiles($this->findFiles($package->getIncludes(), false));
+            $this->mergeFiles($this->findFiles($package->getRequires(), true));
         }
     }
 
