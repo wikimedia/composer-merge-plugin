@@ -89,14 +89,7 @@ class Logger
      */
     public function log($message)
     {
-        if (method_exists($this->inputOutput, 'writeError')) {
-            $this->inputOutput->writeError($message);
-        } else {
-            // @codeCoverageIgnoreStart
-            // Backwards compatibility for Composer before cb336a5
-            $this->inputOutput->write($message);
-            // @codeCoverageIgnoreEnd
-        }
+        $this->inputOutput->writeError($message);
     }
 }
 // vim:sw=4:ts=4:sts=4:et:

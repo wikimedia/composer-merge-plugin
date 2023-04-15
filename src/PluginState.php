@@ -26,11 +26,6 @@ class PluginState
     protected $composer;
 
     /**
-     * @var bool $isComposer1
-     */
-    protected $isComposer1;
-
-    /**
      * @var array $includes
      */
     protected $includes = [];
@@ -138,17 +133,6 @@ class PluginState
     public function __construct(Composer $composer)
     {
         $this->composer = $composer;
-        $this->isComposer1 = version_compare(PluginInterface::PLUGIN_API_VERSION, '2.0.0', '<');
-    }
-
-    /**
-     * Test if this plugin runs within Composer 1.
-     *
-     * @return bool
-     */
-    public function isComposer1()
-    {
-        return $this->isComposer1;
     }
 
     /**
