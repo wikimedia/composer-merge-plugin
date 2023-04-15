@@ -36,17 +36,6 @@ jobs:
         sudo apt-add-repository ppa:ondrej/php -y
         sudo apt-fast install -y --no-install-recommends php${{ matrix.php }}-ast
 
-    - name: Use Composer v1
-      run: composer require --dev --no-update composer/composer:^1.1
-
-    - name: Print Composer version
-      run: composer --version
-
-    - name: composer install
-      run: composer update --no-interaction --no-progress --ansi
-
-    - run: composer test
-
     - name: Use Composer v2
       run: composer require --dev --no-update composer/composer:^2.0
 
