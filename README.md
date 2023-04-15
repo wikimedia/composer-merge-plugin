@@ -219,7 +219,7 @@ project]. We accept code and documentation contributions via Pull Requests on
 GitHub as well.
 
 - [PSR-2 Coding Standard][] is used by the project. The included test
-  configuration uses [PHP Code Sniffer][] to validate the conventions.
+  configuration uses [PHP_CodeSniffer][] to validate the conventions.
 - Tests are encouraged. Our test coverage isn't perfect but we'd like it to
   get better rather than worse, so please try to include tests with your
   changes.
@@ -243,7 +243,7 @@ Composer Merge plugin is licensed under the MIT license. See the
 [MediaWiki]: https://www.mediawiki.org/wiki/MediaWiki
 [GitHub project]: https://github.com/wikimedia/composer-merge-plugin
 [PSR-2 Coding Standard]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md
-[PHP Code Sniffer]: http://pear.php.net/package/PHP_CodeSniffer
+[PHP_CodeSniffer]: http://pear.php.net/package/PHP_CodeSniffer
 [Latest Stable Version]: https://img.shields.io/packagist/v/wikimedia/composer-merge-plugin.svg?style=flat
 [License]: https://img.shields.io/packagist/l/wikimedia/composer-merge-plugin.svg?style=flat
 [Build Status]: https://github.com/wikimedia/composer-merge-plugin/actions/workflows/CI.yaml/badge.svg
