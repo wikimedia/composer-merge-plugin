@@ -13,14 +13,12 @@ namespace Wikimedia\Composer\Merge\V2;
 use Composer\Package\BasePackage;
 use Composer\Package\Link;
 use PHPUnit\Framework\TestCase;
-use Prophecy\PhpUnit\ProphecyTrait;
 
 /**
  * @covers \Wikimedia\Composer\Merge\V2\StabilityFlags
  */
 class StabilityFlagsTest extends TestCase
 {
-    use ProphecyTrait;
 
     /**
      * @dataProvider provideExplicitStability
