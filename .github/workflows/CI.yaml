@@ -57,7 +57,11 @@ jobs:
       run: composer update --no-interaction --no-progress --ansi
 
     - run: composer test
-    - run: composer phan
+
+    - name: composer phan
+      # Phan fails on PHP 8.2 due to warnings; waiting on upstream releases to fix
+      if: ${{ matrix.php < 8.2 }}
+      run: composer phan
 
   ocular-push:
     runs-on: ubuntu-20.04
