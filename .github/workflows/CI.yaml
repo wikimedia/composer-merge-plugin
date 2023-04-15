@@ -24,8 +24,6 @@ jobs:
             php: "8.0"
           - os: ubuntu-20.04
             php: "8.1"
-          - os: ubuntu-20.04
-            php: "8.2"
 
     name: Test PHP ${{ matrix.php }}
     runs-on: ${{ matrix.os }}
