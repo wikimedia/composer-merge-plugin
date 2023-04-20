@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the Composer Merge plugin.
  *
@@ -34,6 +35,11 @@ class PluginState
      * @var array $includes
      */
     protected $includes = [];
+
+    /**
+     * @var array $includes
+     */
+    protected $excludes = [];
 
     /**
      * @var array $requires
@@ -160,6 +166,7 @@ class PluginState
         $config = array_merge(
             [
                 'include' => [],
+                'exclude' => [],
                 'require' => [],
                 'recurse' => true,
                 'replace' => false,
@@ -175,6 +182,8 @@ class PluginState
 
         $this->includes = (is_array($config['include'])) ?
             $config['include'] : [$config['include']];
+        $this->excludes = (is_array($config['exclude'])) ?
+            $config['exclude'] : [$config['exclude']];
         $this->requires = (is_array($config['require'])) ?
             $config['require'] : [$config['require']];
         $this->recurse = (bool)$config['recurse'];
@@ -195,6 +204,16 @@ class PluginState
     public function getIncludes()
     {
         return $this->includes;
+    }
+
+    /**
+     * Get list of filenames and/or glob patterns to excludes
+     *
+     * @return array
+     */
+    public function getExcludes()
+    {
+        return $this->excludes;
     }
 
     /**
