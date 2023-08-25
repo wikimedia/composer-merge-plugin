@@ -1,0 +1,14 @@
+{
+  "scripts": {
+
+    "script1": "echo 'script1-1'",
+    "script2": "echo 'script2-1'",
+    "script3": [
+      "echo 'script3-1'",
+      "echo 'script3-2'"
+    ],
+    "script4": [
+      "echo 'script4'"
+    ]
+  }
+}

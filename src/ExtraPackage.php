@@ -544,15 +544,20 @@ class ExtraPackage
         $rootScripts = $root->getScripts();
         $unwrapped = self::unwrapIfNeeded($root, 'setScripts');
 
+        if ($state->shouldMergeScriptsDeep()) {
+            $unwrapped->setScripts(array_merge_recursive($rootScripts, $scripts));
+            return;
+        }
+
         if ($state->replaceDuplicateLinks()) {
             $unwrapped->setScripts(
                 array_merge($rootScripts, $scripts)
             );
-        } else {
-            $unwrapped->setScripts(
-                array_merge($scripts, $rootScripts)
-            );
+            return;
         }
+        $unwrapped->setScripts(
+            array_merge($scripts, $rootScripts)
+        );
     }
 
     /**
