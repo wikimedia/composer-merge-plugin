@@ -8,7 +8,7 @@ Composer Merge Plugin
 Merge multiple composer.json files at [Composer] runtime.
 
 Composer Merge Plugin is intended to allow easier dependency management for
-applications which ship a composer.json file and expect some deployments to
+applications that ship a composer.json file and expect some deployments to
 install additional Composer managed libraries. It does this by allowing the
 application's top level `composer.json` file to provide a list of optional
 additional configuration files. When Composer is run it will parse these files
@@ -76,7 +76,7 @@ Usage
 ### Updating sub-levels `composer.json` files
 
 
-In order for Composer Merge Plugin to install dependencies from updated or newly created sub-level `composer.json` files in your project you need to run the command:
+for Composer Merge Plugin to install dependencies from updated or newly created sub-level `composer.json` files in your project you need to run the command:
 
 ```
 $ composer update
