@@ -12,13 +12,13 @@ jobs:
         include:
           # Includes php7.4-8.x, composer 2, php-xdebug, and more
           # https://github.com/actions/virtual-environments/blob/ubuntu20/20210318.0/images/linux/Ubuntu2004-README.md#php
-          - os: ubuntu-latest
+          - os: ubuntu-20.04
             php: "7.4"
-          - os: ubuntu-latest
+          - os: ubuntu-20.04
             php: "8.0"
-          - os: ubuntu-latest
+          - os: ubuntu-20.04
             php: "8.1"
-          - os: ubuntu-latest
+          - os: ubuntu-20.04
             php: "8.2"
 
     name: Test PHP ${{ matrix.php }}
@@ -28,7 +28,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v6
+      uses: actions/checkout@v2
 
     - name: Use PHP ${{ matrix.php }}
       run: |
@@ -64,13 +64,13 @@ jobs:
       run: composer phan
 
   ocular-push:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     if: ${{ success() }} && github.repository == 'wikimedia/composer-merge-plugin'
     needs: [run]
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v6
+      uses: actions/checkout@v2
 
     - name: Use PHP 7.4
       run: sudo update-alternatives --set php /usr/bin/php7.4
