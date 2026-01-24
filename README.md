@@ -28,6 +28,8 @@ Composer Merge Plugin 1.4.x (and older) requires Composer 1.x.
 
 Composer Merge Plugin 2.0.x (and newer) is compatible with both Composer 2.x and 1.x.
 
+Composer Merge Plugin 3.0.x (and newer) is requires Composer 2.x.
+
 ```
 $ composer require wikimedia/composer-merge-plugin
 ```

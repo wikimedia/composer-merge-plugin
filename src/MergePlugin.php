@@ -343,13 +343,12 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
 
             $lockBackup = null;
             $lock = null;
-            if (!$this->state->isComposer1()) {
-                $file = Factory::getComposerFile();
-                $lock = Factory::getLockFile($file);
-                if (file_exists($lock)) {
-                    $lockBackup = file_get_contents($lock);
-                }
+            $file = Factory::getComposerFile();
+            $lock = Factory::getLockFile($file);
+            if (file_exists($lock)) {
+                $lockBackup = file_get_contents($lock);
             }
+
 
             $config = $this->composer->getConfig();
             $preferSource = $config->get('preferred-install') === 'source';
@@ -371,17 +370,10 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
             );
 
             $installer->setUpdate(true);
-
-            if ($this->state->isComposer1()) {
-                // setUpdateWhitelist() only exists in composer 1.x. Configure as to run phan against composer 2.x
-                // @phan-suppress-next-line PhanUndeclaredMethod
-                $installer->setUpdateWhitelist($requirements);
-            } else {
-                $installer->setUpdateAllowList($requirements);
-            }
+            $installer->setUpdateAllowList($requirements);
 
             $status = $installer->run();
-            if (( $status !== 0 ) && $lockBackup && $lock && !$this->state->isComposer1()) {
+            if (( $status !== 0 ) && $lockBackup && $lock) {
                 $this->logger->log(
                     "\n".'<error>'.
                     'Update to apply merge settings failed, reverting '.$lock.' to its original content.'.

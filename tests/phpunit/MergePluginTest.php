@@ -596,24 +596,16 @@ class MergePluginTest extends TestCase
 
                 $config = new Config();
                 $mockIO = $io->reveal();
-                if (version_compare('2.0.0', PluginInterface::PLUGIN_API_VERSION, '>')) {
-                    return new VcsRepository(
-                        $args[1],
-                        $mockIO,
-                        $config
-                    );
-                } else {
-                    $httpDownloader = new HttpDownloader(
-                        $mockIO,
-                        $config
-                    );
-                    return new VcsRepository(
-                        $args[1],
-                        $mockIO,
-                        $config,
-                        $httpDownloader
-                    );
-                }
+                $httpDownloader = new HttpDownloader(
+                    $mockIO,
+                    $config
+                );
+                return new VcsRepository(
+                    $args[1],
+                    $mockIO,
+                    $config,
+                    $httpDownloader
+                );
             }
         );
         $repoManager->prependRepository(Argument::any())->will(
@@ -688,25 +680,17 @@ class MergePluginTest extends TestCase
 
                 $config = new Config();
                 $mockIO = $io->reveal();
-                if (version_compare('2.0.0', PluginInterface::PLUGIN_API_VERSION, '>')) {
-                    return new VcsRepository(
-                        $args[1],
-                        $mockIO,
-                        $config
-                    );
-                } else {
-                    $httpDownloader = new HttpDownloader(
-                        $mockIO,
-                        $config
-                    );
+                $httpDownloader = new HttpDownloader(
+                    $mockIO,
+                    $config
+                );
 
-                    return new VcsRepository(
-                        $args[1],
-                        $mockIO,
-                        $config,
-                        $httpDownloader
-                    );
-                }
+                return new VcsRepository(
+                    $args[1],
+                    $mockIO,
+                    $config,
+                    $httpDownloader
+                );
             }
         );
         $repoManager->prependRepository(Argument::any())->will(
@@ -1252,13 +1236,6 @@ class MergePluginTest extends TestCase
         $io = $this->io;
         $dir = $this->fixtureDir(__FUNCTION__);
 
-        // RootAliasPackage was updated in 06c44ce to include more setters
-        // that we take advantage of if available
-        $haveComposerWithCompleteRootAlias = method_exists(
-            RootPackageInterface::class,
-            'setRepositories'
-        );
-
         $repoManager = $this->prophesize(
             RepositoryManager::class
         );
@@ -1268,25 +1245,17 @@ class MergePluginTest extends TestCase
         )->will(function ($args) use ($io) {
             $config = new Config();
             $mockIO = $io->reveal();
-            if (version_compare('2.0.0', PluginInterface::PLUGIN_API_VERSION, '>')) {
-                return new VcsRepository(
-                    $args[1],
-                    $mockIO,
-                    $config
-                );
-            } else {
-                $httpDownloader = new HttpDownloader(
-                    $mockIO,
-                    $config
-                );
+            $httpDownloader = new HttpDownloader(
+                $mockIO,
+                $config
+            );
 
-                return new VcsRepository(
-                    $args[1],
-                    $mockIO,
-                    $config,
-                    $httpDownloader
-                );
-            }
+            return new VcsRepository(
+                $args[1],
+                $mockIO,
+                $config,
+                $httpDownloader
+            );
         });
         $repoManager->prependRepository(Argument::any())->shouldBeCalled();
         $this->composer->getRepositoryManager()->will(
@@ -1306,29 +1275,14 @@ class MergePluginTest extends TestCase
         $alias->setDevRequires(Argument::type('array'))->shouldBeCalled();
         $alias->setRequires(Argument::type('array'))->shouldBeCalled();
 
-        if ($haveComposerWithCompleteRootAlias) {
-            // When Composer supports it we will apply our changes directly to
-            // the RootAliasPackage
-            $alias->setAutoload(Argument::type('array'))->shouldBeCalled();
-            $alias->setConflicts(Argument::type('array'))->shouldBeCalled();
-            $alias->setDevAutoload(Argument::type('array'))->shouldBeCalled();
-            $alias->setProvides(Argument::type('array'))->shouldBeCalled();
-            $alias->setReplaces(Argument::type('array'))->shouldBeCalled();
-            $alias->setRepositories(Argument::type('array'))->shouldBeCalled();
-            $alias->setStabilityFlags(Argument::type('array'))->shouldBeCalled();
-            $alias->setSuggests(Argument::type('array'))->shouldBeCalled();
-        } else {
-            // With older versions of Composer we will fall back to unwrapping
-            // the aliased RootPackage and make calls to it
-            $root->setAutoload(Argument::type('array'))->shouldBeCalled();
-            $root->setConflicts(Argument::type('array'))->shouldBeCalled();
-            $root->setDevAutoload(Argument::type('array'))->shouldBeCalled();
-            $root->setProvides(Argument::type('array'))->shouldBeCalled();
-            $root->setReplaces(Argument::type('array'))->shouldBeCalled();
-            $root->setRepositories(Argument::type('array'))->shouldBeCalled();
-            $root->setSuggests(Argument::type('array'))->shouldBeCalled();
-            $alias->getAliasOf()->shouldBeCalled();
-        }
+        $alias->setAutoload(Argument::type('array'))->shouldBeCalled();
+        $alias->setConflicts(Argument::type('array'))->shouldBeCalled();
+        $alias->setDevAutoload(Argument::type('array'))->shouldBeCalled();
+        $alias->setProvides(Argument::type('array'))->shouldBeCalled();
+        $alias->setReplaces(Argument::type('array'))->shouldBeCalled();
+        $alias->setRepositories(Argument::type('array'))->shouldBeCalled();
+        $alias->setStabilityFlags(Argument::type('array'))->shouldBeCalled();
+        $alias->setSuggests(Argument::type('array'))->shouldBeCalled();
 
         $alias = $alias->reveal();
 

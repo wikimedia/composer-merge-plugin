@@ -326,9 +326,7 @@ class ExtraPackage
             }
         }
 
-        if (!$state->isComposer1()) {
-            Intervals::clear();
-        }
+        Intervals::clear();
 
         return $origin;
     }
@@ -348,18 +346,14 @@ class ExtraPackage
         $oldPrettyString = $origin->getConstraint()->getPrettyString();
         $newPrettyString = $merge->getConstraint()->getPrettyString();
 
-        if ($state->isComposer1()) {
-            $constraintClass = MultiConstraint::class;
-        } else {
-            $constraintClass = \Composer\Semver\Constraint\MultiConstraint::class;
+        $constraintClass = \Composer\Semver\Constraint\MultiConstraint::class;
 
-            if (Intervals::isSubsetOf($origin->getConstraint(), $merge->getConstraint())) {
-                return $origin;
-            }
+        if (Intervals::isSubsetOf($origin->getConstraint(), $merge->getConstraint())) {
+            return $origin;
+        }
 
-            if (Intervals::isSubsetOf($merge->getConstraint(), $origin->getConstraint())) {
-                return $merge;
-            }
+        if (Intervals::isSubsetOf($merge->getConstraint(), $origin->getConstraint())) {
+            return $merge;
         }
 
         $newConstraint = $constraintClass::create([
