@@ -1,0 +1,18 @@
+{
+  "extra": {
+    "merge-plugin": {
+      "merge-scripts": true,
+      "merge-scripts-deep": true,
+      "include": [
+        "composer.local.json"
+      ]
+    }
+  },
+  "scripts": {
+    "script2": "echo 'script2-root'",
+    "script3": [
+      "echo 'script3-root'"
+    ],
+    "script4": "echo 'script4'"
+  }
+}

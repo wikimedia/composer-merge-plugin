@@ -67,7 +67,8 @@ Usage
             "merge-extra": false,
             "merge-extra-deep": false,
             "merge-replace": true,
-            "merge-scripts": false
+            "merge-scripts": false,
+            "merge-scripts-deep": false
         }
     }
 }
@@ -196,6 +197,14 @@ the master config wins over the version found in any imported config). If
 `replace` mode is active ([see above](#replace)) then this behavior changes
 and the last key found will win (e.g. the key in the master config is replaced
 by the key in the imported config).
+
+if `"merge-scripts-deep": true` (required `"merge-scripts": true`), the scripts will be merged, not replaced, with 
+the first option found, or the last one, depending on the settings, as 
+with only `"merge-scripts": true`. 
+For example, _root: script => 1, imported: script => 2, the output will be script => [1, 2]_, 
+but with the same values, at the moment, they will be repeated 
+_root: script => 1, imported: script => 1, output: script => [1, 1]_
+
 
 Note: [custom commands][] added by merged configuration will work when invoked
 as `composer run-script my-cool-command` but will not be available using the
