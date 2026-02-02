@@ -186,7 +186,7 @@ class ExtraPackage
 
         $this->mergeScripts($root, $state);
 
-        if ($state->isDevMode()) {
+        if ($state->shouldMergeDev()) {
             $this->mergeDevInto($root, $state);
         } else {
             $this->mergeReferences($root);
