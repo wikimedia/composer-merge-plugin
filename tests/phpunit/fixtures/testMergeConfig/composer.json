@@ -1,0 +1,8 @@
+{
+    "extra": {
+        "merge-plugin": {
+            "merge-config": true,
+            "include": "composer.local.json"
+        }
+    }
+}

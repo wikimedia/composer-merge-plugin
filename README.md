@@ -67,7 +67,8 @@ Usage
             "merge-extra": false,
             "merge-extra-deep": false,
             "merge-replace": true,
-            "merge-scripts": false
+            "merge-scripts": false,
+            "merge-config": false
         }
     }
 }
@@ -120,6 +121,8 @@ in the top-level composer.json file:
   (optional, see [merge-extra](#merge-extra) below)
 * [scripts](https://getcomposer.org/doc/04-schema.md#scripts)
   (optional, see [merge-scripts](#merge-scripts) below)
+* [config](https://getcomposer.org/doc/06-config.md)
+  (optional, see [merge-config](#merge-config) below)
 
 
 ### require
@@ -200,6 +203,34 @@ by the key in the imported config).
 Note: [custom commands][] added by merged configuration will work when invoked
 as `composer run-script my-cool-command` but will not be available using the
 normal `composer my-cool-command` shortcut.
+
+### merge-config
+
+A `"merge-config": true` or array setting enables merging the contents of the
+`config` section of included files into Composer's configuration. This is
+particularly useful for [allow-plugins](https://getcomposer.org/doc/06-config.md#allow-plugins):
+when an included file requires a Composer plugin (e.g. `composer/installers`),
+enabling `merge-config` will merge that file's `config.allow-plugins` into
+the root configuration so Composer does not prompt to allow the plugin
+interactively. Merging uses Composer's built-in config merge logic (e.g.
+`allow-plugins` and `audit.ignore` from included files are merged with the
+root's existing values). By default, the config section is not merged.
+
+**Values:**
+
+- **`true`** – Merge the entire `config` section from included files.
+- **Whitelist (array of keys)** – Merge only the listed top-level config keys.
+  Example: `["allow-plugins", "audit"]` merges only `allow-plugins` and `audit`.
+- **Blacklist (array with `!` prefix)** – Merge all config keys except the ones listed.
+  Example: `["!audit"]` merges everything except the `audit` key. Use `!key` in the array.
+
+**Examples:**
+
+```json
+"merge-config": true
+"merge-config": ["allow-plugins", "audit"]
+"merge-config": ["!audit"]
+```
 
 
 Running tests

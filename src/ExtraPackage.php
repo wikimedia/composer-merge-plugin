@@ -166,6 +166,8 @@ class ExtraPackage
      */
     public function mergeInto(RootPackageInterface $root, PluginState $state)
     {
+        $this->mergeConfig($state);
+
         $this->prependRepositories($root);
 
         $this->mergeRequires('require', $root, $state);
@@ -551,6 +553,49 @@ class ExtraPackage
         } else {
             $unwrapped->setScripts(
                 array_merge($scripts, $rootScripts)
+            );
+        }
+    }
+
+    /**
+     * Merge config (e.g. allow-plugins) from included file into Composer's config.
+     *
+     * merge-config: true = merge all; ["key1", "key2"] = whitelist; ["!key"] = blacklist.
+     *
+     * @param PluginState $state
+     */
+    protected function mergeConfig(PluginState $state)
+    {
+        if (!$state->shouldMergeConfig()) {
+            return;
+        }
+        if (empty($this->json['config']) || !is_array($this->json['config'])) {
+            return;
+        }
+
+        $configToMerge = $this->json['config'];
+        $mergeConfigOption = $state->getMergeConfig();
+
+        if (is_array($mergeConfigOption)) {
+            $isBlacklist = false;
+            $blacklistKeys = [];
+            foreach ($mergeConfigOption as $item) {
+                if (is_string($item) && strpos($item, '!') === 0) {
+                    $isBlacklist = true;
+                    $blacklistKeys[] = substr($item, 1);
+                }
+            }
+            if ($isBlacklist) {
+                $configToMerge = array_diff_key($configToMerge, array_flip($blacklistKeys));
+            } else {
+                $configToMerge = array_intersect_key($configToMerge, array_flip($mergeConfigOption));
+            }
+        }
+
+        if (!empty($configToMerge)) {
+            $this->composer->getConfig()->merge(
+                ['config' => $configToMerge],
+                $this->path
             );
         }
     }

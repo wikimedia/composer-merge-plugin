@@ -1193,6 +1193,85 @@ class MergePluginTest extends TestCase
     }
 
     /**
+     * Given a root package with merge-config enabled
+     *   and a composer.local.json with config.allow-plugins
+     * When the plugin is run
+     * Then Composer's config should contain the merged allow-plugins.
+     *
+     * @param bool $fireInit Fire the INIT event?
+     * @dataProvider provideFireInit
+     */
+    public function testMergeConfig($fireInit)
+    {
+        $that = $this;
+        $dir = $this->fixtureDir(__FUNCTION__);
+
+        $config = new Config(false);
+        $this->composer->getConfig()->willReturn($config)->shouldBeCalled();
+
+        $root = $this->rootFromJson("{$dir}/composer.json");
+
+        $root->setRequires(Argument::type('array'))->will(
+            function ($args) use ($that) {
+                $requires = $args[0];
+                $that->assertCount(1, $requires);
+                $that->assertArrayHasKey('composer/installers', $requires);
+            }
+        );
+
+        $root->getRepositories()->shouldNotBeCalled();
+        $root->getConflicts()->shouldNotBeCalled();
+        $root->getReplaces()->shouldNotBeCalled();
+        $root->getProvides()->shouldNotBeCalled();
+        $root->getSuggests()->shouldNotBeCalled();
+
+        $this->triggerPlugin($root->reveal(), $dir, $fireInit);
+
+        $allowPlugins = $config->get('allow-plugins');
+        $this->assertIsArray($allowPlugins);
+        $this->assertArrayHasKey('composer/installers', $allowPlugins);
+        $this->assertTrue($allowPlugins['composer/installers']);
+    }
+
+    /**
+     * Given a root package without merge-config (default)
+     *   and a composer.local.json with config.allow-plugins
+     * When the plugin is run
+     * Then Composer's config should NOT contain the allow-plugins from the included file.
+     */
+    public function testMergeConfigDisabled()
+    {
+        $that = $this;
+        $dir = $this->fixtureDir(__FUNCTION__);
+
+        $config = new Config(false);
+        $this->composer->getConfig()->willReturn($config);
+
+        $root = $this->rootFromJson("{$dir}/composer.json");
+
+        $root->setRequires(Argument::type('array'))->will(
+            function ($args) use ($that) {
+                $requires = $args[0];
+                $that->assertCount(1, $requires);
+                $that->assertArrayHasKey('composer/installers', $requires);
+            }
+        );
+
+        $root->getRepositories()->shouldNotBeCalled();
+        $root->getConflicts()->shouldNotBeCalled();
+        $root->getReplaces()->shouldNotBeCalled();
+        $root->getProvides()->shouldNotBeCalled();
+        $root->getSuggests()->shouldNotBeCalled();
+
+        $this->triggerPlugin($root->reveal(), $dir);
+
+        // When merge-config is disabled, getConfig() is never called; verify default is unchanged
+        $allowPlugins = $config->get('allow-plugins');
+        $this->assertIsArray($allowPlugins);
+        $this->assertEmpty($allowPlugins);
+    }
+
+    /**
      * @dataProvider provideOnPostPackageInstall
      * @param string $package Package installed
      * @param bool $first Expected isFirstInstall() value

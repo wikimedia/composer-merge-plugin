@@ -113,6 +113,14 @@ class PluginState
     protected $mergeScripts = false;
 
     /**
+     * Whether to merge the config section (e.g. allow-plugins).
+     * True = merge all; array = whitelist (only these keys) or blacklist (all except !keys).
+     *
+     * @var bool|array<string> $mergeConfig
+     */
+    protected $mergeConfig = false;
+
+    /**
      * @var bool $firstInstall
      */
     protected $firstInstall = false;
@@ -169,6 +177,7 @@ class PluginState
                 'merge-extra-deep' => false,
                 'merge-replace' => true,
                 'merge-scripts' => false,
+                'merge-config' => false,
             ],
             $extra['merge-plugin'] ?? []
         );
@@ -185,6 +194,8 @@ class PluginState
         $this->mergeExtraDeep = (bool)$config['merge-extra-deep'];
         $this->mergeReplace = (bool)$config['merge-replace'];
         $this->mergeScripts = (bool)$config['merge-scripts'];
+        $mergeConfig = $config['merge-config'] ?? false;
+        $this->mergeConfig = is_array($mergeConfig) ? $mergeConfig : (bool)$mergeConfig;
     }
 
     /**
@@ -417,6 +428,29 @@ class PluginState
     public function shouldMergeScripts()
     {
         return $this->mergeScripts;
+    }
+
+    /**
+     * Should the config section (e.g. allow-plugins) be merged?
+     *
+     * By default, the config section is not merged.
+     *
+     * @return bool
+     */
+    public function shouldMergeConfig()
+    {
+        return $this->mergeConfig === true
+            || (is_array($this->mergeConfig) && !empty($this->mergeConfig));
+    }
+
+    /**
+     * Get merge-config option: true (merge all) or array (whitelist or blacklist keys).
+     *
+     * @return bool|array<string>
+     */
+    public function getMergeConfig()
+    {
+        return $this->mergeConfig;
     }
 }
 // vim:sw=4:ts=4:sts=4:et:
