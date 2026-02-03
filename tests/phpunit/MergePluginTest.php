@@ -103,7 +103,7 @@ class MergePluginTest extends TestCase
      */
     public function testOneMergeNoConflicts()
     {
-        $that = $this;
+        
         $dir = $this->fixtureDir(__FUNCTION__);
 
         $root = $this->rootFromJson("{$dir}/composer.json");
@@ -165,7 +165,7 @@ class MergePluginTest extends TestCase
      */
     public function testMergeWithReplace()
     {
-        $that = $this;
+        
         $dir = $this->fixtureDir(__FUNCTION__);
 
         $root = $this->rootFromJson("{$dir}/composer.json");
@@ -201,7 +201,7 @@ class MergePluginTest extends TestCase
      */
     public function testMergeWithIgnore()
     {
-        $that = $this;
+        
         $dir = $this->fixtureDir(__FUNCTION__);
 
         $root = $this->rootFromJson("{$dir}/composer.json");
@@ -238,7 +238,7 @@ class MergePluginTest extends TestCase
      */
     public function testMergeWithIgnoreAndReplace()
     {
-        $that = $this;
+        
         $dir = $this->fixtureDir(__FUNCTION__);
 
         $root = $this->rootFromJson("{$dir}/composer.json");
@@ -377,7 +377,7 @@ class MergePluginTest extends TestCase
      */
     public function testRecursivePathRepositoriesWithSubDirectory()
     {
-        $that = $this;
+        
         $io = $this->io;
         $dir = $this->fixtureDir(__FUNCTION__);
 
@@ -532,7 +532,7 @@ class MergePluginTest extends TestCase
      */
     public function testOneMergeWithConflicts($fireInit)
     {
-        $that = $this;
+        
         $dir = $this->fixtureDir(__FUNCTION__);
 
         $root = $this->rootFromJson("{$dir}/composer.json");
@@ -576,7 +576,7 @@ class MergePluginTest extends TestCase
      */
     public function testMergedRepositories()
     {
-        $that = $this;
+        
         $io = $this->io;
         $dir = $this->fixtureDir(__FUNCTION__);
 
@@ -668,7 +668,7 @@ class MergePluginTest extends TestCase
      */
     public function testPrependRepositories()
     {
-        $that = $this;
+        
         $io = $this->io;
         $dir = $this->fixtureDir(__FUNCTION__);
 
@@ -766,7 +766,7 @@ class MergePluginTest extends TestCase
      */
     public function testUpdateStabilityFlags($fireInit)
     {
-        $that = $this;
+        
         $dir = $this->fixtureDir(__FUNCTION__);
         $root = $this->rootFromJson("{$dir}/composer.json");
 
@@ -815,7 +815,7 @@ class MergePluginTest extends TestCase
 
     public function testAliases()
     {
-        $that = $this;
+        
         $dir = $this->fixtureDir(__FUNCTION__);
         $root = $this->rootFromJson("{$dir}/composer.json");
 
@@ -849,7 +849,7 @@ class MergePluginTest extends TestCase
 
     public function testMergedAutoload()
     {
-        $that = $this;
+        
         $dir = $this->fixtureDir(__FUNCTION__);
         $root = $this->rootFromJson("{$dir}/composer.json");
 
@@ -935,7 +935,7 @@ class MergePluginTest extends TestCase
      */
     public function testMergeExtra($fireInit)
     {
-        $that = $this;
+        
         $dir = $this->fixtureDir(__FUNCTION__);
 
         $root = $this->rootFromJson("{$dir}/composer.json");
@@ -967,7 +967,7 @@ class MergePluginTest extends TestCase
      */
     public function testMergeExtraConflict()
     {
-        $that = $this;
+        
         $dir = $this->fixtureDir(__FUNCTION__);
 
         $root = $this->rootFromJson("{$dir}/composer.json");
@@ -1000,7 +1000,7 @@ class MergePluginTest extends TestCase
      */
     public function testMergeExtraConflictReplace()
     {
-        $that = $this;
+        
         $dir = $this->fixtureDir(__FUNCTION__);
 
         $root = $this->rootFromJson("{$dir}/composer.json");
@@ -1036,7 +1036,7 @@ class MergePluginTest extends TestCase
      */
     public function testMergeExtraDeep($suffix, $replace)
     {
-        $that = $this;
+        
         $dir = $this->fixtureDir(__FUNCTION__ . $suffix);
 
         $root = $this->rootFromJson("{$dir}/composer.json");
@@ -1098,7 +1098,7 @@ class MergePluginTest extends TestCase
      */
     public function testMergeScripts($fireInit)
     {
-        $that = $this;
+        
         $dir = $this->fixtureDir(__FUNCTION__);
 
         $root = $this->rootFromJson("{$dir}/composer.json");
@@ -1130,7 +1130,7 @@ class MergePluginTest extends TestCase
      */
     public function testMergeScriptsConflict()
     {
-        $that = $this;
+        
         $dir = $this->fixtureDir(__FUNCTION__);
 
         $root = $this->rootFromJson("{$dir}/composer.json");
@@ -1165,7 +1165,7 @@ class MergePluginTest extends TestCase
      */
     public function testMergeScriptsConflictReplace()
     {
-        $that = $this;
+        
         $dir = $this->fixtureDir(__FUNCTION__);
 
         $root = $this->rootFromJson("{$dir}/composer.json");
@@ -1350,7 +1350,7 @@ class MergePluginTest extends TestCase
      */
     public function testCorrectMergeOrderOfSpecifiedFilesAndGlobFiles()
     {
-        $that = $this;
+        
         $dir = $this->fixtureDir(__FUNCTION__);
         $root = $this->rootFromJson("{$dir}/composer.json");
 
@@ -1379,7 +1379,7 @@ class MergePluginTest extends TestCase
      */
     public function testSelfVersion()
     {
-        $that = $this;
+        
         $dir = $this->fixtureDir(__FUNCTION__);
         $root = $this->rootFromJson("{$dir}/composer.json");
 
@@ -1422,7 +1422,7 @@ class MergePluginTest extends TestCase
      */
     public function testSelfVersionNoRootVersion($fireInit)
     {
-        $that = $this;
+        
         $dir = $this->fixtureDir(__FUNCTION__);
         $root = $this->rootFromJson("{$dir}/composer.json");
 
@@ -1470,7 +1470,7 @@ class MergePluginTest extends TestCase
      */
     public function testMergedStabilityFlagsRespectsMinimumStability()
     {
-        $that = $this;
+        
         $dir = $this->fixtureDir(__FUNCTION__);
         $root = $this->rootFromJson("{$dir}/composer.json");
 
@@ -1510,7 +1510,7 @@ class MergePluginTest extends TestCase
      */
     public function testMergeDevFalse()
     {
-        $that = $this;
+        
         $dir = $this->fixtureDir(__FUNCTION__);
 
         $root = $this->rootFromJson("{$dir}/composer.json");
@@ -1542,7 +1542,7 @@ class MergePluginTest extends TestCase
 
     public function testRequire()
     {
-        $that = $this;
+        
         $dir = $this->fixtureDir(__FUNCTION__);
 
         $root = $this->rootFromJson("{$dir}/composer.json");
@@ -1564,7 +1564,7 @@ class MergePluginTest extends TestCase
      */
     public function testVersionConstraintWithRevision($fireInit)
     {
-        $that = $this;
+        
         $dir = $this->fixtureDir(__FUNCTION__);
         $root = $this->rootFromJson("{$dir}/composer.json");
 
@@ -1693,7 +1693,7 @@ class MergePluginTest extends TestCase
      */
     protected function rootFromJson($file)
     {
-        $that = $this;
+        
         $json = json_decode(file_get_contents($file), true);
 
         $data = array_merge(
