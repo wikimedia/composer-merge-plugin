@@ -122,6 +122,9 @@ in the top-level composer.json file:
   (optional, see [merge-scripts](#merge-scripts) below)
 
 
+### exclude
+The `exclude` setting can stop a single or multiple files from being used in the [include](#include) setting. Similar to `include`, this setting takes a pattern that follows `glob` rules.
+
 ### require
 
 The `require` setting is identical to [`include`](#include) except when
