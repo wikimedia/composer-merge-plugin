@@ -380,6 +380,16 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
                 $installer->setUpdateAllowList($requirements);
             }
 
+            // Respect --ignore-platform-reqs option from input or
+            // COMPOSER_IGNORE_PLATFORM_REQS environment variable.
+            if ($this->state->isComposer1()) {
+                $ignore_platform_reqs = in_array('--ignore-platform-reqs', $_SERVER['argv']);
+                $installer->setIgnorePlatformRequirements($ignore_platform_reqs);
+            } else {
+                $ignore_platform_reqs = getenv('COMPOSER_IGNORE_PLATFORM_REQS') == 1 ? true : in_array('--ignore-platform-reqs', $_SERVER['argv']);
+                $installer->setPlatformRequirementFilter(\Composer\Filter\PlatformRequirementFilter\PlatformRequirementFilterFactory::fromBoolOrList($ignore_platform_reqs));
+            }
+
             $status = $installer->run();
             if (( $status !== 0 ) && $lockBackup && $lock && !$this->state->isComposer1()) {
                 $this->logger->log(
