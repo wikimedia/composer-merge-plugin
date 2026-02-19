@@ -20,6 +20,7 @@ use Composer\Installer\PackageEvent;
 use Composer\Installer\PackageEvents;
 use Composer\IO\IOInterface;
 use Composer\Package\RootPackageInterface;
+use Composer\Plugin\CommandEvent;
 use Composer\Plugin\PluginEvents;
 use Composer\Plugin\PluginInterface;
 use Composer\Script\Event as ScriptEvent;
@@ -155,6 +156,8 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
         return [
             PluginEvents::INIT =>
                 ['onInit', self::CALLBACK_PRIORITY],
+            PluginEvents::COMMAND =>
+                ['onCommand', self::CALLBACK_PRIORITY],
             PackageEvents::POST_PACKAGE_INSTALL =>
                 ['onPostPackageInstall', self::CALLBACK_PRIORITY],
             ScriptEvents::POST_INSTALL_CMD =>
@@ -195,6 +198,21 @@ class MergePlugin implements PluginInterface, EventSubscriberInterface
         $this->state->setDevMode(false);
         $this->mergeFiles($this->state->getIncludes(), false);
         $this->mergeFiles($this->state->getRequires(), true);
+    }
+
+    /**
+     * @param \Composer\Plugin\CommandEvent $event
+     *
+     * @return void
+     */
+    public function onCommand(CommandEvent $event)
+    {
+        if ($event->getCommandName() == 'depends') {
+            // This command needs to know about dev dependencies.
+            $this->state->setDevMode(true);
+            $this->mergeFiles($this->state->getIncludes());
+            $this->mergeFiles($this->state->getRequires(), true);
+        }
     }
 
     /**
